@@ -1,0 +1,293 @@
+{
+  "suite": "selectors-v1",
+  "tree": {
+    "kind": "document",
+    "nodeRef": "root",
+    "children": [
+      {
+        "kind": "element",
+        "tagName": "html",
+        "nodeRef": "html",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "element",
+            "tagName": "head",
+            "nodeRef": "head",
+            "attributes": [],
+            "children": []
+          },
+          {
+            "kind": "element",
+            "tagName": "body",
+            "nodeRef": "body",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "element",
+                "tagName": "main",
+                "nodeRef": "main",
+                "attributes": [
+                  {
+                    "name": "id",
+                    "value": "content"
+                  },
+                  {
+                    "name": "class",
+                    "value": "layout"
+                  },
+                  {
+                    "name": "lang",
+                    "value": "fr-CA"
+                  }
+                ],
+                "children": [
+                  {
+                    "kind": "element",
+                    "tagName": "section",
+                    "nodeRef": "section-a",
+                    "attributes": [
+                      {
+                        "name": "class",
+                        "value": "section"
+                      }
+                    ],
+                    "children": [
+                      {
+                        "kind": "element",
+                        "tagName": "p",
+                        "nodeRef": "p-a",
+                        "attributes": [
+                          {
+                            "name": "class",
+                            "value": "text lead"
+                          },
+                          {
+                            "name": "data-role",
+                            "value": "intro"
+                          }
+                        ],
+                        "children": []
+                      },
+                      {
+                        "kind": "element",
+                        "tagName": "div",
+                        "nodeRef": "card-a",
+                        "attributes": [
+                          {
+                            "name": "class",
+                            "value": "card featured"
+                          },
+                          {
+                            "name": "data-role",
+                            "value": "item"
+                          },
+                          {
+                            "name": "data-slug",
+                            "value": "item-alpha"
+                          }
+                        ],
+                        "children": [
+                          {
+                            "kind": "element",
+                            "tagName": "a",
+                            "nodeRef": "link-a",
+                            "attributes": [
+                              {
+                                "name": "href",
+                                "value": "/a"
+                              },
+                              {
+                                "name": "class",
+                                "value": "cta"
+                              }
+                            ],
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "element",
+                    "tagName": "section",
+                    "nodeRef": "section-b",
+                    "attributes": [
+                      {
+                        "name": "class",
+                        "value": "section"
+                      }
+                    ],
+                    "children": [
+                      {
+                        "kind": "element",
+                        "tagName": "p",
+                        "nodeRef": "p-b",
+                        "attributes": [
+                          {
+                            "name": "class",
+                            "value": "text"
+                          },
+                          {
+                            "name": "data-role",
+                            "value": "summary"
+                          }
+                        ],
+                        "children": []
+                      },
+                      {
+                        "kind": "element",
+                        "tagName": "div",
+                        "nodeRef": "card-b",
+                        "attributes": [
+                          {
+                            "name": "class",
+                            "value": "card"
+                          },
+                          {
+                            "name": "data-role",
+                            "value": "item"
+                          },
+                          {
+                            "name": "data-slug",
+                            "value": "item-beta"
+                          }
+                        ],
+                        "children": []
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "kind": "element",
+                "tagName": "footer",
+                "nodeRef": "footer",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "element",
+                    "tagName": "a",
+                    "nodeRef": "footer-link",
+                    "attributes": [
+                      {
+                        "name": "id",
+                        "value": "footer-link"
+                      },
+                      {
+                        "name": "href",
+                        "value": "/contact"
+                      }
+                    ],
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "cases": [
+    {
+      "id": "case-001",
+      "selector": "main",
+      "expectedNodeRefs": ["main"]
+    },
+    {
+      "id": "case-002",
+      "selector": "#content",
+      "expectedNodeRefs": ["main"]
+    },
+    {
+      "id": "case-003",
+      "selector": ".card",
+      "expectedNodeRefs": ["card-a", "card-b"]
+    },
+    {
+      "id": "case-004",
+      "selector": "section p",
+      "expectedNodeRefs": ["p-a", "p-b"]
+    },
+    {
+      "id": "case-005",
+      "selector": "section > p",
+      "expectedNodeRefs": ["p-a", "p-b"]
+    },
+    {
+      "id": "case-006",
+      "selector": "main > p",
+      "expectedNodeRefs": []
+    },
+    {
+      "id": "case-007",
+      "selector": "[data-role]",
+      "expectedNodeRefs": ["p-a", "card-a", "p-b", "card-b"]
+    },
+    {
+      "id": "case-008",
+      "selector": "[data-role=\"item\"]",
+      "expectedNodeRefs": ["card-a", "card-b"]
+    },
+    {
+      "id": "case-009",
+      "selector": "[class~=\"featured\"]",
+      "expectedNodeRefs": ["card-a"]
+    },
+    {
+      "id": "case-010",
+      "selector": "[data-slug^=\"item-a\"]",
+      "expectedNodeRefs": ["card-a"]
+    },
+    {
+      "id": "case-011",
+      "selector": "[data-slug$=\"-beta\"]",
+      "expectedNodeRefs": ["card-b"]
+    },
+    {
+      "id": "case-012",
+      "selector": "[data-slug*=\"alp\"]",
+      "expectedNodeRefs": ["card-a"]
+    },
+    {
+      "id": "case-013",
+      "selector": "[lang|=\"fr\"]",
+      "expectedNodeRefs": ["main"]
+    },
+    {
+      "id": "case-014",
+      "selector": ".card, #footer-link",
+      "expectedNodeRefs": ["card-a", "card-b", "footer-link"]
+    },
+    {
+      "id": "case-015",
+      "selector": "main > section > div",
+      "expectedNodeRefs": ["card-a", "card-b"]
+    },
+    {
+      "id": "case-016",
+      "selector": "[data-role=\"ITEM\" i]",
+      "expectedNodeRefs": ["card-a", "card-b"]
+    },
+    {
+      "id": "case-017",
+      "selector": "*",
+      "expectedNodeRefs": [
+        "html",
+        "head",
+        "body",
+        "main",
+        "section-a",
+        "p-a",
+        "card-a",
+        "link-a",
+        "section-b",
+        "p-b",
+        "card-b",
+        "footer",
+        "footer-link"
+      ]
+    }
+  ]
+}

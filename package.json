@@ -1,0 +1,58 @@
+{
+  "name": "css-parser",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Policy and tooling baseline for an agent-first TypeScript CSS parser.",
+  "type": "module",
+  "packageManager": "npm@11.10.0",
+  "engines": {
+    "node": ">=24.0.0",
+    "npm": ">=11.0.0"
+  },
+  "main": "./dist/mod.js",
+  "types": "./dist/mod.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/mod.d.ts",
+      "import": "./dist/mod.js"
+    }
+  },
+  "files": [
+    "dist",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "scripts": {
+    "lint": "eslint . --max-warnings=0",
+    "fmt": "eslint . --fix --max-warnings=0",
+    "typecheck": "tsc --noEmit -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && node scripts/build/copy-vendor.mjs",
+    "test": "npm run test:control",
+    "test:control": "npm run build && node --test test/control/**/*.test.js tests/control/**/*.test.js && node scripts/eval/write-stub-reports.mjs",
+    "test:conformance": "node scripts/conformance/run-all.mjs",
+    "test:encoding": "npm run build && node scripts/conformance/run-encoding-fixtures.mjs",
+    "test:tokenizer": "npm run build && node scripts/conformance/run-tokenizer-fixtures.mjs",
+    "test:tree": "npm run build && node scripts/conformance/run-tree-fixtures.mjs",
+    "test:serializer": "npm run build && node scripts/conformance/run-serializer-fixtures.mjs",
+    "test:holdout": "npm run build && node scripts/conformance/run-holdout-fixtures.mjs",
+    "test:browser-diff": "npm run build && node scripts/oracles/run-browser-diff.mjs",
+    "test:fuzz": "npm run build && node scripts/fuzz/run-fuzz.mjs",
+    "test:bench": "npm run build && node scripts/bench/run-bench.mjs",
+    "smoke:node": "npm run build && node scripts/smoke/control.mjs --runtime=node --report=reports/smoke-node.json",
+    "smoke:deno": "npm run build && node scripts/smoke/control.mjs --runtime=deno --report=reports/smoke-deno.json",
+    "smoke:bun": "npm run build && node scripts/smoke/control.mjs --runtime=bun --report=reports/smoke-bun.json",
+    "pack:check": "node scripts/eval/pack-check.mjs",
+    "eval:ci": "node scripts/eval/run-eval.mjs --profile=ci",
+    "eval:release": "node scripts/eval/run-eval.mjs --profile=release"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@eslint/js": "9.39.2",
+    "eslint": "9.39.2",
+    "eslint-import-resolver-typescript": "4.4.4",
+    "eslint-plugin-boundaries": "5.4.0",
+    "eslint-plugin-import": "2.32.0",
+    "playwright": "1.58.2",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.55.0"
+  }
+}
