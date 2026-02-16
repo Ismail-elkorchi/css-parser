@@ -146,5 +146,15 @@ See:
 - `evaluation.config.json`
 - `scripts/eval/run-eval.mjs`
 
+## Local realworld loop
+Use the local verge-browser corpus to run deterministic CSS workload checks:
+- `npm run realworld:import`
+- `npm run realworld:bench`
+- `npm run realworld:check`
+- `npm run eval:realworld`
+
+`realworld/targets.json` defines strict p95/p99/max/error-rate targets and a pinned manifest hash.
+Raw corpus payloads stay outside tracked files; only metadata and derived summaries are committed.
+
 ## License
 MIT (`LICENSE`).

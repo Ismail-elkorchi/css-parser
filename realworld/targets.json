@@ -1,0 +1,17 @@
+{
+  "suite": "bench-realworld-css-targets",
+  "version": 1,
+  "sourceManifestSha256": "sha256:8bc2b8b2dc754b50021880fcfc0a2813a0c413e5afe47db5464407cd45ab15fb",
+  "thresholds": {
+    "minSelectedCount": 110,
+    "requiredKinds": [
+      "inline-style",
+      "linked",
+      "style-attr"
+    ],
+    "maxParseP95Ms": 25,
+    "maxParseP99Ms": 40,
+    "maxParseMaxMs": 90,
+    "maxErrorRate": 0.52
+  }
+}

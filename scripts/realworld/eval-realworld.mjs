@@ -9,7 +9,9 @@ function summarizeWorst(cases, metricName, limit = 10) {
 
 async function main() {
   const reportPath = resolve(process.cwd(), "realworld/reports/bench-realworld.json");
+  const targetsCheckPath = resolve(process.cwd(), "realworld/reports/realworld-targets-check.json");
   const report = JSON.parse(await readFile(reportPath, "utf8"));
+  const targetsCheck = JSON.parse(await readFile(targetsCheckPath, "utf8"));
 
   const lines = [
     "# Phase 2 realworld CSS performance",
@@ -22,14 +24,30 @@ async function main() {
     `- topLargestLimit: ${String(report.selection.topLargestLimit)}`,
     `- randomSampleLimit: ${String(report.selection.randomSampleLimit)}`,
     `- randomSeed: ${report.selection.randomSeed}`,
+    `- sourceManifestSha256: ${report.sourceManifestSha256}`,
+    `- selectedSha256Hash: ${report.runFingerprint.selectedSha256Hash}`,
+    "",
+    "## Coverage",
+    ...Object.entries(report.coverage.kindCounts).map(([kind, count]) => `- ${kind}: ${String(count)}`),
     "",
     "## Parse timing",
+    `- min parse ms: ${String(report.timing.parseMs.min)}`,
+    `- mean parse ms: ${String(report.timing.parseMs.mean)}`,
     `- p50 parse ms: ${String(report.timing.parseMs.p50)}`,
     `- p95 parse ms: ${String(report.timing.parseMs.p95)}`,
+    `- p99 parse ms: ${String(report.timing.parseMs.p99)}`,
+    `- max parse ms: ${String(report.timing.parseMs.max)}`,
     "",
     "## Error rate",
     `- errorCases: ${String(report.errors.errorCases)}`,
     `- totalCases: ${String(report.errors.totalCases)}`,
+    `- errorRate: ${String(report.errors.errorRate)}`,
+    "",
+    "## Target checks",
+    `- overall: ${targetsCheck.overall.ok ? "ok" : "fail"}`,
+    ...targetsCheck.checks.map((check) =>
+      `- ${check.id}: ${check.ok ? "ok" : "fail"} observed=${JSON.stringify(check.observed)} expected=${JSON.stringify(check.expected)}`
+    ),
     "",
     "## Worst by parse time",
     ...summarizeWorst(report.cases, "parseTimeMs", 20).map((entry) =>
@@ -46,7 +64,7 @@ async function main() {
   await writeFile(docPath, `${lines.join("\n")}\n`, "utf8");
 
   process.stdout.write(
-    `eval:realworld ok: selected=${String(report.selection.selectedCount)} p95=${String(report.timing.parseMs.p95)}ms\n`
+    `eval:realworld ok: selected=${String(report.selection.selectedCount)} p95=${String(report.timing.parseMs.p95)}ms targets=${targetsCheck.overall.ok ? "ok" : "fail"}\n`
   );
 }
 

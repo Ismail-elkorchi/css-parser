@@ -3,7 +3,7 @@ import { performance } from "node:perf_hooks";
 import { resolve } from "node:path";
 
 import { parse } from "../../dist/mod.js";
-import { writeJson } from "../eval/eval-primitives.mjs";
+import { sha256Bytes, writeJson } from "../eval/eval-primitives.mjs";
 
 const TOP_LARGEST_LIMIT = 200;
 const RANDOM_SAMPLE_LIMIT = 800;
@@ -52,9 +52,26 @@ function toMillis(value) {
   return Number(value.toFixed(3));
 }
 
-async function readMetadata() {
-  const metadataPath = resolve(process.cwd(), "realworld/manifests/css.ndjson");
-  const source = await readFile(metadataPath, "utf8");
+function toRatio(value) {
+  return Number(value.toFixed(6));
+}
+
+function mean(values) {
+  if (values.length === 0) {
+    return 0;
+  }
+  const sum = values.reduce((accumulator, value) => accumulator + value, 0);
+  return sum / values.length;
+}
+
+function ratio(numerator, denominator) {
+  if (denominator === 0) {
+    return 0;
+  }
+  return numerator / denominator;
+}
+
+function parseMetadata(source) {
   return source
     .split("\n")
     .map((line) => line.trim())
@@ -64,7 +81,9 @@ async function readMetadata() {
 
 async function main() {
   const vergeCorpusDir = resolveVergeCorpusDir();
-  const metadata = await readMetadata();
+  const metadataPath = resolve(process.cwd(), "realworld/manifests/css.ndjson");
+  const metadataBytes = await readFile(metadataPath);
+  const metadata = parseMetadata(metadataBytes.toString("utf8"));
   if (metadata.length === 0) {
     throw new Error("realworld/manifests/css.ndjson is empty; run npm run realworld:import first");
   }
@@ -78,6 +97,8 @@ async function main() {
     selectedBySha.set(record.sha256, record);
   }
   const selected = [...selectedBySha.values()].sort((left, right) => left.sha256.localeCompare(right.sha256));
+  const selectedSha256 = selected.map((entry) => entry.sha256).join("\n");
+  const selectedSha256Hash = sha256Bytes(Buffer.from(selectedSha256, "utf8"));
 
   const cases = [];
   for (const record of selected) {
@@ -108,25 +129,51 @@ async function main() {
   }
 
   const parseTimes = cases.map((entry) => entry.parseTimeMs);
+  const kindCounts = {};
+  for (const entry of cases) {
+    kindCounts[entry.kind] = (kindCounts[entry.kind] ?? 0) + 1;
+  }
+  const sortedKindCounts = Object.fromEntries(
+    Object.keys(kindCounts).sort((left, right) => left.localeCompare(right)).map((key) => [key, kindCounts[key]])
+  );
+  const errorCases = cases.filter((entry) => entry.parseErrorCount > 0).length;
+
   const summary = {
     suite: "bench-realworld-css",
     timestamp: new Date().toISOString(),
     corpusDir: vergeCorpusDir,
+    sourceManifestSha256: sha256Bytes(metadataBytes),
+    runFingerprint: {
+      selectedSha256Hash,
+      selectionLimits: {
+        topLargestLimit: TOP_LARGEST_LIMIT,
+        randomSampleLimit: RANDOM_SAMPLE_LIMIT,
+        randomSeed: `0x${RANDOM_SEED.toString(16)}`
+      }
+    },
     selection: {
       topLargestLimit: TOP_LARGEST_LIMIT,
       randomSampleLimit: RANDOM_SAMPLE_LIMIT,
       randomSeed: `0x${RANDOM_SEED.toString(16)}`,
       selectedCount: cases.length
     },
+    coverage: {
+      kindCounts: sortedKindCounts
+    },
     timing: {
       parseMs: {
+        min: toMillis(percentile(parseTimes, 0)),
+        mean: toMillis(mean(parseTimes)),
         p50: toMillis(percentile(parseTimes, 0.5)),
-        p95: toMillis(percentile(parseTimes, 0.95))
+        p95: toMillis(percentile(parseTimes, 0.95)),
+        p99: toMillis(percentile(parseTimes, 0.99)),
+        max: toMillis(percentile(parseTimes, 1))
       }
     },
     errors: {
-      errorCases: cases.filter((entry) => entry.parseErrorCount > 0).length,
-      totalCases: cases.length
+      errorCases,
+      totalCases: cases.length,
+      errorRate: toRatio(ratio(errorCases, cases.length))
     },
     worstByParseTime: [...cases]
       .sort((left, right) => right.parseTimeMs - left.parseTimeMs)
