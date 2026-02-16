@@ -19,6 +19,7 @@ Profiles:
 - `G-060`: Conformance encoding (holdout discipline enforced).
 - `G-070`: Conformance serializer (holdout discipline enforced).
 - `G-080`: Determinism report must pass.
+- `G-081`: Cross-runtime determinism hash agreement (`node`/`deno`/`bun`).
 - `G-085`: Streaming invariants report must pass.
 - `G-086`: Agent feature report must pass.
 - `G-088`: Parse-error taxonomy contract must pass.
@@ -46,6 +47,7 @@ Hard-gate profile uses release requirements plus `G-115` strict evidence checks:
 - mandatory stream check IDs with pass status
 - mandatory agent feature checks with pass status
 - runtime smoke check matrix per runtime (`node`, `deno`, `bun`)
+- cross-runtime determinism hash equality across `node`, `deno`, and `bun`
 - release-only evidence checks:
   - browser-diff case/engine/agreement/tag-coverage checks
   - fuzz run volume and no crash/hang checks

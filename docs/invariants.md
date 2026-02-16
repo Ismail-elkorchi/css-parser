@@ -7,6 +7,7 @@ Runtime invariants:
 
 Correctness invariants:
 - Determinism is mandatory for tree, ids, trace, tokenization, and serialization.
+- Cross-runtime determinism hash agreement is mandatory for Node, Deno, and Bun smoke runs.
 - Resource budgets are mandatory and emit structured failures.
 - Conformance datasets and fixture sources are pinned.
 - No fixture skip is allowed without ADR-001.

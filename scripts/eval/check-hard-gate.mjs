@@ -131,10 +131,20 @@ function checkAgent(agentReport, checks) {
 }
 
 function checkSmoke(smokeReport, checks) {
+  const hashPattern = /^sha256:[a-f0-9]{64}$/u;
+  const smokeHashes = {};
+
   for (const runtimeName of ["node", "deno", "bun"]) {
     const runtimeReport = smokeReport?.runtimes?.[runtimeName] || null;
     const runtimeOk = runtimeReport?.ok === true;
     checks.push(makeCheck(`smoke-${runtimeName}-status`, runtimeOk, { runtime: runtimeName, runtimeReport }));
+    smokeHashes[runtimeName] = typeof runtimeReport?.determinismHash === "string" ? runtimeReport.determinismHash : null;
+    checks.push(
+      makeCheck(`smoke-${runtimeName}-determinism-hash-shape`, hashPattern.test(String(smokeHashes[runtimeName] || "")), {
+        runtime: runtimeName,
+        determinismHash: smokeHashes[runtimeName]
+      })
+    );
 
     for (const smokeCheckName of REQUIRED_SMOKE_CHECKS) {
       checks.push(
@@ -150,6 +160,14 @@ function checkSmoke(smokeReport, checks) {
       );
     }
   }
+
+  const hashValues = Object.values(smokeHashes).filter((value) => typeof value === "string");
+  const crossRuntimeDeterminismOk = hashValues.length === 3 && new Set(hashValues).size === 1;
+  checks.push(
+    makeCheck("smoke-cross-runtime-determinism", crossRuntimeDeterminismOk, {
+      hashes: smokeHashes
+    })
+  );
 }
 
 function checkReleaseEvidence(reports, config, checks) {

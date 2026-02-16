@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 
 import { nowIso, writeJson } from "./eval-primitives.mjs";
+import { buildSmokeReport } from "./smoke-report-core.mjs";
 
 const RUNTIME_REPORTS = {
   node: "reports/smoke-node.json",
@@ -36,15 +37,12 @@ async function main() {
     runtimes[runtime] = report;
   }
 
-  const overallOk = Object.values(runtimes).every((runtimeReport) => runtimeReport.ok === true);
+  const smokeReport = buildSmokeReport(runtimes);
 
   await writeJson("reports/smoke.json", {
     suite: "smoke",
     timestamp: nowIso(),
-    runtimes,
-    overall: {
-      ok: overallOk
-    }
+    ...smokeReport
   });
 }
 

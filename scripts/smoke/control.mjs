@@ -2,6 +2,7 @@ import { parseArgs } from "node:util";
 
 import { parse, parseBytes, parseFragment, parseStream, serialize, tokenize } from "../../dist/mod.js";
 import { nowIso, writeJson } from "../eval/eval-primitives.mjs";
+import { computeDeterminismHash, detectRuntimeName, detectRuntimeVersion } from "./runtime-hash.mjs";
 
 function assert(condition, message) {
   if (!condition) {
@@ -24,6 +25,11 @@ function makeStream(bytes) {
 }
 
 async function runSmoke(runtime) {
+  const detectedRuntime = detectRuntimeName();
+  if (runtime !== detectedRuntime) {
+    throw new Error(`Runtime mismatch: expected ${runtime}, detected ${detectedRuntime}`);
+  }
+
   const stylesheet = parse(".a{color:red}");
   assert(stylesheet.kind === "stylesheet", "parse() must return a stylesheet tree");
 
@@ -42,9 +48,14 @@ async function runSmoke(runtime) {
   const tokens = tokenize(".d{display:block}");
   assert(tokens.length >= 4, "tokenize() must produce tokens");
 
+  const determinism = await computeDeterminismHash(parse);
+
   return {
     runtime,
+    version: detectRuntimeVersion(),
     ok: true,
+    determinismHash: determinism.determinismHash,
+    determinismFixtureId: determinism.fixtureId,
     checks: {
       parse: true,
       serialize: true,
