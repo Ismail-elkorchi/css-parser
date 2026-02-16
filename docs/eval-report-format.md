@@ -25,6 +25,21 @@ Runtime quality reports:
 - `reports/fuzz.json`
 - `reports/bench.json`
 
+`reports/bench.json` shape:
+- `suite`: `"bench"`
+- `timestamp`: ISO string
+- `benchmarks[]` entries include:
+  - `name`
+  - `inputBytes`
+  - `iterations`
+  - `elapsedMs`
+  - `mbPerSec`
+  - `memoryMB` (scoring input)
+  - `memoryBaselineMB`
+  - `memoryPeakMB`
+  - `memoryRetainedMB`
+  - `memoryMethod` (`postGcHeapUsed`)
+
 `reports/hard-gate.json` shape:
 - `suite`: `"hard-gate"`
 - `timestamp`: ISO string

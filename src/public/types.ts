@@ -127,7 +127,7 @@ export type TraceEvent =
 export interface CssNode {
   readonly id: NodeId;
   readonly type: string;
-  readonly spanProvenance: SpanProvenance;
+  readonly spanProvenance?: SpanProvenance;
   readonly span?: Span;
   readonly [key: string]: unknown;
 }

@@ -326,7 +326,7 @@ function annotateNodeValue(value: unknown, assigner: NodeIdAssigner, captureSpan
     for (let index = 0; index < mutableArray.length; index += 1) {
       const entry = mutableArray[index];
       if (entry !== null && typeof entry === "object") {
-        mutableArray[index] = annotateNodeValue(entry, assigner, captureSpans);
+        annotateNodeValue(entry, assigner, captureSpans);
       }
     }
     return mutableArray;
@@ -346,7 +346,7 @@ function annotateNodeValue(value: unknown, assigner: NodeIdAssigner, captureSpan
     }
     const entry = value[key];
     if (entry !== null && typeof entry === "object") {
-      value[key] = annotateNodeValue(entry, assigner, captureSpans);
+      annotateNodeValue(entry, assigner, captureSpans);
     }
   }
   return value;
@@ -366,17 +366,17 @@ function annotateNode(rawNode: CssAstNode, assigner: NodeIdAssigner, captureSpan
 
     const value = mutable[key];
     if (value !== null && typeof value === "object") {
-      mutable[key] = annotateNodeValue(value, assigner, captureSpans);
+      annotateNodeValue(value, assigner, captureSpans);
     }
   }
 
-  delete mutable["loc"];
+  mutable["loc"] = undefined;
   mutable["id"] = assigner.next();
-  mutable["spanProvenance"] = span ? "input" : "none";
-  if (span) {
-    mutable["span"] = span;
-  } else {
-    delete mutable["span"];
+  if (captureSpans) {
+    mutable["spanProvenance"] = span ? "input" : "none";
+    if (span) {
+      mutable["span"] = span;
+    }
   }
 
   return mutable as CssNode;
@@ -483,8 +483,7 @@ function topLevelChildren(root: CssNode): readonly CssNode[] {
   if (!Array.isArray(maybeChildren)) {
     return [];
   }
-
-  return maybeChildren.filter((entry) => isPublicNode(entry));
+  return maybeChildren as readonly CssNode[];
 }
 
 function isStyleSheetTree(value: unknown): value is StyleSheetTree {
@@ -519,17 +518,21 @@ function parseInternal(css: string, context: ParseContext, options: ParseOptions
 
   enforceBudget("maxInputBytes", budgets?.maxInputBytes, css.length);
 
-  trace = pushTrace(
-    trace,
-    {
-      kind: "decode",
-      source: "input",
-      encoding: "utf-8",
-      sniffSource: "input"
-    },
-    budgets
-  );
-  trace = pushBudgetTrace(trace, "maxInputBytes", budgets?.maxInputBytes, css.length, budgets);
+  if (trace) {
+    trace =
+      pushTrace(
+        trace,
+        {
+          kind: "decode",
+          source: "input",
+          encoding: "utf-8",
+          sniffSource: "input"
+        },
+        budgets
+      ) ?? trace;
+    trace =
+      pushBudgetTrace(trace, "maxInputBytes", budgets?.maxInputBytes, css.length, budgets) ?? trace;
+  }
 
   let tokenCount: number | null = null;
   if (needsTokenization) {
@@ -550,13 +553,9 @@ function parseInternal(css: string, context: ParseContext, options: ParseOptions
     );
   }
 
-  const parseErrors: TreeBuilderError[] = [];
   const built = buildTreeFromCss(css, {
     context,
-    captureSpans,
-    onParseError(error) {
-      parseErrors.push(error);
-    }
+    captureSpans
   });
 
   const assigner = new NodeIdAssigner();
@@ -571,7 +570,7 @@ function parseInternal(css: string, context: ParseContext, options: ParseOptions
   }
   enforceBudget("maxTimeMs", budgets?.maxTimeMs, Date.now() - startedAt);
 
-  const publicErrors = toParseErrors(parseErrors.length > 0 ? parseErrors : built.errors);
+  const publicErrors = toParseErrors(built.errors);
   if (trace) {
     trace = pushTrace(
       trace,
@@ -607,10 +606,7 @@ function parseInternal(css: string, context: ParseContext, options: ParseOptions
   }
 
   return {
-    root: {
-      ...root,
-      id: treeId
-    },
+    root: Object.assign(root, { id: treeId }),
     children,
     errors: publicErrors,
     ...(trace ? { trace } : {})
@@ -1061,7 +1057,7 @@ export function chunk(tree: StyleSheetTree | FragmentTree, options: ChunkOptions
 
 function indexNodeSpans(node: CssNode, into: Map<NodeId, IndexedNodeSpan>): void {
   into.set(node.id, {
-    provenance: node.spanProvenance,
+    provenance: node.spanProvenance ?? "none",
     ...(node.span ? { span: node.span } : {})
   });
 
