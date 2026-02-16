@@ -10,6 +10,7 @@
       "requireFuzzReport": false,
       "requireStreamReport": true,
       "requireAgentReport": true,
+      "requireBenchStability": false,
       "requireHardGate": true,
       "weights": {
         "correctness": 50,
@@ -29,6 +30,8 @@
       "requireFuzzReport": true,
       "requireStreamReport": true,
       "requireAgentReport": true,
+      "requireBenchStability": true,
+      "benchStabilityRuns": 5,
       "requireHardGate": true,
       "weights": {
         "correctness": 40,
@@ -48,6 +51,8 @@
       "requireFuzzReport": true,
       "requireStreamReport": true,
       "requireAgentReport": true,
+      "requireBenchStability": true,
+      "benchStabilityRuns": 5,
       "requireHardGate": true,
       "weights": {
         "correctness": 40,
@@ -120,6 +125,10 @@
         "codex-prompts/",
         "scripts/"
       ]
+    },
+    "performanceStability": {
+      "maxThroughputSpreadFraction": 0.15,
+      "maxMemorySpreadFraction": 0.05
     }
   },
   "weights": {

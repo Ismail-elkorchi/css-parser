@@ -347,6 +347,63 @@ async function main() {
     })
   );
 
+  const requireBenchStability = Boolean(profilePolicy.requireBenchStability);
+  const benchStabilityReport = await loadOptionalReport("reports/bench-stability.json");
+  const benchmarkStabilityThresholds = config.thresholds?.performanceStability || {};
+  const minBenchStabilityRuns = Number(profilePolicy.benchStabilityRuns ?? 5);
+  const maxThroughputSpreadFraction = Number(benchmarkStabilityThresholds.maxThroughputSpreadFraction ?? 0.1);
+  const maxMemorySpreadFraction = Number(benchmarkStabilityThresholds.maxMemorySpreadFraction ?? 0.05);
+  const requiredBenchmarkNames = Object.keys(config.performanceBaseline?.benchmarks || {}).sort((left, right) =>
+    left.localeCompare(right)
+  );
+
+  let benchStabilityPass = true;
+  const benchStabilityDetails = {
+    required: requireBenchStability,
+    minRuns: minBenchStabilityRuns,
+    maxThroughputSpreadFraction,
+    maxMemorySpreadFraction,
+    benchmarks: {}
+  };
+
+  if (requireBenchStability) {
+    if (!benchStabilityReport) {
+      benchStabilityPass = false;
+      benchStabilityDetails.missing = true;
+    } else {
+      const observedRuns = Number(benchStabilityReport.runs ?? 0);
+      if (!Number.isInteger(observedRuns) || observedRuns < minBenchStabilityRuns) {
+        benchStabilityPass = false;
+      }
+      benchStabilityDetails.runs = observedRuns;
+
+      for (const benchmarkName of requiredBenchmarkNames) {
+        const benchmarkEntry = benchStabilityReport.benchmarks?.[benchmarkName];
+        const throughputSpread = Number(benchmarkEntry?.mbPerSec?.spreadFraction ?? Number.NaN);
+        const memorySpread = Number(benchmarkEntry?.memoryMB?.spreadFraction ?? Number.NaN);
+        const benchmarkPass =
+          Number.isFinite(throughputSpread) &&
+          Number.isFinite(memorySpread) &&
+          throughputSpread <= maxThroughputSpreadFraction &&
+          memorySpread <= maxMemorySpreadFraction;
+
+        if (!benchmarkPass) {
+          benchStabilityPass = false;
+        }
+
+        benchStabilityDetails.benchmarks[benchmarkName] = {
+          throughputSpread,
+          memorySpread,
+          pass: benchmarkPass
+        };
+      }
+    }
+  }
+
+  gates.push(
+    makeGate("G-120", "Benchmark stability gate", benchStabilityPass, benchStabilityDetails)
+  );
+
   const allPass = gates.every((gate) => gate.pass);
 
   const report = {
