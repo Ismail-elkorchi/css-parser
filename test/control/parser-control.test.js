@@ -66,3 +66,15 @@ test("budget exceed is structured", () => {
     }
   );
 });
+
+test("parse enforces maxTokens budget", () => {
+  assert.throws(
+    () => parse(".x{color:red}", { budgets: { maxTokens: 2 } }),
+    (error) => {
+      assert.ok(error instanceof BudgetExceededError);
+      assert.equal(error.payload.code, "BUDGET_EXCEEDED");
+      assert.equal(error.payload.budget, "maxTokens");
+      return true;
+    }
+  );
+});

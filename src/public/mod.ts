@@ -490,6 +490,10 @@ function parseInternal(css: string, context: ParseContext, options: ParseOptions
   const budgets = options.budgets;
   const captureSpans = options.captureSpans ?? options.includeSpans ?? false;
   let trace: TraceEvent[] | undefined = options.trace ? [] : undefined;
+  const needsTokenization =
+    options.trace === true ||
+    budgets?.maxTokens !== undefined ||
+    budgets?.maxTimeMs !== undefined;
 
   enforceBudget("maxInputBytes", budgets?.maxInputBytes, css.length);
 
@@ -505,20 +509,24 @@ function parseInternal(css: string, context: ParseContext, options: ParseOptions
   );
   trace = pushBudgetTrace(trace, "maxInputBytes", budgets?.maxInputBytes, css.length, budgets);
 
-  const tokenizerBudgets = tokenizerBudgetsFromParseOptions(budgets);
-  const tokenized = tokenizerBudgets
-    ? tokenizeInternal(css, { budgets: tokenizerBudgets })
-    : tokenizeInternal(css);
+  let tokenCount: number | null = null;
+  if (needsTokenization) {
+    const tokenizerBudgets = tokenizerBudgetsFromParseOptions(budgets);
+    const tokenized = tokenizerBudgets
+      ? tokenizeInternal(css, { budgets: tokenizerBudgets })
+      : tokenizeInternal(css);
 
-  enforceBudget("maxTokens", budgets?.maxTokens, tokenized.tokens.length);
-  trace = pushTrace(
-    trace,
-    {
-      kind: "token",
-      count: tokenized.tokens.length
-    },
-    budgets
-  );
+    tokenCount = tokenized.tokens.length;
+    enforceBudget("maxTokens", budgets?.maxTokens, tokenCount);
+    trace = pushTrace(
+      trace,
+      {
+        kind: "token",
+        count: tokenCount
+      },
+      budgets
+    );
+  }
 
   const parseErrors: TreeBuilderError[] = [];
   const built = buildTreeFromCss(css, {
@@ -564,7 +572,9 @@ function parseInternal(css: string, context: ParseContext, options: ParseOptions
     );
   }
 
-  trace = pushBudgetTrace(trace, "maxTokens", budgets?.maxTokens, tokenized.tokens.length, budgets);
+  if (tokenCount !== null) {
+    trace = pushBudgetTrace(trace, "maxTokens", budgets?.maxTokens, tokenCount, budgets);
+  }
   trace = pushBudgetTrace(trace, "maxNodes", budgets?.maxNodes, metrics.nodes, budgets);
   trace = pushBudgetTrace(trace, "maxDepth", budgets?.maxDepth, metrics.maxDepth, budgets);
 
