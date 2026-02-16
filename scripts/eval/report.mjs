@@ -12,6 +12,7 @@ async function main() {
 
   const gatesReport = (await fileExists("reports/gates.json")) ? await readJson("reports/gates.json") : null;
   const scoreReport = (await fileExists("reports/score.json")) ? await readJson("reports/score.json") : null;
+  const hardGateReport = (await fileExists("reports/hard-gate.json")) ? await readJson("reports/hard-gate.json") : null;
   const conformanceReports = await Promise.all(
     [
       "reports/tokenizer.json",
@@ -42,6 +43,21 @@ async function main() {
       if (!gateResult.pass) {
         lines.push(`  - details: \`${JSON.stringify(gateResult.details).slice(0, 400)}\``);
       }
+    }
+  }
+
+  lines.push("");
+  if (!hardGateReport) {
+    lines.push("## Hard-gate");
+    lines.push("");
+    lines.push("- No hard-gate report found (`reports/hard-gate.json`).");
+  } else {
+    lines.push("## Hard-gate");
+    lines.push("");
+    lines.push(`Overall: **${hardGateReport.overall?.ok ? "PASS" : "FAIL"}**`);
+    lines.push("");
+    for (const check of hardGateReport.checks || []) {
+      lines.push(`- **${check.id}**: ${check.ok ? "PASS" : "FAIL"}`);
     }
   }
 

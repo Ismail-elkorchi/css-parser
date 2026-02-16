@@ -5,6 +5,7 @@ Primary report artifacts:
 - `reports/score.json`
 - `reports/eval-summary.json`
 - `reports/eval-report.md`
+- `reports/hard-gate.json`
 
 Conformance reports:
 - `reports/tokenizer.json`
@@ -22,6 +23,14 @@ Runtime quality reports:
 - `reports/browser-diff.json`
 - `reports/fuzz.json`
 - `reports/bench.json`
+
+`reports/hard-gate.json` shape:
+- `suite`: `"hard-gate"`
+- `timestamp`: ISO string
+- `profile`: `ci` | `release` | `hard-gate`
+- `overall.ok`: boolean
+- `overall.failedChecks`: string[]
+- `checks[]`: `{ id, ok, details }`
 
 `reports/selectors.json` shape:
 - `suite`: `"selectors"`

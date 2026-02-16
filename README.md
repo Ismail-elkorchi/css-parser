@@ -141,6 +141,7 @@ Budget violations throw `BudgetExceededError` with structured payload:
 ## Conformance and quality gates
 See:
 - `docs/acceptance-gates.md`
+- `docs/phase1-hard-gates.md`
 - `evaluation.config.json`
 - `scripts/eval/run-eval.mjs`
 

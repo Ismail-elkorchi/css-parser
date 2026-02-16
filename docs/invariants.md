@@ -16,3 +16,4 @@ Governance invariants:
 - Oracle and normalization changes require ADR-003.
 - Dataset updates require ADR-004.
 - Dev dependency additions require ADR-005 and `docs/debt.md` entry.
+- Hard-gate evidence report (`reports/hard-gate.json`) must pass in all eval profiles.

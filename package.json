@@ -42,7 +42,8 @@
     "smoke:bun": "npm run build && node scripts/smoke/control.mjs --runtime=bun --report=reports/smoke-bun.json",
     "pack:check": "node scripts/eval/pack-check.mjs",
     "eval:ci": "node scripts/eval/run-eval.mjs --profile=ci",
-    "eval:release": "node scripts/eval/run-eval.mjs --profile=release"
+    "eval:release": "node scripts/eval/run-eval.mjs --profile=release",
+    "eval:hard-gate": "node scripts/eval/run-eval.mjs --profile=hard-gate"
   },
   "dependencies": {},
   "devDependencies": {
