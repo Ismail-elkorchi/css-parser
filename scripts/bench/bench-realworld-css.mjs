@@ -8,6 +8,7 @@ import { sha256Bytes, writeJson } from "../eval/eval-primitives.mjs";
 const TOP_LARGEST_LIMIT = 200;
 const RANDOM_SAMPLE_LIMIT = 800;
 const RANDOM_SEED = 0x9e3779b9;
+const ITERATIONS_PER_CASE = 3;
 
 function resolveVergeCorpusDir() {
   return resolve(
@@ -71,6 +72,18 @@ function ratio(numerator, denominator) {
   return numerator / denominator;
 }
 
+function median(values) {
+  if (values.length === 0) {
+    return 0;
+  }
+  const sorted = [...values].sort((left, right) => left - right);
+  const middle = Math.floor(sorted.length / 2);
+  if (sorted.length % 2 === 0) {
+    return (sorted[middle - 1] + sorted[middle]) / 2;
+  }
+  return sorted[middle] ?? 0;
+}
+
 function parseMetadata(source) {
   return source
     .split("\n")
@@ -112,19 +125,32 @@ async function main() {
       cssSource = await readFile(fallbackPath, "utf8");
     }
 
-    const startedAt = performance.now();
-    const tree = parse(cssSource, {
-      captureSpans: false,
-      trace: false
-    });
-    const elapsedMs = performance.now() - startedAt;
+    const parseSamplesMs = [];
+    let parseErrorCount = null;
+    for (let iteration = 0; iteration < ITERATIONS_PER_CASE; iteration += 1) {
+      const startedAt = performance.now();
+      const tree = parse(cssSource, {
+        captureSpans: false,
+        trace: false
+      });
+      parseSamplesMs.push(performance.now() - startedAt);
+      if (parseErrorCount === null) {
+        parseErrorCount = tree.errors.length;
+      } else if (parseErrorCount !== tree.errors.length) {
+        throw new Error(
+          `realworld parse error count drift for ${record.sha256}: ` +
+          `first=${String(parseErrorCount)} current=${String(tree.errors.length)}`
+        );
+      }
+    }
+    const elapsedMs = median(parseSamplesMs);
 
     cases.push({
       sha256: record.sha256,
       kind: record.kind,
       sizeBytes: record.sizeBytes,
       parseTimeMs: toMillis(elapsedMs),
-      parseErrorCount: tree.errors.length
+      parseErrorCount: Number(parseErrorCount ?? 0)
     });
   }
 
@@ -155,7 +181,8 @@ async function main() {
       topLargestLimit: TOP_LARGEST_LIMIT,
       randomSampleLimit: RANDOM_SAMPLE_LIMIT,
       randomSeed: `0x${RANDOM_SEED.toString(16)}`,
-      selectedCount: cases.length
+      selectedCount: cases.length,
+      iterationsPerCase: ITERATIONS_PER_CASE
     },
     coverage: {
       kindCounts: sortedKindCounts

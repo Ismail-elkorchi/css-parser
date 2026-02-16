@@ -3,15 +3,20 @@
   "version": 1,
   "sourceManifestSha256": "sha256:8bc2b8b2dc754b50021880fcfc0a2813a0c413e5afe47db5464407cd45ab15fb",
   "thresholds": {
-    "minSelectedCount": 110,
+    "minSelectedCount": 114,
     "requiredKinds": [
       "inline-style",
       "linked",
       "style-attr"
     ],
-    "maxParseP95Ms": 25,
-    "maxParseP99Ms": 40,
+    "requiredKindMinimums": {
+      "inline-style": 25,
+      "linked": 38,
+      "style-attr": 51
+    },
+    "maxParseP95Ms": 23,
+    "maxParseP99Ms": 36,
     "maxParseMaxMs": 90,
-    "maxErrorRate": 0.52
+    "maxErrorRate": 0.509
   }
 }
