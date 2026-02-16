@@ -1273,6 +1273,12 @@ interface SelectorTreeIndex<TNode extends SelectorNodeLike> {
   readonly elements: readonly TNode[];
 }
 
+interface SelectorTraversalFrame<TNode extends SelectorNodeLike> {
+  readonly node: TNode;
+  readonly parent: SelectorTraversalFrame<TNode> | null;
+  readonly parentElement: SelectorTraversalFrame<TNode> | null;
+}
+
 type SelectorAttributeMatcher = null | "=" | "~=" | "|=" | "^=" | "$=" | "*=";
 
 type SelectorRecord = Record<string, unknown>;
@@ -1316,12 +1322,65 @@ function selectorTagName(node: SelectorNodeLike): string | null {
   return node.tagName.toLowerCase();
 }
 
-function selectorAttributes(node: SelectorNodeLike): readonly { name: string; value: string }[] {
-  if (!isSelectorElementNode(node) || !Array.isArray(node.attributes)) {
-    return [];
+function isAsciiWhitespaceCode(code: number): boolean {
+  return code === 9 || code === 10 || code === 12 || code === 13 || code === 32;
+}
+
+function lowerAsciiCode(code: number): number {
+  if (code >= 65 && code <= 90) {
+    return code + 32;
+  }
+  return code;
+}
+
+function equalsAsciiCaseInsensitive(left: string, right: string): boolean {
+  if (left.length !== right.length) {
+    return false;
   }
 
-  const attributes: { name: string; value: string }[] = [];
+  for (let index = 0; index < left.length; index += 1) {
+    if (lowerAsciiCode(left.charCodeAt(index)) !== lowerAsciiCode(right.charCodeAt(index))) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function includesWhitespaceSeparatedToken(input: string, expectedToken: string): boolean {
+  let tokenStart = -1;
+
+  for (let index = 0; index <= input.length; index += 1) {
+    const code = index < input.length ? input.charCodeAt(index) : 32;
+    const atBoundary = index === input.length || isAsciiWhitespaceCode(code);
+
+    if (tokenStart === -1) {
+      if (!atBoundary) {
+        tokenStart = index;
+      }
+      continue;
+    }
+
+    if (!atBoundary) {
+      continue;
+    }
+
+    if (index - tokenStart === expectedToken.length && input.slice(tokenStart, index) === expectedToken) {
+      return true;
+    }
+
+    tokenStart = -1;
+  }
+
+  return false;
+}
+
+function selectorAttributeValue(node: SelectorNodeLike, name: string): string | null {
+  if (!isSelectorElementNode(node) || !Array.isArray(node.attributes)) {
+    return null;
+  }
+
+  const target = name.toLowerCase();
   for (const attribute of node.attributes) {
     if (!isSelectorRecord(attribute)) {
       continue;
@@ -1329,22 +1388,11 @@ function selectorAttributes(node: SelectorNodeLike): readonly { name: string; va
     if (typeof attribute.name !== "string" || typeof attribute.value !== "string") {
       continue;
     }
-    attributes.push({
-      name: attribute.name.toLowerCase(),
-      value: attribute.value
-    });
-  }
-
-  return attributes;
-}
-
-function selectorAttributeValue(node: SelectorNodeLike, name: string): string | null {
-  const target = name.toLowerCase();
-  for (const attribute of selectorAttributes(node)) {
-    if (attribute.name === target) {
+    if (equalsAsciiCaseInsensitive(attribute.name, target)) {
       return attribute.value;
     }
   }
+
   return null;
 }
 
@@ -1374,7 +1422,7 @@ function selectorAttributeMatch(
     case "=":
       return left === right;
     case "~=":
-      return left.split(/\s+/).filter((token) => token.length > 0).includes(right);
+      return includesWhitespaceSeparatedToken(left, right);
     case "|=":
       return left === right || left.startsWith(`${right}-`);
     case "^=":
@@ -1409,7 +1457,7 @@ function matchesSelectorSimple(node: SelectorNodeLike, simple: SelectorSimple): 
     if (classes === null) {
       return false;
     }
-    return classes.split(/\s+/).filter((token) => token.length > 0).includes(simple.value);
+    return includesWhitespaceSeparatedToken(classes, simple.value);
   }
 
   return selectorAttributeMatch(
@@ -1529,6 +1577,51 @@ function matchesCompiledSelector<TNode extends SelectorNodeLike>(
   };
 
   return matchAt(selector.compounds.length - 1, node);
+}
+
+function matchesCompiledSelectorInTraversal<TNode extends SelectorNodeLike>(
+  selector: CompiledSelector,
+  frame: SelectorTraversalFrame<TNode>
+): boolean {
+  if (!selector.supported || selector.compounds.length === 0) {
+    return false;
+  }
+
+  const matchAt = (compoundIndex: number, candidate: SelectorTraversalFrame<TNode>): boolean => {
+    const compound = selector.compounds[compoundIndex];
+    if (!compound) {
+      return false;
+    }
+
+    if (!matchesSelectorCompound(candidate.node, compound)) {
+      return false;
+    }
+
+    if (compoundIndex === 0) {
+      return true;
+    }
+
+    const combinator = selector.combinators[compoundIndex - 1];
+    if (combinator === ">") {
+      const parent = candidate.parentElement;
+      if (!parent) {
+        return false;
+      }
+      return matchAt(compoundIndex - 1, parent);
+    }
+
+    let cursor = candidate.parentElement;
+    while (cursor) {
+      if (matchAt(compoundIndex - 1, cursor)) {
+        return true;
+      }
+      cursor = cursor.parentElement;
+    }
+
+    return false;
+  };
+
+  return matchAt(selector.compounds.length - 1, frame);
 }
 
 function assertSelectorStrict(compiled: CompiledSelectorList, strict: boolean): void {
@@ -1782,11 +1875,31 @@ export function compileSelectorList(selectorText: string): CompiledSelectorList 
   };
 }
 
+const MAX_SELECTOR_COMPILE_CACHE_SIZE = 256;
+const selectorCompileCache = new Map<string, CompiledSelectorList>();
+
 function resolveCompiledSelectorList(selector: string | CompiledSelectorList): CompiledSelectorList {
-  if (typeof selector === "string") {
-    return compileSelectorList(selector);
+  if (typeof selector !== "string") {
+    return selector;
   }
-  return selector;
+
+  const cached = selectorCompileCache.get(selector);
+  if (cached) {
+    selectorCompileCache.delete(selector);
+    selectorCompileCache.set(selector, cached);
+    return cached;
+  }
+
+  const compiled = compileSelectorList(selector);
+  selectorCompileCache.set(selector, compiled);
+  if (selectorCompileCache.size > MAX_SELECTOR_COMPILE_CACHE_SIZE) {
+    const oldestKey = selectorCompileCache.keys().next().value;
+    if (typeof oldestKey === "string") {
+      selectorCompileCache.delete(oldestKey);
+    }
+  }
+
+  return compiled;
 }
 
 export function matchesSelector<TNode extends SelectorNodeLike>(
@@ -1824,15 +1937,61 @@ export function querySelectorAll<TNode extends SelectorNodeLike>(
   const compiled = resolveCompiledSelectorList(selector);
   assertSelectorStrict(compiled, options.strict === true);
 
-  const treeIndex = buildSelectorTreeIndex(root, options);
   const matches: TNode[] = [];
+  const seen = new Set<TNode>();
+  const stack: SelectorTraversalFrame<TNode>[] = [
+    {
+      node: root,
+      parent: null,
+      parentElement: null
+    }
+  ];
 
-  for (const elementNode of treeIndex.elements) {
-    for (const selectorEntry of compiled.selectors) {
-      if (matchesCompiledSelector(selectorEntry, elementNode, treeIndex)) {
-        matches.push(elementNode);
-        break;
+  let visited = 0;
+  while (stack.length > 0) {
+    const current = stack.pop();
+    if (!current) {
+      continue;
+    }
+
+    if (seen.has(current.node)) {
+      continue;
+    }
+    seen.add(current.node);
+
+    visited += 1;
+    if (options.maxVisitedNodes !== undefined && visited > options.maxVisitedNodes) {
+      throw new BudgetExceededError({
+        code: "BUDGET_EXCEEDED",
+        budget: "maxNodes",
+        limit: options.maxVisitedNodes,
+        actual: visited
+      });
+    }
+
+    const currentIsElement = isSelectorElementNode(current.node);
+    if (currentIsElement) {
+      for (const selectorEntry of compiled.selectors) {
+        if (matchesCompiledSelectorInTraversal(selectorEntry, current)) {
+          matches.push(current.node);
+          break;
+        }
       }
+    }
+
+    const children = selectorChildrenFromNode(current.node);
+    const parentElement = currentIsElement ? current : current.parentElement;
+    for (let index = children.length - 1; index >= 0; index -= 1) {
+      const child = children[index];
+      if (!child) {
+        continue;
+      }
+
+      stack.push({
+        node: child,
+        parent: current,
+        parentElement
+      });
     }
   }
 

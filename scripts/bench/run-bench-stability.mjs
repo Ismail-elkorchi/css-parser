@@ -1,6 +1,8 @@
 import { runBenchmarks } from "./bench-core.mjs";
 import { writeJson } from "../eval/eval-primitives.mjs";
 
+const WARMUP_PER_RUN = 1;
+
 function parseRunsArg() {
   const runArg = process.argv.find((argumentValue) => argumentValue.startsWith("--runs="));
   const parsed = Number(runArg?.split("=")[1] || 5);
@@ -51,6 +53,9 @@ function summarizeRuns(runResults) {
 const runs = parseRunsArg();
 const runResults = [];
 for (let runIndex = 0; runIndex < runs; runIndex += 1) {
+  for (let warmupIndex = 0; warmupIndex < WARMUP_PER_RUN; warmupIndex += 1) {
+    runBenchmarks();
+  }
   runResults.push(runBenchmarks());
 }
 
@@ -59,7 +64,10 @@ await writeJson("reports/bench-stability.json", {
   suite: "bench-stability",
   timestamp: new Date().toISOString(),
   runs,
+  warmupsPerRun: WARMUP_PER_RUN,
   benchmarks
 });
 
-console.log(`Bench stability complete: runs=${String(runs)} benchmarks=${String(Object.keys(benchmarks).length)}`);
+console.log(
+  `Bench stability complete: runs=${String(runs)} warmups=${String(WARMUP_PER_RUN)} benchmarks=${String(Object.keys(benchmarks).length)}`
+);
