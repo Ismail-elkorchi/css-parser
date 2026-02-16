@@ -494,6 +494,10 @@ function parseInternal(css: string, context: ParseContext, options: ParseOptions
     options.trace === true ||
     budgets?.maxTokens !== undefined ||
     budgets?.maxTimeMs !== undefined;
+  const needsMetrics =
+    options.trace === true ||
+    budgets?.maxNodes !== undefined ||
+    budgets?.maxDepth !== undefined;
 
   enforceBudget("maxInputBytes", budgets?.maxInputBytes, css.length);
 
@@ -541,42 +545,48 @@ function parseInternal(css: string, context: ParseContext, options: ParseOptions
   const treeId = assigner.next();
   const root = convertNode(built.root, assigner, captureSpans);
   const children = topLevelChildren(root);
-  const metrics = collectMetrics(root, 1);
-
-  enforceBudget("maxNodes", budgets?.maxNodes, metrics.nodes);
-  enforceBudget("maxDepth", budgets?.maxDepth, metrics.maxDepth);
+  let metrics: NodeMetrics | null = null;
+  if (needsMetrics) {
+    metrics = collectMetrics(root, 1);
+    enforceBudget("maxNodes", budgets?.maxNodes, metrics.nodes);
+    enforceBudget("maxDepth", budgets?.maxDepth, metrics.maxDepth);
+  }
   enforceBudget("maxTimeMs", budgets?.maxTimeMs, Date.now() - startedAt);
 
-  trace = pushTrace(
-    trace,
-    {
-      kind: "parse",
-      context,
-      nodeCount: metrics.nodes,
-      errorCount: built.errors.length
-    },
-    budgets
-  );
-
   const publicErrors = toParseErrors(parseErrors.length > 0 ? parseErrors : built.errors);
-  for (const parseError of publicErrors) {
+  if (trace) {
     trace = pushTrace(
       trace,
       {
-        kind: "parseError",
-        parseErrorId: parseError.parseErrorId,
-        startOffset: parseError.span?.start ?? null,
-        endOffset: parseError.span?.end ?? null
+        kind: "parse",
+        context,
+        nodeCount: metrics?.nodes ?? 0,
+        errorCount: built.errors.length
       },
       budgets
     );
-  }
 
-  if (tokenCount !== null) {
-    trace = pushBudgetTrace(trace, "maxTokens", budgets?.maxTokens, tokenCount, budgets);
+    for (const parseError of publicErrors) {
+      trace = pushTrace(
+        trace,
+        {
+          kind: "parseError",
+          parseErrorId: parseError.parseErrorId,
+          startOffset: parseError.span?.start ?? null,
+          endOffset: parseError.span?.end ?? null
+        },
+        budgets
+      );
+    }
+
+    if (tokenCount !== null) {
+      trace = pushBudgetTrace(trace, "maxTokens", budgets?.maxTokens, tokenCount, budgets);
+    }
+    if (metrics) {
+      trace = pushBudgetTrace(trace, "maxNodes", budgets?.maxNodes, metrics.nodes, budgets);
+      trace = pushBudgetTrace(trace, "maxDepth", budgets?.maxDepth, metrics.maxDepth, budgets);
+    }
   }
-  trace = pushBudgetTrace(trace, "maxNodes", budgets?.maxNodes, metrics.nodes, budgets);
-  trace = pushBudgetTrace(trace, "maxDepth", budgets?.maxDepth, metrics.maxDepth, budgets);
 
   return {
     root: {
