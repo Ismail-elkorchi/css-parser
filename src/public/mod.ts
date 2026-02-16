@@ -370,7 +370,6 @@ function annotateNode(rawNode: CssAstNode, assigner: NodeIdAssigner, captureSpan
     }
   }
 
-  mutable["loc"] = undefined;
   mutable["id"] = assigner.next();
   if (captureSpans) {
     mutable["spanProvenance"] = span ? "input" : "none";
