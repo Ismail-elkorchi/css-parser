@@ -28,13 +28,16 @@ function isFiniteNumber(value) {
 async function main() {
   const reportPath = resolve(process.cwd(), "realworld/reports/bench-realworld.json");
   const selectorReportPath = resolve(process.cwd(), "realworld/reports/bench-selectors.json");
+  const selectorStabilityReportPath = resolve(process.cwd(), "realworld/reports/bench-selectors-stability.json");
   const targetsPath = resolve(process.cwd(), "realworld/targets.json");
   const report = await readJson(reportPath);
   const selectorReport = await readJson(selectorReportPath);
+  const selectorStabilityReport = await readJson(selectorStabilityReportPath);
   const targets = await readJson(targetsPath);
 
   const thresholds = targets.thresholds ?? {};
   const selectorThresholds = targets.selectorThresholds ?? {};
+  const selectorStabilityThresholds = targets.selectorStabilityThresholds ?? {};
   const checks = [];
 
   checks.push(
@@ -127,6 +130,9 @@ async function main() {
   const selectorBenchmarks = Array.isArray(selectorReport.benchmarks) ? selectorReport.benchmarks : [];
   const fixtureSelectorBenchmark = selectorBenchmarks.find((entry) => entry?.name === "selectors-fixture") ?? null;
   const realworldSelectorBenchmark = selectorBenchmarks.find((entry) => entry?.name === "selectors-realworld") ?? null;
+  const stabilityIdentity = selectorStabilityReport.identity ?? {};
+  const stabilityFixture = selectorStabilityReport.benchmarks?.fixture ?? null;
+  const stabilityRealworld = selectorStabilityReport.benchmarks?.realworld ?? null;
 
   checks.push(
     makeCheck(
@@ -251,16 +257,142 @@ async function main() {
     )
   );
 
+  const stabilityRuns = Number(selectorStabilityReport.runs ?? 0);
+  const stabilityWarmupsPerRun = Number(selectorStabilityReport.warmupsPerRun ?? 0);
+  const minStabilityRuns = Number(selectorStabilityThresholds.minRuns ?? 0);
+  const minWarmupsPerRun = Number(selectorStabilityThresholds.minWarmupsPerRun ?? 0);
+  checks.push(
+    makeCheck(
+      "selector-stability-runs-min",
+      isFiniteNumber(stabilityRuns) && stabilityRuns >= minStabilityRuns,
+      stabilityRuns,
+      { minRuns: minStabilityRuns }
+    )
+  );
+  checks.push(
+    makeCheck(
+      "selector-stability-warmups-min",
+      isFiniteNumber(stabilityWarmupsPerRun) && stabilityWarmupsPerRun >= minWarmupsPerRun,
+      stabilityWarmupsPerRun,
+      { minWarmupsPerRun }
+    )
+  );
+
+  checks.push(
+    makeCheck(
+      "selector-stability-manifest-hash-match",
+      stabilityIdentity.sourceManifestSha256 === targets.sourceManifestSha256,
+      stabilityIdentity.sourceManifestSha256 ?? null,
+      targets.sourceManifestSha256
+    )
+  );
+  checks.push(
+    makeCheck(
+      "selector-stability-selected-hash-match",
+      typeof stabilityIdentity.selectedHash === "string" &&
+        stabilityIdentity.selectedHash === selectorThresholds.selectedHash,
+      stabilityIdentity.selectedHash ?? null,
+      selectorThresholds.selectedHash ?? null
+    )
+  );
+  checks.push(
+    makeCheck(
+      "selector-stability-selected-count-min",
+      Number(stabilityIdentity.selectedCount ?? 0) >= Number(selectorThresholds.minSelectedCount ?? 0),
+      Number(stabilityIdentity.selectedCount ?? 0),
+      { minSelectedCount: Number(selectorThresholds.minSelectedCount ?? 0) }
+    )
+  );
+
+  const minFixtureMedianQueriesPerSec = Number(selectorStabilityThresholds.minFixtureMedianQueriesPerSec ?? 0);
+  const minRealworldMedianQueriesPerSec = Number(selectorStabilityThresholds.minRealworldMedianQueriesPerSec ?? 0);
+  const maxFixtureSpreadFraction = Number(selectorStabilityThresholds.maxFixtureSpreadFraction ?? Number.POSITIVE_INFINITY);
+  const maxRealworldSpreadFraction = Number(selectorStabilityThresholds.maxRealworldSpreadFraction ?? Number.POSITIVE_INFINITY);
+  const maxFixtureMedianMemoryRetainedMB = Number(selectorStabilityThresholds.maxFixtureMedianMemoryRetainedMB ?? Number.POSITIVE_INFINITY);
+  const maxRealworldMedianMemoryRetainedMB = Number(selectorStabilityThresholds.maxRealworldMedianMemoryRetainedMB ?? Number.POSITIVE_INFINITY);
+
+  const fixtureMedianQps = Number(stabilityFixture?.queriesPerSec?.median ?? Number.NaN);
+  const realworldMedianQps = Number(stabilityRealworld?.queriesPerSec?.median ?? Number.NaN);
+  const fixtureSpreadFraction = Number(stabilityFixture?.queriesPerSec?.spreadFraction ?? Number.NaN);
+  const realworldSpreadFraction = Number(stabilityRealworld?.queriesPerSec?.spreadFraction ?? Number.NaN);
+  const fixtureMedianMemoryRetainedMB = Number(stabilityFixture?.memoryRetainedMB?.median ?? Number.NaN);
+  const realworldMedianMemoryRetainedMB = Number(stabilityRealworld?.memoryRetainedMB?.median ?? Number.NaN);
+
+  checks.push(
+    makeCheck(
+      "selector-stability-fixture-median-qps-min",
+      isFiniteNumber(fixtureMedianQps) && fixtureMedianQps >= minFixtureMedianQueriesPerSec,
+      fixtureMedianQps,
+      { minFixtureMedianQueriesPerSec }
+    )
+  );
+  checks.push(
+    makeCheck(
+      "selector-stability-realworld-median-qps-min",
+      isFiniteNumber(realworldMedianQps) && realworldMedianQps >= minRealworldMedianQueriesPerSec,
+      realworldMedianQps,
+      { minRealworldMedianQueriesPerSec }
+    )
+  );
+  checks.push(
+    makeCheck(
+      "selector-stability-fixture-spread-max",
+      isFiniteNumber(fixtureSpreadFraction) && fixtureSpreadFraction <= maxFixtureSpreadFraction,
+      fixtureSpreadFraction,
+      { maxFixtureSpreadFraction }
+    )
+  );
+  checks.push(
+    makeCheck(
+      "selector-stability-realworld-spread-max",
+      isFiniteNumber(realworldSpreadFraction) && realworldSpreadFraction <= maxRealworldSpreadFraction,
+      realworldSpreadFraction,
+      { maxRealworldSpreadFraction }
+    )
+  );
+  checks.push(
+    makeCheck(
+      "selector-stability-fixture-memory-median-max",
+      isFiniteNumber(fixtureMedianMemoryRetainedMB) &&
+        fixtureMedianMemoryRetainedMB <= maxFixtureMedianMemoryRetainedMB,
+      fixtureMedianMemoryRetainedMB,
+      { maxFixtureMedianMemoryRetainedMB }
+    )
+  );
+  checks.push(
+    makeCheck(
+      "selector-stability-realworld-memory-median-max",
+      isFiniteNumber(realworldMedianMemoryRetainedMB) &&
+        realworldMedianMemoryRetainedMB <= maxRealworldMedianMemoryRetainedMB,
+      realworldMedianMemoryRetainedMB,
+      { maxRealworldMedianMemoryRetainedMB }
+    )
+  );
+
+  const parseChecks = checks.filter((entry) => !entry.id.startsWith("selector-"));
+  const selectorChecks = checks.filter((entry) => entry.id.startsWith("selector-"));
+  const parseFailed = parseChecks.filter((entry) => !entry.ok).map((entry) => entry.id);
+  const selectorFailed = selectorChecks.filter((entry) => !entry.ok).map((entry) => entry.id);
+  const parseOk = parseFailed.length === 0;
+  const selectorOk = selectorFailed.length === 0;
+
   const output = {
     suite: "bench-realworld-targets-check",
     timestamp: new Date().toISOString(),
     source: {
       report: "realworld/reports/bench-realworld.json",
       selectorReport: "realworld/reports/bench-selectors.json",
+      selectorStabilityReport: "realworld/reports/bench-selectors-stability.json",
       targets: "realworld/targets.json"
     },
     overall: {
-      ok: checks.every((entry) => entry.ok)
+      ok: checks.every((entry) => entry.ok),
+      parseOk,
+      selectorOk
+    },
+    failures: {
+      parse: parseFailed,
+      selector: selectorFailed
     },
     checks
   };
@@ -268,8 +400,12 @@ async function main() {
   await writeJson("realworld/reports/realworld-targets-check.json", output);
 
   if (!output.overall.ok) {
-    const failed = checks.filter((entry) => !entry.ok).map((entry) => entry.id).join(", ");
-    process.stderr.write(`realworld target check failed: ${failed}\n`);
+    const parseFailureList = output.failures.parse.join(", ");
+    const selectorFailureList = output.failures.selector.join(", ");
+    process.stderr.write(
+      `realworld target check failed: ` +
+      `parse=[${parseFailureList}] selector=[${selectorFailureList}]\n`
+    );
     process.exit(1);
   }
 

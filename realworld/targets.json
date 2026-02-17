@@ -30,5 +30,15 @@
     "minRealworldQueriesPerSec": 8500,
     "maxFixtureMemoryRetainedMB": 11,
     "maxRealworldMemoryRetainedMB": 11
+  },
+  "selectorStabilityThresholds": {
+    "minRuns": 9,
+    "minWarmupsPerRun": 1,
+    "minFixtureMedianQueriesPerSec": 13000,
+    "minRealworldMedianQueriesPerSec": 12500,
+    "maxFixtureSpreadFraction": 0.55,
+    "maxRealworldSpreadFraction": 0.45,
+    "maxFixtureMedianMemoryRetainedMB": 10.5,
+    "maxRealworldMedianMemoryRetainedMB": 10.5
   }
 }

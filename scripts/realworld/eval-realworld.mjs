@@ -10,9 +10,11 @@ function summarizeWorst(cases, metricName, limit = 10) {
 async function main() {
   const reportPath = resolve(process.cwd(), "realworld/reports/bench-realworld.json");
   const selectorReportPath = resolve(process.cwd(), "realworld/reports/bench-selectors.json");
+  const selectorStabilityReportPath = resolve(process.cwd(), "realworld/reports/bench-selectors-stability.json");
   const targetsCheckPath = resolve(process.cwd(), "realworld/reports/realworld-targets-check.json");
   const report = JSON.parse(await readFile(reportPath, "utf8"));
   const selectorReport = JSON.parse(await readFile(selectorReportPath, "utf8"));
+  const selectorStabilityReport = JSON.parse(await readFile(selectorStabilityReportPath, "utf8"));
   const targetsCheck = JSON.parse(await readFile(targetsCheckPath, "utf8"));
 
   const selectorFixtureBenchmark = Array.isArray(selectorReport.benchmarks)
@@ -21,6 +23,8 @@ async function main() {
   const selectorRealworldBenchmark = Array.isArray(selectorReport.benchmarks)
     ? selectorReport.benchmarks.find((entry) => entry?.name === "selectors-realworld")
     : null;
+  const selectorStabilityFixture = selectorStabilityReport.benchmarks?.fixture ?? null;
+  const selectorStabilityRealworld = selectorStabilityReport.benchmarks?.realworld ?? null;
 
   const lines = [
     "# Phase 2 realworld CSS performance",
@@ -57,6 +61,12 @@ async function main() {
     `- realworld selector selected count: ${String(selectorReport.realworld?.selectedCount ?? 0)}`,
     `- realworld selector qps: ${String(selectorRealworldBenchmark?.queriesPerSec ?? 0)}`,
     `- realworld mean matches/query: ${String(selectorRealworldBenchmark?.meanMatchesPerQuery ?? 0)}`,
+    `- selector stability runs: ${String(selectorStabilityReport.runs ?? 0)}`,
+    `- selector stability warmupsPerRun: ${String(selectorStabilityReport.warmupsPerRun ?? 0)}`,
+    `- selector fixture median qps: ${String(selectorStabilityFixture?.queriesPerSec?.median ?? 0)}`,
+    `- selector fixture qps spread: ${String(selectorStabilityFixture?.queriesPerSec?.spreadFraction ?? 0)}`,
+    `- selector realworld median qps: ${String(selectorStabilityRealworld?.queriesPerSec?.median ?? 0)}`,
+    `- selector realworld qps spread: ${String(selectorStabilityRealworld?.queriesPerSec?.spreadFraction ?? 0)}`,
     "",
     "## Error rate",
     `- errorCases: ${String(report.errors.errorCases)}`,
@@ -65,6 +75,8 @@ async function main() {
     "",
     "## Target checks",
     `- overall: ${targetsCheck.overall.ok ? "ok" : "fail"}`,
+    `- parse gates: ${targetsCheck.overall.parseOk ? "ok" : "fail"}`,
+    `- selector gates: ${targetsCheck.overall.selectorOk ? "ok" : "fail"}`,
     ...targetsCheck.checks.map((check) =>
       `- ${check.id}: ${check.ok ? "ok" : "fail"} observed=${JSON.stringify(check.observed)} expected=${JSON.stringify(check.expected)}`
     ),
