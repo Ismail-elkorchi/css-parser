@@ -1,6 +1,6 @@
 {
   "suite": "bench-realworld-css-targets",
-  "version": 1,
+  "version": 2,
   "sourceManifestSha256": "sha256:8bc2b8b2dc754b50021880fcfc0a2813a0c413e5afe47db5464407cd45ab15fb",
   "thresholds": {
     "minSelectedCount": 114,
@@ -18,5 +18,17 @@
     "maxParseP99Ms": 28,
     "maxParseMaxMs": 70,
     "maxErrorRate": 0.5088
+  },
+  "selectorThresholds": {
+    "minSelectedCount": 400,
+    "selectedHash": "sha256:9a10b7ee01a1ba4c20b133c04e7daf30a37199e806995758fe25f91a3bd1ec0f",
+    "minTreeTotalNodes": 250,
+    "minTreeElementNodes": 250,
+    "minFixtureIterations": 2000,
+    "minRealworldIterations": 120,
+    "minFixtureQueriesPerSec": 9000,
+    "minRealworldQueriesPerSec": 8500,
+    "maxFixtureMemoryRetainedMB": 11,
+    "maxRealworldMemoryRetainedMB": 11
   }
 }
