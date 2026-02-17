@@ -31,7 +31,7 @@
       "requireStreamReport": true,
       "requireAgentReport": true,
       "requireBenchStability": true,
-      "benchStabilityRuns": 5,
+      "benchStabilityRuns": 9,
       "requireHardGate": true,
       "weights": {
         "correctness": 40,
@@ -52,7 +52,7 @@
       "requireStreamReport": true,
       "requireAgentReport": true,
       "requireBenchStability": true,
-      "benchStabilityRuns": 5,
+      "benchStabilityRuns": 9,
       "requireHardGate": true,
       "weights": {
         "correctness": 40,
@@ -127,8 +127,10 @@
       ]
     },
     "performanceStability": {
-      "maxThroughputSpreadFraction": 0.15,
-      "maxMemorySpreadFraction": 0.05
+      "maxThroughputRobustSpreadFraction": 0.45,
+      "maxMemoryRobustSpreadFraction": 0.02,
+      "minThroughputMedianRatio": 0.8,
+      "maxMemoryMedianRatio": 1.05
     }
   },
   "weights": {

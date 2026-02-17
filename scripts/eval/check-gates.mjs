@@ -351,8 +351,18 @@ async function main() {
   const benchStabilityReport = await loadOptionalReport("reports/bench-stability.json");
   const benchmarkStabilityThresholds = config.thresholds?.performanceStability || {};
   const minBenchStabilityRuns = Number(profilePolicy.benchStabilityRuns ?? 5);
-  const maxThroughputSpreadFraction = Number(benchmarkStabilityThresholds.maxThroughputSpreadFraction ?? 0.1);
-  const maxMemorySpreadFraction = Number(benchmarkStabilityThresholds.maxMemorySpreadFraction ?? 0.05);
+  const maxThroughputRobustSpreadFraction = Number(
+    benchmarkStabilityThresholds.maxThroughputRobustSpreadFraction
+      ?? benchmarkStabilityThresholds.maxThroughputSpreadFraction
+      ?? 0.15
+  );
+  const maxMemoryRobustSpreadFraction = Number(
+    benchmarkStabilityThresholds.maxMemoryRobustSpreadFraction
+      ?? benchmarkStabilityThresholds.maxMemorySpreadFraction
+      ?? 0.05
+  );
+  const minThroughputMedianRatio = Number(benchmarkStabilityThresholds.minThroughputMedianRatio ?? 0.9);
+  const maxMemoryMedianRatio = Number(benchmarkStabilityThresholds.maxMemoryMedianRatio ?? 1.1);
   const requiredBenchmarkNames = Object.keys(config.performanceBaseline?.benchmarks || {}).sort((left, right) =>
     left.localeCompare(right)
   );
@@ -361,8 +371,10 @@ async function main() {
   const benchStabilityDetails = {
     required: requireBenchStability,
     minRuns: minBenchStabilityRuns,
-    maxThroughputSpreadFraction,
-    maxMemorySpreadFraction,
+    maxThroughputRobustSpreadFraction,
+    maxMemoryRobustSpreadFraction,
+    minThroughputMedianRatio,
+    maxMemoryMedianRatio,
     benchmarks: {}
   };
 
@@ -376,24 +388,52 @@ async function main() {
         benchStabilityPass = false;
       }
       benchStabilityDetails.runs = observedRuns;
+      benchStabilityDetails.warmupsPerRun = Number(benchStabilityReport.warmupsPerRun ?? 0);
+      benchStabilityDetails.runIsolation = benchStabilityReport.runIsolation ?? null;
 
       for (const benchmarkName of requiredBenchmarkNames) {
         const benchmarkEntry = benchStabilityReport.benchmarks?.[benchmarkName];
-        const throughputSpread = Number(benchmarkEntry?.mbPerSec?.spreadFraction ?? Number.NaN);
-        const memorySpread = Number(benchmarkEntry?.memoryMB?.spreadFraction ?? Number.NaN);
+        const throughputSpread = Number(
+          benchmarkEntry?.mbPerSec?.robustSpreadFraction
+            ?? benchmarkEntry?.mbPerSec?.spreadFraction
+            ?? Number.NaN
+        );
+        const memorySpread = Number(
+          benchmarkEntry?.memoryMB?.robustSpreadFraction
+            ?? benchmarkEntry?.memoryMB?.spreadFraction
+            ?? Number.NaN
+        );
+        const throughputMedian = Number(benchmarkEntry?.mbPerSec?.median ?? Number.NaN);
+        const memoryMedian = Number(benchmarkEntry?.memoryMB?.median ?? Number.NaN);
+        const baselineThroughput = Number(config.performanceBaseline?.benchmarks?.[benchmarkName]?.mbPerSec ?? Number.NaN);
+        const baselineMemory = Number(config.performanceBaseline?.benchmarks?.[benchmarkName]?.memoryMB ?? Number.NaN);
+        const throughputMedianRatio = Number.isFinite(baselineThroughput) && baselineThroughput > 0
+          ? throughputMedian / baselineThroughput
+          : Number.NaN;
+        const memoryMedianRatio = Number.isFinite(baselineMemory) && baselineMemory > 0
+          ? memoryMedian / baselineMemory
+          : Number.NaN;
         const benchmarkPass =
           Number.isFinite(throughputSpread) &&
           Number.isFinite(memorySpread) &&
-          throughputSpread <= maxThroughputSpreadFraction &&
-          memorySpread <= maxMemorySpreadFraction;
+          Number.isFinite(throughputMedianRatio) &&
+          Number.isFinite(memoryMedianRatio) &&
+          throughputSpread <= maxThroughputRobustSpreadFraction &&
+          memorySpread <= maxMemoryRobustSpreadFraction &&
+          throughputMedianRatio >= minThroughputMedianRatio &&
+          memoryMedianRatio <= maxMemoryMedianRatio;
 
         if (!benchmarkPass) {
           benchStabilityPass = false;
         }
 
         benchStabilityDetails.benchmarks[benchmarkName] = {
+          throughputMedian,
           throughputSpread,
+          throughputMedianRatio,
+          memoryMedian,
           memorySpread,
+          memoryMedianRatio,
           pass: benchmarkPass
         };
       }

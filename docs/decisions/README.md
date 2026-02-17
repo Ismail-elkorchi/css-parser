@@ -11,3 +11,4 @@ ADR index:
 - ADR-007: phase-1 hard-gate evidence build
 - ADR-008: cross-runtime determinism hash agreement gate
 - ADR-009: performance stability evidence gate
+- ADR-010: G-120 robust stability thresholds with isolated runs
