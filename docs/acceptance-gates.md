@@ -33,10 +33,13 @@ Profiles:
 ## Performance evidence policy
 - `ci` score uses single-run `reports/bench.json` when performance weight is non-zero.
 - `release` and `hard-gate` scores use `reports/bench-stability.json` medians.
-- `G-120` requires benchmark spread bounds on `parse-medium` and `parse-large`:
-  - throughput spread fraction (`(max-min)/median`) `<= 0.15`
-  - memory spread fraction (`(max-min)/median`) `<= 0.05`
-  - run count `>= 5`
+- `G-120` requires benchmark robustness bounds on `parse-medium` and `parse-large`:
+  - throughput robust spread fraction (`(p90-p10)/median`) `<= 0.45`
+  - memory robust spread fraction (`(p90-p10)/median`) `<= 0.02`
+  - throughput median ratio vs baseline `>= 0.80`
+  - memory median ratio vs baseline `<= 1.05`
+  - run count `>= 9`
+  - each measured run executes in an isolated subprocess after warmups
 
 ## Holdout discipline
 For each conformance suite:

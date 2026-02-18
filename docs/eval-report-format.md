@@ -46,18 +46,25 @@ Runtime quality reports:
 - `timestamp`: ISO string
 - `runs`: number
 - `warmupsPerRun`: number
+- `runIsolation`: `"subprocess-per-run"`
 - `benchmarks.<name>.mbPerSec`:
   - `values[]`
   - `min`
   - `max`
   - `median`
+  - `p10`
+  - `p90`
   - `spreadFraction`
+  - `robustSpreadFraction`
 - `benchmarks.<name>.memoryMB`:
   - `values[]`
   - `min`
   - `max`
   - `median`
+  - `p10`
+  - `p90`
   - `spreadFraction`
+  - `robustSpreadFraction`
 
 Performance scoring source:
 - `ci`: `reports/bench.json`
