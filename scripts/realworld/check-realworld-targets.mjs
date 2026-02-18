@@ -64,6 +64,18 @@ async function main() {
     )
   );
 
+  const requiredKindMinimums = thresholds.requiredKindMinimums && typeof thresholds.requiredKindMinimums === "object"
+    ? thresholds.requiredKindMinimums
+    : {};
+  checks.push(
+    makeCheck(
+      "required-kind-minimums",
+      Object.entries(requiredKindMinimums).every(([kind, minimum]) => Number(kindCounts[kind] ?? 0) >= Number(minimum)),
+      kindCounts,
+      { requiredKindMinimums }
+    )
+  );
+
   const parseMs = report.timing?.parseMs ?? {};
   const parseP95 = Number(parseMs.p95 ?? Number.NaN);
   const parseP99 = Number(parseMs.p99 ?? Number.NaN);

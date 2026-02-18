@@ -24,6 +24,7 @@ async function main() {
     `- topLargestLimit: ${String(report.selection.topLargestLimit)}`,
     `- randomSampleLimit: ${String(report.selection.randomSampleLimit)}`,
     `- randomSeed: ${report.selection.randomSeed}`,
+    `- iterationsPerCase: ${String(report.selection.iterationsPerCase)}`,
     `- sourceManifestSha256: ${report.sourceManifestSha256}`,
     `- selectedSha256Hash: ${report.runFingerprint.selectedSha256Hash}`,
     "",
