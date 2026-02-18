@@ -196,6 +196,34 @@ async function main() {
     makeGate("G-080", "Determinism", Boolean(determinismReport?.overall?.ok), determinismReport || { missing: true })
   );
 
+  const smokeReport = await loadOptionalReport("reports/smoke.json");
+  const determinismThresholds = config.thresholds?.determinism || {};
+  const requiredDeterminismRuntimes = Array.isArray(determinismThresholds.requiredRuntimes)
+    ? determinismThresholds.requiredRuntimes
+    : ["node", "deno", "bun"];
+  const requireCrossRuntimeDeterminism = determinismThresholds.requireCrossRuntimeDeterminism !== false;
+  const smokeDeterminism = smokeReport?.determinism || null;
+  const runtimeHashes = smokeDeterminism?.hashes || {};
+  const runtimesPresent = requiredDeterminismRuntimes.every((runtimeName) => typeof runtimeHashes[runtimeName] === "string");
+  const runtimeHashValues = requiredDeterminismRuntimes
+    .map((runtimeName) => runtimeHashes[runtimeName])
+    .filter((value) => typeof value === "string");
+  const hashesAgree = runtimeHashValues.length === requiredDeterminismRuntimes.length &&
+    new Set(runtimeHashValues).size === 1;
+  const crossRuntimeDeterminismPass = requireCrossRuntimeDeterminism
+    ? Boolean(smokeDeterminism?.ok) && runtimesPresent && hashesAgree
+    : true;
+
+  gates.push(
+    makeGate("G-081", "Cross-runtime determinism agreement", crossRuntimeDeterminismPass, {
+      required: requireCrossRuntimeDeterminism,
+      requiredRuntimes: requiredDeterminismRuntimes,
+      hashes: runtimeHashes,
+      runtimesPresent,
+      hashesAgree
+    })
+  );
+
   const streamReport = await loadOptionalReport("reports/stream.json");
   const requireStreamReport = Boolean(profilePolicy.requireStreamReport);
   const streamOk = Boolean(streamReport?.overall?.ok);
@@ -280,7 +308,6 @@ async function main() {
     makeGate("G-091", "Selector contract and fixtures", selectorGatePass, selectorReport || { missing: true })
   );
 
-  const smokeReport = await loadOptionalReport("reports/smoke.json");
   const smokeNodeOk = Boolean(smokeReport?.runtimes?.node?.ok);
   const smokeDenoOk = profilePolicy.requireDeno ? Boolean(smokeReport?.runtimes?.deno?.ok) : true;
   const smokeBunOk = profilePolicy.requireBun ? Boolean(smokeReport?.runtimes?.bun?.ok) : true;

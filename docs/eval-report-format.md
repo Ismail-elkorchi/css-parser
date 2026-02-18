@@ -20,6 +20,7 @@ Runtime quality reports:
 - `reports/stream.json`
 - `reports/agent.json`
 - `reports/selectors.json`
+- `reports/smoke.json`
 - `reports/browser-diff.json`
 - `reports/fuzz.json`
 - `reports/bench.json`
@@ -31,6 +32,14 @@ Runtime quality reports:
 - `overall.ok`: boolean
 - `overall.failedChecks`: string[]
 - `checks[]`: `{ id, ok, details }`
+
+`reports/smoke.json` shape:
+- `suite`: `"smoke"`
+- `timestamp`: ISO string
+- `runtimes.node|deno|bun`: smoke-runtime report objects
+  - includes `ok`, `version`, `determinismHash`, `determinismFixtureId`, `checks`
+- `determinism`: `{ ok, allRuntimeHashesPresent, hashes }`
+- `overall.ok`: boolean
 
 `reports/selectors.json` shape:
 - `suite`: `"selectors"`

@@ -130,6 +130,7 @@ For equal input and equal options:
 - serialization output is stable,
 - trace event sequence is stable when enabled under the same budgets,
 - token stream output is stable.
+- Cross-runtime smoke evaluation enforces hash equality of canonical parse output across Node, Deno, and Bun.
 
 ## Budgets contract
 Budget violations throw `BudgetExceededError` with structured payload:

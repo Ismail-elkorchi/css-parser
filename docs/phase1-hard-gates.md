@@ -23,6 +23,7 @@ Hard-gate checks are strict and falsifiable:
   - `node`
   - `deno`
   - `bun`
+- smoke report determinism hashes for `node`/`deno`/`bun` must be present and identical
 - release evidence checks:
   - browser-diff min cases, min agreement, min engines, min tag coverage
   - fuzz minimum run volume with zero crashes and zero hangs
