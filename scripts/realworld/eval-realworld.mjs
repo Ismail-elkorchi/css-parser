@@ -9,9 +9,18 @@ function summarizeWorst(cases, metricName, limit = 10) {
 
 async function main() {
   const reportPath = resolve(process.cwd(), "realworld/reports/bench-realworld.json");
+  const selectorReportPath = resolve(process.cwd(), "realworld/reports/bench-selectors.json");
   const targetsCheckPath = resolve(process.cwd(), "realworld/reports/realworld-targets-check.json");
   const report = JSON.parse(await readFile(reportPath, "utf8"));
+  const selectorReport = JSON.parse(await readFile(selectorReportPath, "utf8"));
   const targetsCheck = JSON.parse(await readFile(targetsCheckPath, "utf8"));
+
+  const selectorFixtureBenchmark = Array.isArray(selectorReport.benchmarks)
+    ? selectorReport.benchmarks.find((entry) => entry?.name === "selectors-fixture")
+    : null;
+  const selectorRealworldBenchmark = Array.isArray(selectorReport.benchmarks)
+    ? selectorReport.benchmarks.find((entry) => entry?.name === "selectors-realworld")
+    : null;
 
   const lines = [
     "# Phase 2 realworld CSS performance",
@@ -38,6 +47,16 @@ async function main() {
     `- p95 parse ms: ${String(report.timing.parseMs.p95)}`,
     `- p99 parse ms: ${String(report.timing.parseMs.p99)}`,
     `- max parse ms: ${String(report.timing.parseMs.max)}`,
+    "",
+    "## Selector query timing",
+    `- tree total nodes: ${String(selectorReport.tree?.totalNodes ?? 0)}`,
+    `- tree element nodes: ${String(selectorReport.tree?.elementNodes ?? 0)}`,
+    `- fixture selector qps: ${String(selectorFixtureBenchmark?.queriesPerSec ?? 0)}`,
+    `- fixture mean matches/query: ${String(selectorFixtureBenchmark?.meanMatchesPerQuery ?? 0)}`,
+    `- realworld selector available: ${selectorReport.realworld?.available ? "yes" : "no"}`,
+    `- realworld selector selected count: ${String(selectorReport.realworld?.selectedCount ?? 0)}`,
+    `- realworld selector qps: ${String(selectorRealworldBenchmark?.queriesPerSec ?? 0)}`,
+    `- realworld mean matches/query: ${String(selectorRealworldBenchmark?.meanMatchesPerQuery ?? 0)}`,
     "",
     "## Error rate",
     `- errorCases: ${String(report.errors.errorCases)}`,

@@ -16,6 +16,7 @@ Date: 2026-02-16
 - Keep CI profile fast:
   - `requireBenchStability: false`
 - Add `reports/bench-stability.json` as release/hard-gate performance evidence.
+- Each stability run performs one warm-up benchmark pass before measuring to reduce JIT cold-start bias.
 - Use benchmark medians from `reports/bench-stability.json` for release/hard-gate performance scoring.
 - Add gate `G-120 Benchmark stability gate` with hard thresholds:
   - throughput spread fraction (`(max-min)/median`) `<= 0.15`

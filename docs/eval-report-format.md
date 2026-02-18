@@ -45,6 +45,7 @@ Runtime quality reports:
 - `suite`: `"bench-stability"`
 - `timestamp`: ISO string
 - `runs`: number
+- `warmupsPerRun`: number
 - `benchmarks.<name>.mbPerSec`:
   - `values[]`
   - `min`
