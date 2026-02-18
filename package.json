@@ -44,7 +44,8 @@
     "pack:check": "node scripts/eval/pack-check.mjs",
     "realworld:import": "node scripts/realworld/import-css-corpus.mjs",
     "realworld:bench": "npm run build && node scripts/bench/bench-realworld-css.mjs",
-    "eval:realworld": "npm run realworld:bench && node scripts/realworld/eval-realworld.mjs",
+    "realworld:check": "node scripts/realworld/check-realworld-targets.mjs",
+    "eval:realworld": "npm run realworld:bench && npm run realworld:check && node scripts/realworld/eval-realworld.mjs",
     "eval:ci": "node scripts/eval/run-eval.mjs --profile=ci",
     "eval:release": "node scripts/eval/run-eval.mjs --profile=release",
     "eval:hard-gate": "node scripts/eval/run-eval.mjs --profile=hard-gate"
