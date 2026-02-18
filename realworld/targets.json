@@ -14,9 +14,9 @@
       "linked": 38,
       "style-attr": 51
     },
-    "maxParseP95Ms": 23,
-    "maxParseP99Ms": 36,
-    "maxParseMaxMs": 90,
-    "maxErrorRate": 0.509
+    "maxParseP95Ms": 16.5,
+    "maxParseP99Ms": 28,
+    "maxParseMaxMs": 70,
+    "maxErrorRate": 0.5088
   }
 }
