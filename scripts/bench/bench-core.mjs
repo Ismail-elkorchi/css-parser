@@ -34,8 +34,8 @@ export function runBenchmark(name, cssSource, iterations) {
   const totalMB = totalBytes / MB;
   const seconds = elapsedMs / 1000;
   const mbPerSec = seconds > 0 ? totalMB / seconds : 0;
-  const peakDeltaBytes = peakHeapUsed - startHeapUsed;
-  const memoryMB = peakDeltaBytes / MB;
+  const memoryMB = peakHeapUsed / MB;
+  const memoryBaselineMB = startHeapUsed / MB;
 
   if (!Number.isFinite(memoryMB) || memoryMB <= 0) {
     throw new Error(
@@ -51,7 +51,8 @@ export function runBenchmark(name, cssSource, iterations) {
     elapsedMs: round(elapsedMs),
     mbPerSec: round(mbPerSec),
     memoryMB: round(memoryMB),
-    memoryMethod: "peakHeapUsedDelta"
+    memoryBaselineMB: round(memoryBaselineMB),
+    memoryMethod: "peakHeapUsed"
   };
 }
 
