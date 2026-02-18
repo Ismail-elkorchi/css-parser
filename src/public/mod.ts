@@ -169,10 +169,6 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object";
 }
 
-function isInternalNode(value: unknown): value is CssAstNode {
-  return isRecord(value) && typeof value["type"] === "string";
-}
-
 function isPublicNode(value: unknown): value is CssNode {
   return isRecord(value) && typeof value["id"] === "number" && typeof value["type"] === "string";
 }
@@ -324,44 +320,66 @@ function toPublicSpanFromLoc(loc: unknown, captureSpans: boolean): Span | undefi
   };
 }
 
-function convertNodeValue(value: unknown, assigner: NodeIdAssigner, captureSpans: boolean): unknown {
-  if (isInternalNode(value)) {
-    return convertNode(value, assigner, captureSpans);
-  }
-
+function annotateNodeValue(value: unknown, assigner: NodeIdAssigner, captureSpans: boolean): unknown {
   if (Array.isArray(value)) {
-    return value.map((entry) => convertNodeValue(entry, assigner, captureSpans));
+    const mutableArray = value as unknown[];
+    for (let index = 0; index < mutableArray.length; index += 1) {
+      const entry = mutableArray[index];
+      if (entry !== null && typeof entry === "object") {
+        mutableArray[index] = annotateNodeValue(entry, assigner, captureSpans);
+      }
+    }
+    return mutableArray;
   }
 
   if (!isRecord(value)) {
     return value;
   }
 
-  const next: Record<string, unknown> = {};
-  for (const [key, entry] of Object.entries(value)) {
-    next[key] = convertNodeValue(entry, assigner, captureSpans);
+  if (typeof value["type"] === "string") {
+    return annotateNode(value as CssAstNode, assigner, captureSpans);
   }
-  return next;
+
+  for (const key in value) {
+    if (!Object.hasOwn(value, key)) {
+      continue;
+    }
+    const entry = value[key];
+    if (entry !== null && typeof entry === "object") {
+      value[key] = annotateNodeValue(entry, assigner, captureSpans);
+    }
+  }
+  return value;
 }
 
-function convertNode(rawNode: CssAstNode, assigner: NodeIdAssigner, captureSpans: boolean): CssNode {
-  const span = toPublicSpanFromLoc(rawNode["loc"], captureSpans);
-  const converted: Record<string, unknown> = {};
+function annotateNode(rawNode: CssAstNode, assigner: NodeIdAssigner, captureSpans: boolean): CssNode {
+  const mutable = rawNode as unknown as Record<string, unknown>;
+  const span = captureSpans ? toPublicSpanFromLoc(mutable["loc"], true) : undefined;
 
-  for (const [key, value] of Object.entries(rawNode)) {
+  for (const key in mutable) {
+    if (!Object.hasOwn(mutable, key)) {
+      continue;
+    }
     if (key === "loc" || key === "type") {
       continue;
     }
-    converted[key] = convertNodeValue(value, assigner, captureSpans);
+
+    const value = mutable[key];
+    if (value !== null && typeof value === "object") {
+      mutable[key] = annotateNodeValue(value, assigner, captureSpans);
+    }
   }
 
-  return {
-    id: assigner.next(),
-    type: rawNode.type,
-    spanProvenance: span ? "input" : "none",
-    ...(span ? { span } : {}),
-    ...converted
-  };
+  delete mutable["loc"];
+  mutable["id"] = assigner.next();
+  mutable["spanProvenance"] = span ? "input" : "none";
+  if (span) {
+    mutable["span"] = span;
+  } else {
+    delete mutable["span"];
+  }
+
+  return mutable as CssNode;
 }
 
 function collectChildNodes(value: unknown, into: CssNode[]): void {
@@ -543,7 +561,7 @@ function parseInternal(css: string, context: ParseContext, options: ParseOptions
 
   const assigner = new NodeIdAssigner();
   const treeId = assigner.next();
-  const root = convertNode(built.root, assigner, captureSpans);
+  const root = annotateNode(built.root, assigner, captureSpans);
   const children = topLevelChildren(root);
   let metrics: NodeMetrics | null = null;
   if (needsMetrics) {
