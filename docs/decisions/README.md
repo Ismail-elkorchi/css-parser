@@ -8,3 +8,4 @@ ADR index:
 - ADR-004: dataset/spec snapshot updates
 - ADR-005: dev dependency and toolchain updates
 - ADR-006: selector contract gate and fixture-backed evidence
+- ADR-007: phase-1 hard-gate evidence build

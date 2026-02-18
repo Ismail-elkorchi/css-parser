@@ -26,6 +26,7 @@ Profiles:
 - `G-091`: Selector contract and fixtures must pass.
 - `G-100`: Runtime smoke matrix gates.
 - `G-110`: Browser differential parity gate.
+- `G-115`: Hard-gate evidence integrity report.
 
 ## Holdout discipline
 For each conformance suite:
@@ -34,3 +35,18 @@ For each conformance suite:
 - `holdoutExcludedFraction = holdoutExcluded / totalSurface`
 - `holdoutExcludedFraction` must be in `[0.05, 0.15]`
 - `holdoutRule` and `holdoutMod` must be present in the report
+
+## Hard-gate profile
+Command:
+- `npm run eval:hard-gate`
+
+Hard-gate profile uses release requirements plus `G-115` strict evidence checks:
+- non-vacuous conformance surface for tokenizer/tree/encoding/serializer
+- deterministic hash shape checks in `reports/determinism.json`
+- mandatory stream check IDs with pass status
+- mandatory agent feature checks with pass status
+- runtime smoke check matrix per runtime (`node`, `deno`, `bun`)
+- release-only evidence checks:
+  - browser-diff case/engine/agreement/tag-coverage checks
+  - fuzz run volume and no crash/hang checks
+  - benchmark coverage for `parse-medium` and `parse-large`

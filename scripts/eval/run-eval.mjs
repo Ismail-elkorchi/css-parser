@@ -41,7 +41,7 @@ async function runStep(stepId, command, args) {
 function parseProfileArg() {
   const arg = process.argv.find((value) => value.startsWith("--profile="));
   const profile = arg ? arg.split("=")[1] : "ci";
-  if (profile !== "ci" && profile !== "release") {
+  if (profile !== "ci" && profile !== "release" && profile !== "hard-gate") {
     throw new Error(`Unsupported profile: ${profile}`);
   }
   return profile;
@@ -71,12 +71,13 @@ async function main() {
     ["packaging", process.execPath, ["scripts/eval/pack-check.mjs"]]
   ];
 
-  if (profile === "release") {
+  if (profile !== "ci") {
     steps.push(["browser-diff", "npm", ["run", "test:browser-diff"]]);
     steps.push(["fuzz", "npm", ["run", "test:fuzz"]]);
     steps.push(["bench", "npm", ["run", "test:bench"]]);
   }
 
+  steps.push(["hard-gate", process.execPath, ["scripts/eval/check-hard-gate.mjs", `--profile=${profile}`]]);
   steps.push(["gates", process.execPath, ["scripts/eval/check-gates.mjs", `--profile=${profile}`]]);
   steps.push(["score", process.execPath, ["scripts/eval/score.mjs", `--profile=${profile}`]]);
   steps.push(["report", process.execPath, ["scripts/eval/report.mjs", `--profile=${profile}`]]);

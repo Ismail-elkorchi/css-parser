@@ -10,6 +10,7 @@
       "requireFuzzReport": false,
       "requireStreamReport": true,
       "requireAgentReport": true,
+      "requireHardGate": true,
       "weights": {
         "correctness": 50,
         "browserDiff": 0,
@@ -28,6 +29,26 @@
       "requireFuzzReport": true,
       "requireStreamReport": true,
       "requireAgentReport": true,
+      "requireHardGate": true,
+      "weights": {
+        "correctness": 40,
+        "browserDiff": 20,
+        "performance": 15,
+        "robustness": 10,
+        "agentFirst": 10,
+        "packagingTrust": 5
+      }
+    },
+    "hard-gate": {
+      "requireHoldouts": true,
+      "requireBrowserDiff": true,
+      "requireDeno": true,
+      "requireBun": true,
+      "requireBrowserSmoke": false,
+      "requireFuzzReport": true,
+      "requireStreamReport": true,
+      "requireAgentReport": true,
+      "requireHardGate": true,
       "weights": {
         "correctness": 40,
         "browserDiff": 20,

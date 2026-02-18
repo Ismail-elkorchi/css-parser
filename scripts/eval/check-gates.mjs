@@ -309,6 +309,17 @@ async function main() {
     })
   );
 
+  const hardGateReport = await loadOptionalReport("reports/hard-gate.json");
+  const requireHardGate = profilePolicy.requireHardGate !== false;
+  const hardGateOk = Boolean(hardGateReport?.overall?.ok);
+  const hardGatePass = requireHardGate ? hardGateOk : (hardGateReport ? hardGateOk : true);
+  gates.push(
+    makeGate("G-115", "Hard-gate evidence integrity", hardGatePass, {
+      required: requireHardGate,
+      hardGate: hardGateReport || { missing: true }
+    })
+  );
+
   const allPass = gates.every((gate) => gate.pass);
 
   const report = {
