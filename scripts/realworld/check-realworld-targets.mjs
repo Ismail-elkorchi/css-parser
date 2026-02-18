@@ -27,11 +27,14 @@ function isFiniteNumber(value) {
 
 async function main() {
   const reportPath = resolve(process.cwd(), "realworld/reports/bench-realworld.json");
+  const selectorReportPath = resolve(process.cwd(), "realworld/reports/bench-selectors.json");
   const targetsPath = resolve(process.cwd(), "realworld/targets.json");
   const report = await readJson(reportPath);
+  const selectorReport = await readJson(selectorReportPath);
   const targets = await readJson(targetsPath);
 
   const thresholds = targets.thresholds ?? {};
+  const selectorThresholds = targets.selectorThresholds ?? {};
   const checks = [];
 
   checks.push(
@@ -120,11 +123,140 @@ async function main() {
     )
   );
 
+  const selectorRealworld = selectorReport.realworld ?? {};
+  const selectorBenchmarks = Array.isArray(selectorReport.benchmarks) ? selectorReport.benchmarks : [];
+  const fixtureSelectorBenchmark = selectorBenchmarks.find((entry) => entry?.name === "selectors-fixture") ?? null;
+  const realworldSelectorBenchmark = selectorBenchmarks.find((entry) => entry?.name === "selectors-realworld") ?? null;
+
+  checks.push(
+    makeCheck(
+      "selector-manifest-hash-match",
+      selectorRealworld.sourceManifestSha256 === targets.sourceManifestSha256,
+      selectorRealworld.sourceManifestSha256 ?? null,
+      targets.sourceManifestSha256
+    )
+  );
+
+  checks.push(
+    makeCheck(
+      "selector-realworld-available",
+      selectorRealworld.available === true,
+      selectorRealworld.available === true,
+      true
+    )
+  );
+
+  const selectorSelectedCount = Number(selectorRealworld.selectedCount ?? 0);
+  const selectorMinSelectedCount = Number(selectorThresholds.minSelectedCount ?? 0);
+  checks.push(
+    makeCheck(
+      "selector-selected-count-min",
+      isFiniteNumber(selectorSelectedCount) && selectorSelectedCount >= selectorMinSelectedCount,
+      selectorSelectedCount,
+      { minSelectedCount: selectorMinSelectedCount }
+    )
+  );
+
+  checks.push(
+    makeCheck(
+      "selector-selected-hash-match",
+      typeof selectorRealworld.selectedHash === "string" &&
+        selectorRealworld.selectedHash === selectorThresholds.selectedHash,
+      selectorRealworld.selectedHash ?? null,
+      selectorThresholds.selectedHash ?? null
+    )
+  );
+
+  const treeTotalNodes = Number(selectorReport.tree?.totalNodes ?? 0);
+  const treeElementNodes = Number(selectorReport.tree?.elementNodes ?? 0);
+  const minTreeTotalNodes = Number(selectorThresholds.minTreeTotalNodes ?? 0);
+  const minTreeElementNodes = Number(selectorThresholds.minTreeElementNodes ?? 0);
+  checks.push(
+    makeCheck(
+      "selector-tree-total-nodes-min",
+      isFiniteNumber(treeTotalNodes) && treeTotalNodes >= minTreeTotalNodes,
+      treeTotalNodes,
+      { minTreeTotalNodes }
+    )
+  );
+  checks.push(
+    makeCheck(
+      "selector-tree-element-nodes-min",
+      isFiniteNumber(treeElementNodes) && treeElementNodes >= minTreeElementNodes,
+      treeElementNodes,
+      { minTreeElementNodes }
+    )
+  );
+
+  const fixtureIterations = Number(selectorReport.selection?.fixtureIterations ?? 0);
+  const realworldIterations = Number(selectorReport.selection?.realworldIterations ?? 0);
+  const minFixtureIterations = Number(selectorThresholds.minFixtureIterations ?? 0);
+  const minRealworldIterations = Number(selectorThresholds.minRealworldIterations ?? 0);
+  checks.push(
+    makeCheck(
+      "selector-fixture-iterations-min",
+      isFiniteNumber(fixtureIterations) && fixtureIterations >= minFixtureIterations,
+      fixtureIterations,
+      { minFixtureIterations }
+    )
+  );
+  checks.push(
+    makeCheck(
+      "selector-realworld-iterations-min",
+      isFiniteNumber(realworldIterations) && realworldIterations >= minRealworldIterations,
+      realworldIterations,
+      { minRealworldIterations }
+    )
+  );
+
+  const fixtureQueriesPerSec = Number(fixtureSelectorBenchmark?.queriesPerSec ?? Number.NaN);
+  const realworldQueriesPerSec = Number(realworldSelectorBenchmark?.queriesPerSec ?? Number.NaN);
+  const minFixtureQueriesPerSec = Number(selectorThresholds.minFixtureQueriesPerSec ?? 0);
+  const minRealworldQueriesPerSec = Number(selectorThresholds.minRealworldQueriesPerSec ?? 0);
+  checks.push(
+    makeCheck(
+      "selector-fixture-qps-min",
+      isFiniteNumber(fixtureQueriesPerSec) && fixtureQueriesPerSec >= minFixtureQueriesPerSec,
+      fixtureQueriesPerSec,
+      { minFixtureQueriesPerSec }
+    )
+  );
+  checks.push(
+    makeCheck(
+      "selector-realworld-qps-min",
+      isFiniteNumber(realworldQueriesPerSec) && realworldQueriesPerSec >= minRealworldQueriesPerSec,
+      realworldQueriesPerSec,
+      { minRealworldQueriesPerSec }
+    )
+  );
+
+  const fixtureMemoryRetainedMB = Number(fixtureSelectorBenchmark?.memoryRetainedMB ?? Number.NaN);
+  const realworldMemoryRetainedMB = Number(realworldSelectorBenchmark?.memoryRetainedMB ?? Number.NaN);
+  const maxFixtureMemoryRetainedMB = Number(selectorThresholds.maxFixtureMemoryRetainedMB ?? Number.POSITIVE_INFINITY);
+  const maxRealworldMemoryRetainedMB = Number(selectorThresholds.maxRealworldMemoryRetainedMB ?? Number.POSITIVE_INFINITY);
+  checks.push(
+    makeCheck(
+      "selector-fixture-memory-retained-max",
+      isFiniteNumber(fixtureMemoryRetainedMB) && fixtureMemoryRetainedMB <= maxFixtureMemoryRetainedMB,
+      fixtureMemoryRetainedMB,
+      { maxFixtureMemoryRetainedMB }
+    )
+  );
+  checks.push(
+    makeCheck(
+      "selector-realworld-memory-retained-max",
+      isFiniteNumber(realworldMemoryRetainedMB) && realworldMemoryRetainedMB <= maxRealworldMemoryRetainedMB,
+      realworldMemoryRetainedMB,
+      { maxRealworldMemoryRetainedMB }
+    )
+  );
+
   const output = {
     suite: "bench-realworld-targets-check",
     timestamp: new Date().toISOString(),
     source: {
       report: "realworld/reports/bench-realworld.json",
+      selectorReport: "realworld/reports/bench-selectors.json",
       targets: "realworld/targets.json"
     },
     overall: {
