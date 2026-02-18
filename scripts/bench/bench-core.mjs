@@ -19,6 +19,10 @@ function round(value) {
 export function runBenchmark(name, cssSource, iterations) {
   parse(cssSource);
 
+  if (typeof globalThis.gc === "function") {
+    globalThis.gc();
+  }
+
   const startHeapUsed = process.memoryUsage().heapUsed;
   let peakHeapUsed = startHeapUsed;
   const started = performance.now();
@@ -30,17 +34,21 @@ export function runBenchmark(name, cssSource, iterations) {
   }
 
   const elapsedMs = performance.now() - started;
+  if (typeof globalThis.gc === "function") {
+    globalThis.gc();
+  }
+  const retainedHeapUsed = process.memoryUsage().heapUsed;
   const totalBytes = cssSource.length * iterations;
   const totalMB = totalBytes / MB;
   const seconds = elapsedMs / 1000;
   const mbPerSec = seconds > 0 ? totalMB / seconds : 0;
-  const memoryMB = peakHeapUsed / MB;
+  const memoryMB = retainedHeapUsed / MB;
   const memoryBaselineMB = startHeapUsed / MB;
 
   if (!Number.isFinite(memoryMB) || memoryMB <= 0) {
     throw new Error(
       `Invalid benchmark memory measurement for ${name}: ` +
-      `memoryMB=${String(memoryMB)} startHeapUsed=${String(startHeapUsed)} peakHeapUsed=${String(peakHeapUsed)}`
+      `memoryMB=${String(memoryMB)} startHeapUsed=${String(startHeapUsed)} peakHeapUsed=${String(peakHeapUsed)} retainedHeapUsed=${String(retainedHeapUsed)}`
     );
   }
 
@@ -52,7 +60,9 @@ export function runBenchmark(name, cssSource, iterations) {
     mbPerSec: round(mbPerSec),
     memoryMB: round(memoryMB),
     memoryBaselineMB: round(memoryBaselineMB),
-    memoryMethod: "peakHeapUsed"
+    memoryPeakMB: round(peakHeapUsed / MB),
+    memoryRetainedMB: round(retainedHeapUsed / MB),
+    memoryMethod: "postGcHeapUsed"
   };
 }
 
