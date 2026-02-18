@@ -228,7 +228,7 @@ function checkReleaseEvidence(reports, config, checks) {
   const benchMetricsOk = benchEntries.every((entry) => {
     const throughput = getNumber(entry?.mbPerSec, Number.NaN);
     const memoryMb = getNumber(entry?.memoryMB, Number.NaN);
-    return Number.isFinite(throughput) && throughput > 0 && Number.isFinite(memoryMb) && memoryMb >= 0;
+    return Number.isFinite(throughput) && throughput > 0 && Number.isFinite(memoryMb) && memoryMb > 0;
   });
   checks.push(makeCheck("release-bench-coverage", benchCoverageOk, {
     requiredBenchmarks,
