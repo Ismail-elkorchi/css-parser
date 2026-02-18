@@ -1,0 +1,14 @@
+{
+  "name": "css-curated-v1",
+  "version": 1,
+  "requiredTags": [
+    "selectors",
+    "at-rules",
+    "media-queries",
+    "custom-properties",
+    "functions/calc",
+    "nesting",
+    "unicode-range",
+    "escape-sequences"
+  ]
+}
