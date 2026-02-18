@@ -78,3 +78,27 @@ test("parse enforces maxTokens budget", () => {
     }
   );
 });
+
+test("parse enforces maxNodes budget", () => {
+  assert.throws(
+    () => parse(".a{color:red}.b{margin:1px}", { budgets: { maxNodes: 3 } }),
+    (error) => {
+      assert.ok(error instanceof BudgetExceededError);
+      assert.equal(error.payload.code, "BUDGET_EXCEEDED");
+      assert.equal(error.payload.budget, "maxNodes");
+      return true;
+    }
+  );
+});
+
+test("parse enforces maxDepth budget", () => {
+  assert.throws(
+    () => parse("@media (min-width:1px){@supports (display:grid){.a{color:red}}}", { budgets: { maxDepth: 2 } }),
+    (error) => {
+      assert.ok(error instanceof BudgetExceededError);
+      assert.equal(error.payload.code, "BUDGET_EXCEEDED");
+      assert.equal(error.payload.budget, "maxDepth");
+      return true;
+    }
+  );
+});
