@@ -28,6 +28,15 @@ Profiles:
 - `G-100`: Runtime smoke matrix gates.
 - `G-110`: Browser differential parity gate.
 - `G-115`: Hard-gate evidence integrity report.
+- `G-120`: Benchmark stability gate (release and hard-gate profiles).
+
+## Performance evidence policy
+- `ci` score uses single-run `reports/bench.json` when performance weight is non-zero.
+- `release` and `hard-gate` scores use `reports/bench-stability.json` medians.
+- `G-120` requires benchmark spread bounds on `parse-medium` and `parse-large`:
+  - throughput spread fraction (`(max-min)/median`) `<= 0.15`
+  - memory spread fraction (`(max-min)/median`) `<= 0.05`
+  - run count `>= 5`
 
 ## Holdout discipline
 For each conformance suite:

@@ -24,6 +24,7 @@ Runtime quality reports:
 - `reports/browser-diff.json`
 - `reports/fuzz.json`
 - `reports/bench.json`
+- `reports/bench-stability.json` (release/hard-gate)
 
 `reports/bench.json` shape:
 - `suite`: `"bench"`
@@ -39,6 +40,27 @@ Runtime quality reports:
   - `memoryPeakMB`
   - `memoryRetainedMB`
   - `memoryMethod` (`postGcHeapUsed`)
+
+`reports/bench-stability.json` shape:
+- `suite`: `"bench-stability"`
+- `timestamp`: ISO string
+- `runs`: number
+- `benchmarks.<name>.mbPerSec`:
+  - `values[]`
+  - `min`
+  - `max`
+  - `median`
+  - `spreadFraction`
+- `benchmarks.<name>.memoryMB`:
+  - `values[]`
+  - `min`
+  - `max`
+  - `median`
+  - `spreadFraction`
+
+Performance scoring source:
+- `ci`: `reports/bench.json`
+- `release`/`hard-gate`: `reports/bench-stability.json` medians
 
 `reports/hard-gate.json` shape:
 - `suite`: `"hard-gate"`

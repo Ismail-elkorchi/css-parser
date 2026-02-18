@@ -49,6 +49,11 @@ function parseProfileArg() {
 
 async function main() {
   const profile = parseProfileArg();
+  const config = await readJson("evaluation.config.json");
+  const profilePolicy = config.profiles?.[profile];
+  if (!profilePolicy) {
+    throw new Error(`Unknown profile policy: ${profile}`);
+  }
 
   const steps = [
     ["clean-reports", process.execPath, ["scripts/eval/clean-reports.mjs"]],
@@ -72,9 +77,14 @@ async function main() {
   ];
 
   if (profile !== "ci") {
+    steps.push(["bench", "npm", ["run", "test:bench"]]);
+    if (profilePolicy.requireBenchStability) {
+      const runCount = Number(profilePolicy.benchStabilityRuns ?? 5);
+      const runsArg = Number.isInteger(runCount) && runCount > 0 ? runCount : 5;
+      steps.push(["bench-stability", "npm", ["run", "test:bench:stability", "--", `--runs=${String(runsArg)}`]]);
+    }
     steps.push(["browser-diff", "npm", ["run", "test:browser-diff"]]);
     steps.push(["fuzz", "npm", ["run", "test:fuzz"]]);
-    steps.push(["bench", "npm", ["run", "test:bench"]]);
   }
 
   steps.push(["hard-gate", process.execPath, ["scripts/eval/check-hard-gate.mjs", `--profile=${profile}`]]);
