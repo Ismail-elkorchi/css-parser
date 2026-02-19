@@ -1,127 +1,131 @@
 # Realworld CSS performance
 
-Generated: 2026-02-19T18:44:14.335Z
+Generated: 2026-02-19T20:21:48.366Z
 
 ## Corpus selection
 - corpusDir: /home/ismail-el-korchi/Documents/Projects/verge-browser/realworld/corpus
-- selectedCount: 114
+- selectedCount: 923
 - topLargestLimit: 200
 - randomSampleLimit: 800
 - randomSeed: 0x9e3779b9
 - iterationsPerCase: 3
-- sourceManifestSha256: sha256:8bc2b8b2dc754b50021880fcfc0a2813a0c413e5afe47db5464407cd45ab15fb
-- selectedSha256Hash: sha256:5c1f8fb75bc73d49c46ad14f941d7e51dd64a37af75b0427139c719ac675776d
+- sourceManifestSha256: sha256:f22c2077444cb6f8bb04799fcc71d8b6865edf5170be999161a2c9d9deb6e522
+- selectedSha256Hash: sha256:95d8a17f1ea2ba21f058bf7683e2555bc333b4f9a2ec4d70ff2735f1ec474b12
 
 ## Coverage
-- inline-style: 25
-- linked: 38
-- style-attr: 51
+- inline-style: 124
+- linked: 116
+- style-attr: 683
 
 ## Parse timing
-- min parse ms: 0.058
-- mean parse ms: 2.395
-- p50 parse ms: 0.306
-- p95 parse ms: 13.558
-- p99 parse ms: 21.504
-- max parse ms: 54.387
+- min parse ms: 0.014
+- mean parse ms: 1.825
+- p50 parse ms: 0.133
+- p95 parse ms: 6.993
+- p99 parse ms: 42.613
+- max parse ms: 89.012
 
 ## Selector query timing
 - tree total nodes: 254
 - tree element nodes: 253
-- fixture selector qps: 15816.7
+- fixture selector qps: 15601.4
 - fixture mean matches/query: 50.294118
+- fixture memory retained delta MB: -0.025
 - realworld selector available: yes
 - realworld selector selected count: 400
-- realworld selector qps: 15071
-- realworld mean matches/query: 0.125
+- realworld selector qps: 13931.6
+- realworld mean matches/query: 0.0625
+- realworld memory retained delta MB: 0.006
 - selector stability runs: 9
 - selector stability warmupsPerRun: 1
-- selector fixture median qps: 15773
-- selector fixture qps spread: 0.0567615545552526
-- selector realworld median qps: 15328.2
-- selector realworld qps spread: 0.07104552393627432
+- selector fixture median qps: 15129
+- selector fixture qps spread: 0.09982814462290972
+- selector fixture memory median delta MB: -0.025
+- selector realworld median qps: 13491.2
+- selector realworld qps spread: 0.0795777988614801
+- selector realworld memory median delta MB: 0.006
 
 ## Error rate
-- errorCases: 58
-- totalCases: 114
-- errorRate: 0.508772
+- errorCases: 33
+- totalCases: 923
+- errorRate: 0.035753
 
 ## Target checks
 - overall: ok
 - parse gates: ok
 - selector gates: ok
-- manifest-hash-match: ok observed="sha256:8bc2b8b2dc754b50021880fcfc0a2813a0c413e5afe47db5464407cd45ab15fb" expected="sha256:8bc2b8b2dc754b50021880fcfc0a2813a0c413e5afe47db5464407cd45ab15fb"
-- selected-count-min: ok observed=114 expected={"minSelectedCount":114}
-- required-kinds-present: ok observed={"inline-style":25,"linked":38,"style-attr":51} expected={"requiredKinds":["inline-style","linked","style-attr"]}
-- required-kind-minimums: ok observed={"inline-style":25,"linked":38,"style-attr":51} expected={"requiredKindMinimums":{"inline-style":25,"linked":38,"style-attr":51}}
-- parse-p95-max: ok observed=13.558 expected={"maxParseP95Ms":16}
-- parse-p99-max: ok observed=21.504 expected={"maxParseP99Ms":27}
-- parse-max-max: ok observed=54.387 expected={"maxParseMaxMs":65}
-- error-rate-max: ok observed=0.508772 expected={"maxErrorRate":0.5088}
-- selector-manifest-hash-match: ok observed="sha256:8bc2b8b2dc754b50021880fcfc0a2813a0c413e5afe47db5464407cd45ab15fb" expected="sha256:8bc2b8b2dc754b50021880fcfc0a2813a0c413e5afe47db5464407cd45ab15fb"
+- manifest-hash-match: ok observed="sha256:f22c2077444cb6f8bb04799fcc71d8b6865edf5170be999161a2c9d9deb6e522" expected="sha256:f22c2077444cb6f8bb04799fcc71d8b6865edf5170be999161a2c9d9deb6e522"
+- selected-count-min: ok observed=923 expected={"minSelectedCount":900}
+- required-kinds-present: ok observed={"inline-style":124,"linked":116,"style-attr":683} expected={"requiredKinds":["inline-style","linked","style-attr"]}
+- required-kind-minimums: ok observed={"inline-style":124,"linked":116,"style-attr":683} expected={"requiredKindMinimums":{"inline-style":100,"linked":100,"style-attr":600}}
+- parse-p95-max: ok observed=6.993 expected={"maxParseP95Ms":10}
+- parse-p99-max: ok observed=42.613 expected={"maxParseP99Ms":46}
+- parse-max-max: ok observed=89.012 expected={"maxParseMaxMs":95}
+- error-rate-max: ok observed=0.035753 expected={"maxErrorRate":0.06}
+- selector-manifest-hash-match: ok observed="sha256:f22c2077444cb6f8bb04799fcc71d8b6865edf5170be999161a2c9d9deb6e522" expected="sha256:f22c2077444cb6f8bb04799fcc71d8b6865edf5170be999161a2c9d9deb6e522"
 - selector-realworld-available: ok observed=true expected=true
 - selector-selected-count-min: ok observed=400 expected={"minSelectedCount":400}
-- selector-selected-hash-match: ok observed="sha256:9a10b7ee01a1ba4c20b133c04e7daf30a37199e806995758fe25f91a3bd1ec0f" expected="sha256:9a10b7ee01a1ba4c20b133c04e7daf30a37199e806995758fe25f91a3bd1ec0f"
+- selector-selected-hash-match: ok observed="sha256:3ba782c1911af1957ee216e3b815255defe66f909f3e5dec306a594f463117cf" expected="sha256:3ba782c1911af1957ee216e3b815255defe66f909f3e5dec306a594f463117cf"
 - selector-tree-total-nodes-min: ok observed=254 expected={"minTreeTotalNodes":250}
 - selector-tree-element-nodes-min: ok observed=253 expected={"minTreeElementNodes":250}
 - selector-fixture-iterations-min: ok observed=2000 expected={"minFixtureIterations":2000}
 - selector-realworld-iterations-min: ok observed=120 expected={"minRealworldIterations":120}
-- selector-fixture-qps-min: ok observed=15816.7 expected={"minFixtureQueriesPerSec":14000}
-- selector-realworld-qps-min: ok observed=15071 expected={"minRealworldQueriesPerSec":13000}
-- selector-fixture-memory-retained-max: ok observed=9.766 expected={"maxFixtureMemoryRetainedMB":10}
-- selector-realworld-memory-retained-max: ok observed=9.754 expected={"maxRealworldMemoryRetainedMB":10}
+- selector-fixture-qps-min: ok observed=15601.4 expected={"minFixtureQueriesPerSec":13800}
+- selector-realworld-qps-min: ok observed=13931.6 expected={"minRealworldQueriesPerSec":13200}
+- selector-fixture-memory-retained-delta-max: ok observed=-0.025 expected={"maxFixtureMemoryRetainedDeltaMB":0.25}
+- selector-realworld-memory-retained-delta-max: ok observed=0.006 expected={"maxRealworldMemoryRetainedDeltaMB":0.25}
 - selector-stability-runs-min: ok observed=9 expected={"minRuns":9}
 - selector-stability-warmups-min: ok observed=1 expected={"minWarmupsPerRun":1}
-- selector-stability-manifest-hash-match: ok observed="sha256:8bc2b8b2dc754b50021880fcfc0a2813a0c413e5afe47db5464407cd45ab15fb" expected="sha256:8bc2b8b2dc754b50021880fcfc0a2813a0c413e5afe47db5464407cd45ab15fb"
-- selector-stability-selected-hash-match: ok observed="sha256:9a10b7ee01a1ba4c20b133c04e7daf30a37199e806995758fe25f91a3bd1ec0f" expected="sha256:9a10b7ee01a1ba4c20b133c04e7daf30a37199e806995758fe25f91a3bd1ec0f"
+- selector-stability-manifest-hash-match: ok observed="sha256:f22c2077444cb6f8bb04799fcc71d8b6865edf5170be999161a2c9d9deb6e522" expected="sha256:f22c2077444cb6f8bb04799fcc71d8b6865edf5170be999161a2c9d9deb6e522"
+- selector-stability-selected-hash-match: ok observed="sha256:3ba782c1911af1957ee216e3b815255defe66f909f3e5dec306a594f463117cf" expected="sha256:3ba782c1911af1957ee216e3b815255defe66f909f3e5dec306a594f463117cf"
 - selector-stability-selected-count-min: ok observed=400 expected={"minSelectedCount":400}
-- selector-stability-fixture-median-qps-min: ok observed=15773 expected={"minFixtureMedianQueriesPerSec":14800}
-- selector-stability-realworld-median-qps-min: ok observed=15328.2 expected={"minRealworldMedianQueriesPerSec":14200}
-- selector-stability-fixture-spread-max: ok observed=0.0567615545552526 expected={"maxFixtureSpreadFraction":0.12}
-- selector-stability-realworld-spread-max: ok observed=0.07104552393627432 expected={"maxRealworldSpreadFraction":0.2}
-- selector-stability-fixture-memory-median-max: ok observed=9.766 expected={"maxFixtureMedianMemoryRetainedMB":10}
-- selector-stability-realworld-memory-median-max: ok observed=9.754 expected={"maxRealworldMedianMemoryRetainedMB":10}
+- selector-stability-fixture-median-qps-min: ok observed=15129 expected={"minFixtureMedianQueriesPerSec":14500}
+- selector-stability-realworld-median-qps-min: ok observed=13491.2 expected={"minRealworldMedianQueriesPerSec":13000}
+- selector-stability-fixture-spread-max: ok observed=0.09982814462290972 expected={"maxFixtureSpreadFraction":0.12}
+- selector-stability-realworld-spread-max: ok observed=0.0795777988614801 expected={"maxRealworldSpreadFraction":0.28}
+- selector-stability-fixture-memory-median-delta-max: ok observed=-0.025 expected={"maxFixtureMedianMemoryRetainedDeltaMB":0.25}
+- selector-stability-realworld-memory-median-delta-max: ok observed=0.006 expected={"maxRealworldMedianMemoryRetainedDeltaMB":0.25}
 
 ## Worst by parse time
-- 21b214b330432922d751268f75b12ab45960506efa8561cffe8871d4ce925871 kind=linked sizeBytes=196798 parseTimeMs=54.387 parseErrorCount=63
-- e464e07016d8f0d88cc44b2bf23b6fd117dcbe54c937df2b12d08fc2be6df3f4 kind=linked sizeBytes=348417 parseTimeMs=28.133 parseErrorCount=0
-- 10e4a1bb7f96526be1c889b290f204a8056f85edb09e736d9061598c6cb7890c kind=linked sizeBytes=63129 parseTimeMs=21.504 parseErrorCount=0
-- 35e36199388e7f91c71fadd3c2619b88b0144a29e30784546f453a8d6285a5be kind=linked sizeBytes=96086 parseTimeMs=17.748 parseErrorCount=0
-- 8e312e73b4ab8e6940ee28deec70fba656995d36155fe365985cec934ac8dbae kind=linked sizeBytes=117261 parseTimeMs=17.145 parseErrorCount=0
-- 2edf45a11a10c49b1c636eb1ee85fb82742071cd71dc99f9e342ee2538111bac kind=linked sizeBytes=109421 parseTimeMs=15.65 parseErrorCount=1
-- d7705700d24d5919255576642ad2c28bfc790390b7183a369038ff5c1e814d51 kind=linked sizeBytes=88932 parseTimeMs=13.558 parseErrorCount=1
-- 8818649ae2b6f5b839d19a22eaddbfd941138b5d3a60540cb0b8c23f926c8882 kind=linked sizeBytes=43408 parseTimeMs=11.639 parseErrorCount=7
-- f9b751c1cd0d2b0f91862db987fed9dda48758b15e6f42ca67796b45f4b21702 kind=linked sizeBytes=36536 parseTimeMs=9.335 parseErrorCount=6
-- 2cb75e9ee1adbe40d2ed0544b4dcf160aec3c9f37a6745f1578e67eea4116ccf kind=linked sizeBytes=44536 parseTimeMs=9.288 parseErrorCount=6
-- e471c9385f2f3f666032af3e624aa0eee4f61ca385708c24dd319a5724fc3579 kind=linked sizeBytes=35768 parseTimeMs=6.775 parseErrorCount=0
-- 928ec94d2e90fd173c73cc18e8823502ea8b12454d3c2af4d8f68ba153526b98 kind=linked sizeBytes=19715 parseTimeMs=6.316 parseErrorCount=0
-- cc97f277693cd6797804977c15340f0901af3e04bb2737693921950de950396b kind=linked sizeBytes=31078 parseTimeMs=5.618 parseErrorCount=0
-- cd31dea0fa2438426b1b93d7b906281aef69dc8a7faba34720ba1558d6c48e63 kind=linked sizeBytes=32260 parseTimeMs=4.689 parseErrorCount=0
-- c21e5a2b32c47bc5f9d9efc97bc0e29fd081946d1d3ebffc5621cfafb1d3960e kind=linked sizeBytes=59016 parseTimeMs=3.723 parseErrorCount=0
-- b105e34c08e02bb1bc3107015a8459a0076a535ec0569adfa2d877200499a16e kind=linked sizeBytes=27282 parseTimeMs=3.385 parseErrorCount=0
-- 83d6cbef78f20397eca531f2a309d4c330c6569bc1844712c56f78e6504953bb kind=inline-style sizeBytes=12576 parseTimeMs=3.379 parseErrorCount=6
-- 14b6bf6b0705fcd65a41184c37852da82626ed9ae20d3ae37f2ff0971d840d09 kind=linked sizeBytes=6907 parseTimeMs=3.087 parseErrorCount=0
-- 2a261e84ed61d3f5f3fffe8ab3b050a8e6439eecdafe0a65daed4f590499b5ff kind=linked sizeBytes=15219 parseTimeMs=2.787 parseErrorCount=0
-- 688d89cf418a6cfa0e47edf2faacae6e1c52d6674b3c25e91d5e4982d2822668 kind=linked sizeBytes=25247 parseTimeMs=2.562 parseErrorCount=0
+- 79c475c307ca9d3465eb378f3ab8b2dbe7a1864f815b53f11e166300d0c5f593 kind=linked sizeBytes=489240 parseTimeMs=89.012 parseErrorCount=3
+- 1b43e503b1634b7fd82bbda2aa70b05980c276de29e4bfe46c5740fbec54ef70 kind=linked sizeBytes=398265 parseTimeMs=78.312 parseErrorCount=0
+- b9123afe518bf96372a7603a7c356b1aa759ca45fa51cb9ac9042fe98de1b2e7 kind=linked sizeBytes=423237 parseTimeMs=74.527 parseErrorCount=0
+- 3c2c250962822f4b1636d8616ed50b948cf97144efd7d6c3972fdffb29bedd0f kind=inline-style sizeBytes=409177 parseTimeMs=63.605 parseErrorCount=0
+- 0801580182d8760935341373c255864a76b8def3948fd4c6ea3cfb6f0ac48c24 kind=linked sizeBytes=196878 parseTimeMs=62.23 parseErrorCount=63
+- fa897efb2d6bf054279a794184fcf78815f0355b251b63f6dec2c68d77458798 kind=linked sizeBytes=243226 parseTimeMs=53.854 parseErrorCount=116
+- 45d3856c0840e958a841a3934c9a990aa896bc13bd993749b4482d264b9e27f0 kind=linked sizeBytes=204051 parseTimeMs=49.204 parseErrorCount=63
+- 61d3b61d29dafeff22340a01868927f29a32e6f8d0a0a118ed21cd8a6e2d8085 kind=linked sizeBytes=339347 parseTimeMs=47.955 parseErrorCount=0
+- 80451dcc7f0d908fcbf9c5e78c722278bf0db31e3eb25f7c890b672560597a3f kind=linked sizeBytes=310451 parseTimeMs=45.909 parseErrorCount=0
+- 8b9a3688434a4845315f9292d68af81e312fedd89bb0258c579236817b6fcdb8 kind=linked sizeBytes=268249 parseTimeMs=42.75 parseErrorCount=0
+- 21b214b330432922d751268f75b12ab45960506efa8561cffe8871d4ce925871 kind=linked sizeBytes=196798 parseTimeMs=42.613 parseErrorCount=63
+- 566b53426cb29e46bfffdec027bf083c8f9f8434cf30649e7cc5638e4467f73c kind=linked sizeBytes=197662 parseTimeMs=40.398 parseErrorCount=63
+- 620d3c1593ecb86f3f19ec026a180c826023c841889451ca3feeb38c3d03b906 kind=linked sizeBytes=202201 parseTimeMs=39.741 parseErrorCount=63
+- f0fcd6090d3fd991a0a0cfd25950ff3ea889d48aa34e1df0f2f72f4dea2ed013 kind=linked sizeBytes=184236 parseTimeMs=38.677 parseErrorCount=63
+- 73c7f02ef19aa14e080b298f7d9c9dc02dc021b8a09ea04a84b52ebeefdc0d20 kind=linked sizeBytes=295654 parseTimeMs=36.675 parseErrorCount=0
+- b76c75ef320200cb8fb2d50fe88129f792d201ebfb0b4fb11ae7d567e0ac666d kind=linked sizeBytes=187559 parseTimeMs=35.433 parseErrorCount=63
+- 191b0e7abe7f4a67dc41b6caa88cea0b919f864c9cba153a22a52c30057424fa kind=linked sizeBytes=199763 parseTimeMs=34.671 parseErrorCount=0
+- bbebdba6d04782fa0680b8fa7c04773be71abe17d05c2da498e1b9be72d4e503 kind=linked sizeBytes=249564 parseTimeMs=28.843 parseErrorCount=0
+- 28049996134a746ac4cf02788183fec2e9c5c7a394acdccfc6be944c5661106f kind=inline-style sizeBytes=90941 parseTimeMs=26.336 parseErrorCount=0
+- 04c316f2e0f20af77e0287f9c49c446e77ac55f07369db8a63240b527a6fc6bf kind=linked sizeBytes=69885 parseTimeMs=24.465 parseErrorCount=0
 
 ## Largest payloads sampled
-- e464e07016d8f0d88cc44b2bf23b6fd117dcbe54c937df2b12d08fc2be6df3f4 kind=linked sizeBytes=348417 parseTimeMs=28.133 parseErrorCount=0
-- 21b214b330432922d751268f75b12ab45960506efa8561cffe8871d4ce925871 kind=linked sizeBytes=196798 parseTimeMs=54.387 parseErrorCount=63
-- 8e312e73b4ab8e6940ee28deec70fba656995d36155fe365985cec934ac8dbae kind=linked sizeBytes=117261 parseTimeMs=17.145 parseErrorCount=0
-- 2edf45a11a10c49b1c636eb1ee85fb82742071cd71dc99f9e342ee2538111bac kind=linked sizeBytes=109421 parseTimeMs=15.65 parseErrorCount=1
-- 35e36199388e7f91c71fadd3c2619b88b0144a29e30784546f453a8d6285a5be kind=linked sizeBytes=96086 parseTimeMs=17.748 parseErrorCount=0
-- d7705700d24d5919255576642ad2c28bfc790390b7183a369038ff5c1e814d51 kind=linked sizeBytes=88932 parseTimeMs=13.558 parseErrorCount=1
-- 10e4a1bb7f96526be1c889b290f204a8056f85edb09e736d9061598c6cb7890c kind=linked sizeBytes=63129 parseTimeMs=21.504 parseErrorCount=0
-- c21e5a2b32c47bc5f9d9efc97bc0e29fd081946d1d3ebffc5621cfafb1d3960e kind=linked sizeBytes=59016 parseTimeMs=3.723 parseErrorCount=0
-- 2cb75e9ee1adbe40d2ed0544b4dcf160aec3c9f37a6745f1578e67eea4116ccf kind=linked sizeBytes=44536 parseTimeMs=9.288 parseErrorCount=6
-- 8818649ae2b6f5b839d19a22eaddbfd941138b5d3a60540cb0b8c23f926c8882 kind=linked sizeBytes=43408 parseTimeMs=11.639 parseErrorCount=7
-- f9b751c1cd0d2b0f91862db987fed9dda48758b15e6f42ca67796b45f4b21702 kind=linked sizeBytes=36536 parseTimeMs=9.335 parseErrorCount=6
-- e471c9385f2f3f666032af3e624aa0eee4f61ca385708c24dd319a5724fc3579 kind=linked sizeBytes=35768 parseTimeMs=6.775 parseErrorCount=0
-- cd31dea0fa2438426b1b93d7b906281aef69dc8a7faba34720ba1558d6c48e63 kind=linked sizeBytes=32260 parseTimeMs=4.689 parseErrorCount=0
-- cc97f277693cd6797804977c15340f0901af3e04bb2737693921950de950396b kind=linked sizeBytes=31078 parseTimeMs=5.618 parseErrorCount=0
-- b105e34c08e02bb1bc3107015a8459a0076a535ec0569adfa2d877200499a16e kind=linked sizeBytes=27282 parseTimeMs=3.385 parseErrorCount=0
-- 688d89cf418a6cfa0e47edf2faacae6e1c52d6674b3c25e91d5e4982d2822668 kind=linked sizeBytes=25247 parseTimeMs=2.562 parseErrorCount=0
-- 928ec94d2e90fd173c73cc18e8823502ea8b12454d3c2af4d8f68ba153526b98 kind=linked sizeBytes=19715 parseTimeMs=6.316 parseErrorCount=0
-- 2a261e84ed61d3f5f3fffe8ab3b050a8e6439eecdafe0a65daed4f590499b5ff kind=linked sizeBytes=15219 parseTimeMs=2.787 parseErrorCount=0
-- 3f175b06f0630ceefa92d09990e4a33233550f54e94c1e4314ab3127b39590ef kind=inline-style sizeBytes=14078 parseTimeMs=1.518 parseErrorCount=0
-- 1b481752cfc8a1e7c275335e3ed1eb3645de8bbe56a1acc576a25a65f9602535 kind=linked sizeBytes=13569 parseTimeMs=2.327 parseErrorCount=0
+- 79c475c307ca9d3465eb378f3ab8b2dbe7a1864f815b53f11e166300d0c5f593 kind=linked sizeBytes=489240 parseTimeMs=89.012 parseErrorCount=3
+- b9123afe518bf96372a7603a7c356b1aa759ca45fa51cb9ac9042fe98de1b2e7 kind=linked sizeBytes=423237 parseTimeMs=74.527 parseErrorCount=0
+- 3c2c250962822f4b1636d8616ed50b948cf97144efd7d6c3972fdffb29bedd0f kind=inline-style sizeBytes=409177 parseTimeMs=63.605 parseErrorCount=0
+- 1b43e503b1634b7fd82bbda2aa70b05980c276de29e4bfe46c5740fbec54ef70 kind=linked sizeBytes=398265 parseTimeMs=78.312 parseErrorCount=0
+- d89cd2bd0637ccc5b4af65448deb9c85fac1f97c7b529ccc99b7070f8377b44d kind=linked sizeBytes=349405 parseTimeMs=22.816 parseErrorCount=0
+- e464e07016d8f0d88cc44b2bf23b6fd117dcbe54c937df2b12d08fc2be6df3f4 kind=linked sizeBytes=348417 parseTimeMs=20.786 parseErrorCount=0
+- 61d3b61d29dafeff22340a01868927f29a32e6f8d0a0a118ed21cd8a6e2d8085 kind=linked sizeBytes=339347 parseTimeMs=47.955 parseErrorCount=0
+- 80451dcc7f0d908fcbf9c5e78c722278bf0db31e3eb25f7c890b672560597a3f kind=linked sizeBytes=310451 parseTimeMs=45.909 parseErrorCount=0
+- 73c7f02ef19aa14e080b298f7d9c9dc02dc021b8a09ea04a84b52ebeefdc0d20 kind=linked sizeBytes=295654 parseTimeMs=36.675 parseErrorCount=0
+- 8b9a3688434a4845315f9292d68af81e312fedd89bb0258c579236817b6fcdb8 kind=linked sizeBytes=268249 parseTimeMs=42.75 parseErrorCount=0
+- bbebdba6d04782fa0680b8fa7c04773be71abe17d05c2da498e1b9be72d4e503 kind=linked sizeBytes=249564 parseTimeMs=28.843 parseErrorCount=0
+- fa897efb2d6bf054279a794184fcf78815f0355b251b63f6dec2c68d77458798 kind=linked sizeBytes=243226 parseTimeMs=53.854 parseErrorCount=116
+- 45d3856c0840e958a841a3934c9a990aa896bc13bd993749b4482d264b9e27f0 kind=linked sizeBytes=204051 parseTimeMs=49.204 parseErrorCount=63
+- 620d3c1593ecb86f3f19ec026a180c826023c841889451ca3feeb38c3d03b906 kind=linked sizeBytes=202201 parseTimeMs=39.741 parseErrorCount=63
+- 191b0e7abe7f4a67dc41b6caa88cea0b919f864c9cba153a22a52c30057424fa kind=linked sizeBytes=199763 parseTimeMs=34.671 parseErrorCount=0
+- 566b53426cb29e46bfffdec027bf083c8f9f8434cf30649e7cc5638e4467f73c kind=linked sizeBytes=197662 parseTimeMs=40.398 parseErrorCount=63
+- 0801580182d8760935341373c255864a76b8def3948fd4c6ea3cfb6f0ac48c24 kind=linked sizeBytes=196878 parseTimeMs=62.23 parseErrorCount=63
+- 21b214b330432922d751268f75b12ab45960506efa8561cffe8871d4ce925871 kind=linked sizeBytes=196798 parseTimeMs=42.613 parseErrorCount=63
+- b76c75ef320200cb8fb2d50fe88129f792d201ebfb0b4fb11ae7d567e0ac666d kind=linked sizeBytes=187559 parseTimeMs=35.433 parseErrorCount=63
+- f0fcd6090d3fd991a0a0cfd25950ff3ea889d48aa34e1df0f2f72f4dea2ed013 kind=linked sizeBytes=184236 parseTimeMs=38.677 parseErrorCount=63
