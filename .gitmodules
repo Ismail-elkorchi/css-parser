@@ -1,3 +1,6 @@
 [submodule "vendor/html5lib-tests"]
 	path = vendor/html5lib-tests
 	url = https://github.com/html5lib/html5lib-tests.git
+[submodule "vendor/wpt"]
+	path = vendor/wpt
+	url = https://github.com/web-platform-tests/wpt.git
