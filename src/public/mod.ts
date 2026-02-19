@@ -314,60 +314,63 @@ function toPublicSpanFromLoc(loc: unknown, captureSpans: boolean): Span | undefi
   };
 }
 
-function annotateNodeValue(value: unknown, nodeIdState: NodeIdState, captureSpans: boolean): unknown {
+function annotateAny(value: unknown, nodeIdState: NodeIdState, captureSpans: boolean): void {
+  if (value === null || typeof value !== "object") {
+    return;
+  }
+
   if (Array.isArray(value)) {
-    const mutableArray = value as unknown[];
-    for (let index = 0; index < mutableArray.length; index += 1) {
-      const entry = mutableArray[index];
-      if (entry !== null && typeof entry === "object") {
-        annotateNodeValue(entry, nodeIdState, captureSpans);
-      }
+    for (let index = 0; index < value.length; index += 1) {
+      annotateAny(value[index], nodeIdState, captureSpans);
     }
-    return mutableArray;
+    return;
   }
 
-  if (!isRecord(value)) {
-    return value;
-  }
-
-  if (typeof value["type"] === "string") {
-    return annotateNode(value as CssAstNode, nodeIdState, captureSpans);
-  }
-
-  for (const key in value) {
-    const entry = value[key];
-    if (entry !== null && typeof entry === "object") {
-      annotateNodeValue(entry, nodeIdState, captureSpans);
-    }
-  }
-  return value;
-}
-
-function annotateNode(rawNode: CssAstNode, nodeIdState: NodeIdState, captureSpans: boolean): CssNode {
-  const mutable = rawNode as unknown as Record<string, unknown>;
-  const span = captureSpans ? toPublicSpanFromLoc(mutable["loc"], true) : undefined;
+  const mutable = value as Record<string, unknown>;
+  const isTypedNode = typeof mutable["type"] === "string";
 
   for (const key in mutable) {
-    if (key === "loc" || key === "type") {
+    if (isTypedNode && (key === "loc" || key === "type")) {
       continue;
     }
 
-    const value = mutable[key];
-    if (value !== null && typeof value === "object") {
-      annotateNodeValue(value, nodeIdState, captureSpans);
+    const entry = mutable[key];
+    if (entry === null || typeof entry !== "object") {
+      continue;
     }
+
+    if (Array.isArray(entry)) {
+      const children = entry as unknown[];
+      for (let index = 0; index < children.length; index += 1) {
+        const child = children[index];
+        if (child !== null && typeof child === "object") {
+          annotateAny(child, nodeIdState, captureSpans);
+        }
+      }
+      continue;
+    }
+
+    annotateAny(entry, nodeIdState, captureSpans);
+  }
+
+  if (!isTypedNode) {
+    return;
   }
 
   mutable["id"] = nodeIdState.next;
   nodeIdState.next += 1;
   if (captureSpans) {
+    const span = toPublicSpanFromLoc(mutable["loc"], true);
     mutable["spanProvenance"] = span ? "input" : "none";
     if (span) {
       mutable["span"] = span;
     }
   }
+}
 
-  return mutable as CssNode;
+function annotateNode(rawNode: CssAstNode, nodeIdState: NodeIdState, captureSpans: boolean): CssNode {
+  annotateAny(rawNode, nodeIdState, captureSpans);
+  return rawNode as unknown as CssNode;
 }
 
 function collectChildNodes(value: unknown, into: CssNode[]): void {
