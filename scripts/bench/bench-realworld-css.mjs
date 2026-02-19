@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { performance } from "node:perf_hooks";
 import { resolve } from "node:path";
 
-import { parse } from "../../dist/mod.js";
+import { parse, parseDeclarationList } from "../../dist/mod.js";
 import { sha256Bytes, writeJson } from "../eval/eval-primitives.mjs";
 
 const TOP_LARGEST_LIMIT = 200;
@@ -129,10 +129,15 @@ async function main() {
     let parseErrorCount = null;
     for (let iteration = 0; iteration < ITERATIONS_PER_CASE; iteration += 1) {
       const startedAt = performance.now();
-      const tree = parse(cssSource, {
-        captureSpans: false,
-        trace: false
-      });
+      const tree = record.kind === "style-attr"
+        ? parseDeclarationList(cssSource, {
+          captureSpans: false,
+          trace: false
+        })
+        : parse(cssSource, {
+          captureSpans: false,
+          trace: false
+        });
       parseSamplesMs.push(performance.now() - startedAt);
       if (parseErrorCount === null) {
         parseErrorCount = tree.errors.length;

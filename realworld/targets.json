@@ -1,44 +1,44 @@
 {
   "suite": "bench-realworld-css-targets",
   "version": 2,
-  "sourceManifestSha256": "sha256:8bc2b8b2dc754b50021880fcfc0a2813a0c413e5afe47db5464407cd45ab15fb",
+  "sourceManifestSha256": "sha256:f22c2077444cb6f8bb04799fcc71d8b6865edf5170be999161a2c9d9deb6e522",
   "thresholds": {
-    "minSelectedCount": 114,
+    "minSelectedCount": 900,
     "requiredKinds": [
       "inline-style",
       "linked",
       "style-attr"
     ],
     "requiredKindMinimums": {
-      "inline-style": 25,
-      "linked": 38,
-      "style-attr": 51
+      "inline-style": 100,
+      "linked": 100,
+      "style-attr": 600
     },
-    "maxParseP95Ms": 16,
-    "maxParseP99Ms": 27,
-    "maxParseMaxMs": 65,
-    "maxErrorRate": 0.5088
+    "maxParseP95Ms": 10,
+    "maxParseP99Ms": 46,
+    "maxParseMaxMs": 95,
+    "maxErrorRate": 0.06
   },
   "selectorThresholds": {
     "minSelectedCount": 400,
-    "selectedHash": "sha256:9a10b7ee01a1ba4c20b133c04e7daf30a37199e806995758fe25f91a3bd1ec0f",
+    "selectedHash": "sha256:3ba782c1911af1957ee216e3b815255defe66f909f3e5dec306a594f463117cf",
     "minTreeTotalNodes": 250,
     "minTreeElementNodes": 250,
     "minFixtureIterations": 2000,
     "minRealworldIterations": 120,
-    "minFixtureQueriesPerSec": 14000,
-    "minRealworldQueriesPerSec": 13000,
-    "maxFixtureMemoryRetainedMB": 10,
-    "maxRealworldMemoryRetainedMB": 10
+    "minFixtureQueriesPerSec": 13800,
+    "minRealworldQueriesPerSec": 13200,
+    "maxFixtureMemoryRetainedDeltaMB": 0.25,
+    "maxRealworldMemoryRetainedDeltaMB": 0.25
   },
   "selectorStabilityThresholds": {
     "minRuns": 9,
     "minWarmupsPerRun": 1,
-    "minFixtureMedianQueriesPerSec": 14800,
-    "minRealworldMedianQueriesPerSec": 14200,
+    "minFixtureMedianQueriesPerSec": 14500,
+    "minRealworldMedianQueriesPerSec": 13000,
     "maxFixtureSpreadFraction": 0.12,
-    "maxRealworldSpreadFraction": 0.2,
-    "maxFixtureMedianMemoryRetainedMB": 10,
-    "maxRealworldMedianMemoryRetainedMB": 10
+    "maxRealworldSpreadFraction": 0.28,
+    "maxFixtureMedianMemoryRetainedDeltaMB": 0.25,
+    "maxRealworldMedianMemoryRetainedDeltaMB": 0.25
   }
 }

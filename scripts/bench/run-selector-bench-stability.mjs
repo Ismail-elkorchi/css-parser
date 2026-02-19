@@ -117,6 +117,8 @@ async function main() {
   const realworldQps = [];
   const fixtureMemoryRetainedMB = [];
   const realworldMemoryRetainedMB = [];
+  const fixtureMemoryRetainedDeltaMB = [];
+  const realworldMemoryRetainedDeltaMB = [];
   let identity = null;
   let tree = null;
   let selection = null;
@@ -153,6 +155,8 @@ async function main() {
     realworldQps.push(Number(realworld.queriesPerSec ?? 0));
     fixtureMemoryRetainedMB.push(Number(fixture.memoryRetainedMB ?? 0));
     realworldMemoryRetainedMB.push(Number(realworld.memoryRetainedMB ?? 0));
+    fixtureMemoryRetainedDeltaMB.push(Number(fixture.memoryRetainedDeltaMB ?? Number.NaN));
+    realworldMemoryRetainedDeltaMB.push(Number(realworld.memoryRetainedDeltaMB ?? Number.NaN));
   }
 
   const output = {
@@ -167,11 +171,13 @@ async function main() {
     benchmarks: {
       fixture: {
         queriesPerSec: summarize(fixtureQps),
-        memoryRetainedMB: summarize(fixtureMemoryRetainedMB)
+        memoryRetainedMB: summarize(fixtureMemoryRetainedMB),
+        memoryRetainedDeltaMB: summarize(fixtureMemoryRetainedDeltaMB)
       },
       realworld: {
         queriesPerSec: summarize(realworldQps),
-        memoryRetainedMB: summarize(realworldMemoryRetainedMB)
+        memoryRetainedMB: summarize(realworldMemoryRetainedMB),
+        memoryRetainedDeltaMB: summarize(realworldMemoryRetainedDeltaMB)
       }
     }
   };

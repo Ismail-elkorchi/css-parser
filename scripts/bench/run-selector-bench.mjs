@@ -196,7 +196,8 @@ function benchmarkSelectorQueries(name, rootTree, selectors, iterations) {
     matchedNodesTotal,
     meanMatchesPerQuery: toNumber(matchedNodesTotal / queryCount, 6),
     memoryBaselineMB: toNumber(startHeapUsed / (1024 * 1024)),
-    memoryRetainedMB: toNumber(retainedHeapUsed / (1024 * 1024))
+    memoryRetainedMB: toNumber(retainedHeapUsed / (1024 * 1024)),
+    memoryRetainedDeltaMB: toNumber((retainedHeapUsed - startHeapUsed) / (1024 * 1024))
   };
 }
 

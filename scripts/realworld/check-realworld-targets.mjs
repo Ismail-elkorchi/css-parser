@@ -236,24 +236,33 @@ async function main() {
     )
   );
 
-  const fixtureMemoryRetainedMB = Number(fixtureSelectorBenchmark?.memoryRetainedMB ?? Number.NaN);
-  const realworldMemoryRetainedMB = Number(realworldSelectorBenchmark?.memoryRetainedMB ?? Number.NaN);
-  const maxFixtureMemoryRetainedMB = Number(selectorThresholds.maxFixtureMemoryRetainedMB ?? Number.POSITIVE_INFINITY);
-  const maxRealworldMemoryRetainedMB = Number(selectorThresholds.maxRealworldMemoryRetainedMB ?? Number.POSITIVE_INFINITY);
+  const fixtureMemoryRetainedDeltaMB = Number(fixtureSelectorBenchmark?.memoryRetainedDeltaMB ?? Number.NaN);
+  const realworldMemoryRetainedDeltaMB = Number(realworldSelectorBenchmark?.memoryRetainedDeltaMB ?? Number.NaN);
+  const maxFixtureMemoryRetainedDeltaMB = Number(
+    selectorThresholds.maxFixtureMemoryRetainedDeltaMB
+      ?? selectorThresholds.maxFixtureMemoryRetainedMB
+      ?? Number.POSITIVE_INFINITY
+  );
+  const maxRealworldMemoryRetainedDeltaMB = Number(
+    selectorThresholds.maxRealworldMemoryRetainedDeltaMB
+      ?? selectorThresholds.maxRealworldMemoryRetainedMB
+      ?? Number.POSITIVE_INFINITY
+  );
   checks.push(
     makeCheck(
-      "selector-fixture-memory-retained-max",
-      isFiniteNumber(fixtureMemoryRetainedMB) && fixtureMemoryRetainedMB <= maxFixtureMemoryRetainedMB,
-      fixtureMemoryRetainedMB,
-      { maxFixtureMemoryRetainedMB }
+      "selector-fixture-memory-retained-delta-max",
+      isFiniteNumber(fixtureMemoryRetainedDeltaMB) && fixtureMemoryRetainedDeltaMB <= maxFixtureMemoryRetainedDeltaMB,
+      fixtureMemoryRetainedDeltaMB,
+      { maxFixtureMemoryRetainedDeltaMB }
     )
   );
   checks.push(
     makeCheck(
-      "selector-realworld-memory-retained-max",
-      isFiniteNumber(realworldMemoryRetainedMB) && realworldMemoryRetainedMB <= maxRealworldMemoryRetainedMB,
-      realworldMemoryRetainedMB,
-      { maxRealworldMemoryRetainedMB }
+      "selector-realworld-memory-retained-delta-max",
+      isFiniteNumber(realworldMemoryRetainedDeltaMB) &&
+        realworldMemoryRetainedDeltaMB <= maxRealworldMemoryRetainedDeltaMB,
+      realworldMemoryRetainedDeltaMB,
+      { maxRealworldMemoryRetainedDeltaMB }
     )
   );
 
@@ -308,15 +317,23 @@ async function main() {
   const minRealworldMedianQueriesPerSec = Number(selectorStabilityThresholds.minRealworldMedianQueriesPerSec ?? 0);
   const maxFixtureSpreadFraction = Number(selectorStabilityThresholds.maxFixtureSpreadFraction ?? Number.POSITIVE_INFINITY);
   const maxRealworldSpreadFraction = Number(selectorStabilityThresholds.maxRealworldSpreadFraction ?? Number.POSITIVE_INFINITY);
-  const maxFixtureMedianMemoryRetainedMB = Number(selectorStabilityThresholds.maxFixtureMedianMemoryRetainedMB ?? Number.POSITIVE_INFINITY);
-  const maxRealworldMedianMemoryRetainedMB = Number(selectorStabilityThresholds.maxRealworldMedianMemoryRetainedMB ?? Number.POSITIVE_INFINITY);
+  const maxFixtureMedianMemoryRetainedDeltaMB = Number(
+    selectorStabilityThresholds.maxFixtureMedianMemoryRetainedDeltaMB
+      ?? selectorStabilityThresholds.maxFixtureMedianMemoryRetainedMB
+      ?? Number.POSITIVE_INFINITY
+  );
+  const maxRealworldMedianMemoryRetainedDeltaMB = Number(
+    selectorStabilityThresholds.maxRealworldMedianMemoryRetainedDeltaMB
+      ?? selectorStabilityThresholds.maxRealworldMedianMemoryRetainedMB
+      ?? Number.POSITIVE_INFINITY
+  );
 
   const fixtureMedianQps = Number(stabilityFixture?.queriesPerSec?.median ?? Number.NaN);
   const realworldMedianQps = Number(stabilityRealworld?.queriesPerSec?.median ?? Number.NaN);
   const fixtureSpreadFraction = Number(stabilityFixture?.queriesPerSec?.spreadFraction ?? Number.NaN);
   const realworldSpreadFraction = Number(stabilityRealworld?.queriesPerSec?.spreadFraction ?? Number.NaN);
-  const fixtureMedianMemoryRetainedMB = Number(stabilityFixture?.memoryRetainedMB?.median ?? Number.NaN);
-  const realworldMedianMemoryRetainedMB = Number(stabilityRealworld?.memoryRetainedMB?.median ?? Number.NaN);
+  const fixtureMedianMemoryRetainedDeltaMB = Number(stabilityFixture?.memoryRetainedDeltaMB?.median ?? Number.NaN);
+  const realworldMedianMemoryRetainedDeltaMB = Number(stabilityRealworld?.memoryRetainedDeltaMB?.median ?? Number.NaN);
 
   checks.push(
     makeCheck(
@@ -352,20 +369,20 @@ async function main() {
   );
   checks.push(
     makeCheck(
-      "selector-stability-fixture-memory-median-max",
-      isFiniteNumber(fixtureMedianMemoryRetainedMB) &&
-        fixtureMedianMemoryRetainedMB <= maxFixtureMedianMemoryRetainedMB,
-      fixtureMedianMemoryRetainedMB,
-      { maxFixtureMedianMemoryRetainedMB }
+      "selector-stability-fixture-memory-median-delta-max",
+      isFiniteNumber(fixtureMedianMemoryRetainedDeltaMB) &&
+        fixtureMedianMemoryRetainedDeltaMB <= maxFixtureMedianMemoryRetainedDeltaMB,
+      fixtureMedianMemoryRetainedDeltaMB,
+      { maxFixtureMedianMemoryRetainedDeltaMB }
     )
   );
   checks.push(
     makeCheck(
-      "selector-stability-realworld-memory-median-max",
-      isFiniteNumber(realworldMedianMemoryRetainedMB) &&
-        realworldMedianMemoryRetainedMB <= maxRealworldMedianMemoryRetainedMB,
-      realworldMedianMemoryRetainedMB,
-      { maxRealworldMedianMemoryRetainedMB }
+      "selector-stability-realworld-memory-median-delta-max",
+      isFiniteNumber(realworldMedianMemoryRetainedDeltaMB) &&
+        realworldMedianMemoryRetainedDeltaMB <= maxRealworldMedianMemoryRetainedDeltaMB,
+      realworldMedianMemoryRetainedDeltaMB,
+      { maxRealworldMedianMemoryRetainedDeltaMB }
     )
   );
 
