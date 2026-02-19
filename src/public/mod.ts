@@ -123,14 +123,8 @@ export class PatchPlanningError extends Error {
   }
 }
 
-class NodeIdAssigner {
-  #next: NodeId = 1;
-
-  next(): NodeId {
-    const value = this.#next;
-    this.#next += 1;
-    return value;
-  }
+interface NodeIdState {
+  next: NodeId;
 }
 
 interface NodeMetrics {
@@ -320,13 +314,13 @@ function toPublicSpanFromLoc(loc: unknown, captureSpans: boolean): Span | undefi
   };
 }
 
-function annotateNodeValue(value: unknown, assigner: NodeIdAssigner, captureSpans: boolean): unknown {
+function annotateNodeValue(value: unknown, nodeIdState: NodeIdState, captureSpans: boolean): unknown {
   if (Array.isArray(value)) {
     const mutableArray = value as unknown[];
     for (let index = 0; index < mutableArray.length; index += 1) {
       const entry = mutableArray[index];
       if (entry !== null && typeof entry === "object") {
-        annotateNodeValue(entry, assigner, captureSpans);
+        annotateNodeValue(entry, nodeIdState, captureSpans);
       }
     }
     return mutableArray;
@@ -337,40 +331,35 @@ function annotateNodeValue(value: unknown, assigner: NodeIdAssigner, captureSpan
   }
 
   if (typeof value["type"] === "string") {
-    return annotateNode(value as CssAstNode, assigner, captureSpans);
+    return annotateNode(value as CssAstNode, nodeIdState, captureSpans);
   }
 
   for (const key in value) {
-    if (!Object.hasOwn(value, key)) {
-      continue;
-    }
     const entry = value[key];
     if (entry !== null && typeof entry === "object") {
-      annotateNodeValue(entry, assigner, captureSpans);
+      annotateNodeValue(entry, nodeIdState, captureSpans);
     }
   }
   return value;
 }
 
-function annotateNode(rawNode: CssAstNode, assigner: NodeIdAssigner, captureSpans: boolean): CssNode {
+function annotateNode(rawNode: CssAstNode, nodeIdState: NodeIdState, captureSpans: boolean): CssNode {
   const mutable = rawNode as unknown as Record<string, unknown>;
   const span = captureSpans ? toPublicSpanFromLoc(mutable["loc"], true) : undefined;
 
   for (const key in mutable) {
-    if (!Object.hasOwn(mutable, key)) {
-      continue;
-    }
     if (key === "loc" || key === "type") {
       continue;
     }
 
     const value = mutable[key];
     if (value !== null && typeof value === "object") {
-      annotateNodeValue(value, assigner, captureSpans);
+      annotateNodeValue(value, nodeIdState, captureSpans);
     }
   }
 
-  mutable["id"] = assigner.next();
+  mutable["id"] = nodeIdState.next;
+  nodeIdState.next += 1;
   if (captureSpans) {
     mutable["spanProvenance"] = span ? "input" : "none";
     if (span) {
@@ -502,8 +491,10 @@ function isFragmentTree(value: unknown): value is FragmentTree {
 }
 
 function parseInternal(css: string, context: ParseContext, options: ParseOptions = {}): ParsedTreeResult {
-  const startedAt = Date.now();
   const budgets = options.budgets;
+  const maxTimeMs = budgets?.maxTimeMs;
+  const hasTimeBudget = maxTimeMs !== undefined;
+  const startedAt = hasTimeBudget ? Date.now() : 0;
   const captureSpans = options.captureSpans ?? options.includeSpans ?? false;
   let trace: TraceEvent[] | undefined = options.trace ? [] : undefined;
   const needsTokenization =
@@ -557,9 +548,10 @@ function parseInternal(css: string, context: ParseContext, options: ParseOptions
     captureSpans
   });
 
-  const assigner = new NodeIdAssigner();
-  const treeId = assigner.next();
-  const root = annotateNode(built.root, assigner, captureSpans);
+  const nodeIdState: NodeIdState = { next: 1 };
+  const treeId = nodeIdState.next;
+  nodeIdState.next += 1;
+  const root = annotateNode(built.root, nodeIdState, captureSpans);
   const children = topLevelChildren(root);
   let metrics: NodeMetrics | null = null;
   if (needsMetrics) {
@@ -567,7 +559,9 @@ function parseInternal(css: string, context: ParseContext, options: ParseOptions
     enforceBudget("maxNodes", budgets?.maxNodes, metrics.nodes);
     enforceBudget("maxDepth", budgets?.maxDepth, metrics.maxDepth);
   }
-  enforceBudget("maxTimeMs", budgets?.maxTimeMs, Date.now() - startedAt);
+  if (hasTimeBudget) {
+    enforceBudget("maxTimeMs", maxTimeMs, Date.now() - startedAt);
+  }
 
   const publicErrors = toParseErrors(built.errors);
   if (trace) {
