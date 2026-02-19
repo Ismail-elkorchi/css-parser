@@ -92,3 +92,24 @@ Performance scoring source:
 - `checks`: export/docs/fixtures/tests/cases/strictMode/budget checks
 - `overall.ok`: boolean
 - `failures`: array with failed check summaries
+
+`reports/score.json` shape:
+- `suite`: `"score"`
+- `timestamp`: ISO string
+- `profile`: `ci` | `release` | `hard-gate`
+- `weightsUsed`:
+  - `source`: which weight set was applied (`profiles.<profile>.weights` or `weights`)
+  - `values`: resolved numeric category weights
+  - `total`: must equal `100`
+- `total`: numeric score out of `100`
+- `breakdown.<category>.score`: numeric score contribution
+- `breakdown.<category>.details`: scoring inputs
+
+Score interpretation rules:
+- Categories with weight `0` contribute `0` points and are not evidence-required for score.
+- Categories with weight `> 0` must align with profile-required evidence policy (`G-128`).
+
+`reports/gates.json` additions:
+- Gate `G-128` (`Score model coherence`) includes:
+  - `weights`: resolved profile weights
+  - `checks[]`: `{ category, weight, policyField, pass, ... }`

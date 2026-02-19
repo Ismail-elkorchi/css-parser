@@ -7,6 +7,30 @@ Profiles:
 - `ci`: day-to-day enforcement
 - `release`: release enforcement
 
+## Score model (profile-weighted)
+Evaluation scoring uses profile-specific weights from `evaluation.config.json`:
+- `profiles.ci.weights`
+- `profiles.release.weights`
+- `profiles.hard-gate.weights`
+
+Each profile weight set sums to exactly `100`.
+
+CI weights (current):
+- `correctness`: 70
+- `browserDiff`: 0
+- `performance`: 0
+- `robustness`: 10
+- `agentFirst`: 15
+- `packagingTrust`: 5
+
+Release weights (current):
+- `correctness`: 40
+- `browserDiff`: 20
+- `performance`: 15
+- `robustness`: 10
+- `agentFirst`: 10
+- `packagingTrust`: 5
+
 ## Gate set
 - `G-000`: Evaluation configuration exists.
 - `G-010`: Zero runtime dependencies.
@@ -29,6 +53,7 @@ Profiles:
 - `G-110`: Browser differential parity gate.
 - `G-115`: Hard-gate evidence integrity report.
 - `G-120`: Benchmark stability gate (release and hard-gate profiles).
+- `G-128`: Score model coherence.
 
 ## Performance evidence policy
 - `ci` score uses single-run `reports/bench.json` when performance weight is non-zero.
@@ -40,6 +65,16 @@ Profiles:
   - memory median ratio vs baseline `<= 1.05`
   - run count `>= 9`
   - each measured run executes in an isolated subprocess after warmups
+
+## Score model coherence (`G-128`)
+- For each profile, if a score category weight is `> 0`, matching report policy fields must be enabled:
+  - `correctness` -> `requireConformanceReports`
+  - `agentFirst` -> `requireAgentReport`
+  - `packagingTrust` -> `requirePackReport` and `requireDocsReport`
+  - `robustness` -> `requireBudgetsReport` plus fuzz-policy alignment
+  - `performance` -> `requireBenchReport`
+  - `browserDiff` -> `requireBrowserDiff`
+- If a weight is `0`, the category contributes `0` points and report presence does not affect score.
 
 ## Holdout discipline
 For each conformance suite:
