@@ -5,7 +5,7 @@
 - Decision type: gate and API contract hardening
 
 ## Context
-Phase 1 requires falsifiable evidence for selector behavior, not narrative claims.
+Hard-gate set requires falsifiable evidence for selector behavior, not narrative claims.
 The repository had selector implementation work-in-progress but no dedicated eval artifact and no gate requiring selector fixtures.
 
 ## Decision

@@ -1,6 +1,6 @@
-# Phase 1 hard-gate build
+# Hard-gate evidence build
 
-Phase 1 is complete only when `npm run eval:hard-gate` exits with code `0`.
+Hard-gate evidence is complete only when `npm run eval:hard-gate` exits with code `0`.
 
 Evidence report:
 - `reports/hard-gate.json`
