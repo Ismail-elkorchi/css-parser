@@ -145,10 +145,10 @@
       ]
     },
     "performanceStability": {
-      "maxThroughputRobustSpreadFraction": 0.45,
-      "maxMemoryRobustSpreadFraction": 0.02,
-      "minThroughputMedianRatio": 0.8,
-      "maxMemoryMedianRatio": 1.05
+      "maxThroughputRobustSpreadFraction": 0.3,
+      "maxMemoryRobustSpreadFraction": 0.01,
+      "minThroughputMedianRatio": 0.95,
+      "maxMemoryMedianRatio": 1.03
     }
   },
   "weights": {

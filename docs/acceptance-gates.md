@@ -59,10 +59,10 @@ Release weights (current):
 - `ci` score uses single-run `reports/bench.json` when performance weight is non-zero.
 - `release` and `hard-gate` scores use `reports/bench-stability.json` medians.
 - `G-120` requires benchmark robustness bounds on `parse-medium` and `parse-large`:
-  - throughput robust spread fraction (`(p90-p10)/median`) `<= 0.45`
-  - memory robust spread fraction (`(p90-p10)/median`) `<= 0.02`
-  - throughput median ratio vs baseline `>= 0.80`
-  - memory median ratio vs baseline `<= 1.05`
+  - throughput robust spread fraction (`(p90-p10)/median`) `<= 0.30`
+  - memory robust spread fraction (`(p90-p10)/median`) `<= 0.01`
+  - throughput median ratio vs baseline `>= 0.95`
+  - memory median ratio vs baseline `<= 1.03`
   - run count `>= 9`
   - each measured run executes in an isolated subprocess after warmups
 
