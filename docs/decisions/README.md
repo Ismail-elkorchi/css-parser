@@ -13,3 +13,4 @@ ADR index:
 - ADR-009: performance stability evidence gate
 - ADR-010: G-120 robust stability thresholds with isolated runs
 - ADR-011: CI score model coherence with produced evidence
+- ADR-012: tighter performance and realworld regression boundaries

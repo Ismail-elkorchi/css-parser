@@ -14,9 +14,9 @@
       "linked": 38,
       "style-attr": 51
     },
-    "maxParseP95Ms": 16.5,
-    "maxParseP99Ms": 28,
-    "maxParseMaxMs": 70,
+    "maxParseP95Ms": 16,
+    "maxParseP99Ms": 27,
+    "maxParseMaxMs": 65,
     "maxErrorRate": 0.5088
   },
   "selectorThresholds": {
@@ -26,19 +26,19 @@
     "minTreeElementNodes": 250,
     "minFixtureIterations": 2000,
     "minRealworldIterations": 120,
-    "minFixtureQueriesPerSec": 9000,
-    "minRealworldQueriesPerSec": 8500,
-    "maxFixtureMemoryRetainedMB": 11,
-    "maxRealworldMemoryRetainedMB": 11
+    "minFixtureQueriesPerSec": 14000,
+    "minRealworldQueriesPerSec": 13000,
+    "maxFixtureMemoryRetainedMB": 10,
+    "maxRealworldMemoryRetainedMB": 10
   },
   "selectorStabilityThresholds": {
     "minRuns": 9,
     "minWarmupsPerRun": 1,
-    "minFixtureMedianQueriesPerSec": 13000,
-    "minRealworldMedianQueriesPerSec": 12500,
-    "maxFixtureSpreadFraction": 0.55,
-    "maxRealworldSpreadFraction": 0.45,
-    "maxFixtureMedianMemoryRetainedMB": 10.5,
-    "maxRealworldMedianMemoryRetainedMB": 10.5
+    "minFixtureMedianQueriesPerSec": 14800,
+    "minRealworldMedianQueriesPerSec": 14200,
+    "maxFixtureSpreadFraction": 0.12,
+    "maxRealworldSpreadFraction": 0.2,
+    "maxFixtureMedianMemoryRetainedMB": 10,
+    "maxRealworldMedianMemoryRetainedMB": 10
   }
 }
