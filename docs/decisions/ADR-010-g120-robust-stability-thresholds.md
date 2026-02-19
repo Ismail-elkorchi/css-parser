@@ -8,7 +8,7 @@ Supersedes: ADR-009 (threshold calculation details)
 
 ## Context
 - `G-120` produced frequent false negatives on shared developer hosts when stability was measured with `(max-min)/median`.
-- Single-process benchmark loops amplified cross-run interference and JIT phase effects.
+- Single-process benchmark loops amplified cross-run interference and JIT warmup effects.
 - The project still needs hard regression detection, not a weaker gate.
 
 ## Decision

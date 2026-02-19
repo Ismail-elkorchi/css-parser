@@ -301,13 +301,13 @@ async function main() {
   );
   checks.push(makeCheck("docs-contract", reports.docs?.ok === true, { docs: reports.docs }));
   checks.push(
-    makeCheck("docs-hard-gate-policy", await fileExists("docs/phase1-hard-gates.md"), {
-      requiredPath: "docs/phase1-hard-gates.md"
+    makeCheck("docs-hard-gate-policy", await fileExists("docs/hard-gates.md"), {
+      requiredPath: "docs/hard-gates.md"
     })
   );
   checks.push(
-    makeCheck("docs-hard-gate-adr", await fileExists("docs/decisions/ADR-007-phase1-hard-gate-build.md"), {
-      requiredPath: "docs/decisions/ADR-007-phase1-hard-gate-build.md"
+    makeCheck("docs-hard-gate-adr", await fileExists("docs/decisions/ADR-007-hard-gate-evidence-build.md"), {
+      requiredPath: "docs/decisions/ADR-007-hard-gate-evidence-build.md"
     })
   );
 

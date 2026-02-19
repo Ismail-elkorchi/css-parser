@@ -27,7 +27,7 @@ async function main() {
   const selectorStabilityRealworld = selectorStabilityReport.benchmarks?.realworld ?? null;
 
   const lines = [
-    "# Phase 2 realworld CSS performance",
+    "# Realworld CSS performance",
     "",
     `Generated: ${new Date().toISOString()}`,
     "",
@@ -92,7 +92,7 @@ async function main() {
     )
   ];
 
-  const docPath = resolve(process.cwd(), "docs/phase2-realworld-css-performance.md");
+  const docPath = resolve(process.cwd(), "docs/realworld-css-performance.md");
   await writeFile(docPath, `${lines.join("\n")}\n`, "utf8");
 
   process.stdout.write(
