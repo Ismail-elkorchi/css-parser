@@ -324,3 +324,32 @@ export interface SelectorQueryOptions {
   readonly strict?: boolean;
   readonly maxVisitedNodes?: number;
 }
+
+export interface StyleSignalSpecificity {
+  readonly a: number;
+  readonly b: number;
+  readonly c: number;
+}
+
+export interface StyleDeclarationSignal {
+  readonly declarationNodeId: NodeId;
+  readonly property: string;
+  readonly value: string;
+  readonly important: boolean;
+  readonly declarationOrder: number;
+}
+
+export interface StyleRuleSignal {
+  readonly ruleNodeId: NodeId;
+  readonly selectorText: string;
+  readonly selector: CompiledSelectorList;
+  readonly selectorSupported: boolean;
+  readonly specificityMax: StyleSignalSpecificity;
+  readonly cascadeOrder: number;
+  readonly declarations: readonly StyleDeclarationSignal[];
+}
+
+export interface StyleSignalOptions {
+  readonly includeUnsupportedSelectors?: boolean;
+  readonly strictSelectors?: boolean;
+}

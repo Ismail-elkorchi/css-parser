@@ -17,6 +17,8 @@
 - `findById(tree, id)`
 - `findAllByType(tree, type)`
 - `compileSelectorList(selectorText)`
+- `extractStyleRuleSignals(cssOrTree, options?)`
+- `extractInlineStyleSignals(styleText)`
 - `matchesSelector(selector, node, root, options?)`
 - `querySelectorAll(selector, root, options?)`
 - `outline(tree, options)`
@@ -94,6 +96,20 @@ Event kinds:
 - Supported selector kinds are defined in `docs/selectors.md`.
 - `strict: true` rejects unsupported selector parts by throwing.
 - `maxVisitedNodes` bounds selector traversal and throws `BudgetExceededError` on overflow.
+
+## Style-signal contract
+- `extractStyleRuleSignals(cssOrTree, options?)` returns deterministic rule metadata:
+  - `ruleNodeId`
+  - `selectorText`
+  - `selector` (compiled selector list)
+  - `selectorSupported`
+  - `specificityMax` (`a`, `b`, `c`)
+  - `cascadeOrder` (source order of rules)
+  - `declarations[]` with `declarationNodeId`, `property`, `value`, `important`, `declarationOrder`
+- `extractInlineStyleSignals(styleText)` returns deterministic declaration metadata with `declarationOrder`.
+- `strictSelectors: true` throws on unsupported selectors.
+- `includeUnsupportedSelectors: false` (default) filters unsupported selector rules.
+- Selector support policy is explicit metadata; unsupported rules are never silently treated as supported.
 
 ## Parse-error taxonomy
 - `ParseError.parseErrorId` is deterministic for equal input/options.

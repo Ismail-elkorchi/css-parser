@@ -10,6 +10,7 @@ Agent-first behavior is measured as observable runtime and evaluation outcomes.
 - Structured budget failures via `BudgetExceededError`.
 - Deterministic parse error taxonomy with stable spec references.
 - Deterministic selector matching for structured extraction workflows.
+- Deterministic style-signal extraction with explicit selector support and cascade-order metadata.
 
 ## Verification surface
 - `reports/agent.json`

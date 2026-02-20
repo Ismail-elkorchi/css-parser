@@ -35,6 +35,10 @@ import type {
   SelectorQueryOptions,
   SelectorSimple,
   SelectorUnsupportedPart,
+  StyleDeclarationSignal,
+  StyleRuleSignal,
+  StyleSignalOptions,
+  StyleSignalSpecificity,
   StyleSheetTree,
   Token,
   TokenizeOptions,
@@ -71,6 +75,10 @@ export type {
   SelectorQueryOptions,
   SelectorSimple,
   SelectorUnsupportedPart,
+  StyleDeclarationSignal,
+  StyleRuleSignal,
+  StyleSignalOptions,
+  StyleSignalSpecificity,
   StartEndToken,
   StyleSheetTree,
   Token,
@@ -1919,6 +1927,165 @@ export function compileSelectorList(selectorText: string): CompiledSelectorList 
     supported,
     unsupportedParts
   };
+}
+
+function compareSpecificity(left: StyleSignalSpecificity, right: StyleSignalSpecificity): number {
+  if (left.a !== right.a) {
+    return left.a - right.a;
+  }
+  if (left.b !== right.b) {
+    return left.b - right.b;
+  }
+  return left.c - right.c;
+}
+
+function specificityForSimple(simple: SelectorSimple): StyleSignalSpecificity {
+  switch (simple.kind) {
+    case "id":
+      return { a: 1, b: 0, c: 0 };
+    case "class":
+    case "attribute":
+      return { a: 0, b: 1, c: 0 };
+    case "type":
+      return { a: 0, b: 0, c: simple.universal ? 0 : 1 };
+    default:
+      return { a: 0, b: 0, c: 0 };
+  }
+}
+
+function specificityForCompiledSelector(selector: CompiledSelector): StyleSignalSpecificity {
+  let a = 0;
+  let b = 0;
+  let c = 0;
+  for (const compound of selector.compounds) {
+    for (const simple of compound.simpleSelectors) {
+      const specificity = specificityForSimple(simple);
+      a += specificity.a;
+      b += specificity.b;
+      c += specificity.c;
+    }
+  }
+  return { a, b, c };
+}
+
+function specificityMaxForSelectorList(selectorList: CompiledSelectorList): StyleSignalSpecificity {
+  let best: StyleSignalSpecificity = { a: 0, b: 0, c: 0 };
+  for (const selector of selectorList.selectors) {
+    const current = specificityForCompiledSelector(selector);
+    if (compareSpecificity(current, best) > 0) {
+      best = current;
+    }
+  }
+  return best;
+}
+
+function declarationSignalFromNode(node: CssNode, declarationOrder: number): StyleDeclarationSignal | null {
+  if (node.type !== "Declaration") {
+    return null;
+  }
+
+  const propertyRaw = typeof node["property"] === "string" ? node["property"] : "";
+  const property = propertyRaw.trim().toLowerCase();
+  if (property.length === 0) {
+    return null;
+  }
+
+  const valueNode = isPublicNode(node["value"]) ? node["value"] : null;
+  const value = valueNode ? serialize(valueNode).trim() : "";
+  const important = node["important"] === true;
+
+  return {
+    declarationNodeId: node.id,
+    property,
+    value,
+    important,
+    declarationOrder
+  };
+}
+
+function declarationSignalsFromContainer(container: CssNode): readonly StyleDeclarationSignal[] {
+  const signals: StyleDeclarationSignal[] = [];
+  let declarationOrder = 0;
+  for (const child of childNodes(container)) {
+    const declaration = declarationSignalFromNode(child, declarationOrder);
+    if (!declaration) {
+      continue;
+    }
+    signals.push(declaration);
+    declarationOrder += 1;
+  }
+  return signals;
+}
+
+export function extractStyleRuleSignals(
+  cssOrTree: string | StyleSheetTree,
+  options: StyleSignalOptions = {}
+): readonly StyleRuleSignal[] {
+  const includeUnsupportedSelectors = options.includeUnsupportedSelectors === true;
+  const strictSelectors = options.strictSelectors === true;
+  const tree = typeof cssOrTree === "string" ? parse(cssOrTree) : cssOrTree;
+
+  const signals: StyleRuleSignal[] = [];
+  let cascadeOrder = 0;
+
+  walk(tree, (node) => {
+    if (node.type !== "Rule") {
+      return;
+    }
+
+    const ruleOrder = cascadeOrder;
+    cascadeOrder += 1;
+
+    const preludeNode = isPublicNode(node["prelude"]) ? node["prelude"] : null;
+    const blockNode = isPublicNode(node["block"]) ? node["block"] : null;
+    if (!preludeNode || !blockNode) {
+      return;
+    }
+
+    const selectorText = serialize(preludeNode).trim();
+    if (selectorText.length === 0) {
+      return;
+    }
+
+    const selector = compileSelectorList(selectorText);
+    if (strictSelectors && !selector.supported) {
+      const unsupported = selector.unsupportedParts[0];
+      const detail = unsupported
+        ? `${unsupported.partType} ${unsupported.detail}`.trim()
+        : "unknown selector unsupported part";
+      throw new Error(`unsupported selector in strict mode: ${detail}`);
+    }
+    if (!includeUnsupportedSelectors && !selector.supported) {
+      return;
+    }
+
+    signals.push({
+      ruleNodeId: node.id,
+      selectorText,
+      selector,
+      selectorSupported: selector.supported,
+      specificityMax: specificityMaxForSelectorList(selector),
+      cascadeOrder: ruleOrder,
+      declarations: declarationSignalsFromContainer(blockNode)
+    });
+  });
+
+  return signals;
+}
+
+export function extractInlineStyleSignals(styleText: string): readonly StyleDeclarationSignal[] {
+  const fragment = parseDeclarationList(styleText);
+  const signals: StyleDeclarationSignal[] = [];
+  let declarationOrder = 0;
+  for (const node of fragment.children) {
+    const declaration = declarationSignalFromNode(node, declarationOrder);
+    if (!declaration) {
+      continue;
+    }
+    signals.push(declaration);
+    declarationOrder += 1;
+  }
+  return signals;
 }
 
 const MAX_SELECTOR_COMPILE_CACHE_SIZE = 256;
