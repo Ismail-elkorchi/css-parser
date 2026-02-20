@@ -35,6 +35,9 @@ import type {
   SelectorQueryOptions,
   SelectorSimple,
   SelectorUnsupportedPart,
+  RenderSignal,
+  RenderSignalClass,
+  RenderSignalOptions,
   StyleDeclarationSignal,
   StyleRuleSignal,
   StyleSignalOptions,
@@ -75,6 +78,9 @@ export type {
   SelectorQueryOptions,
   SelectorSimple,
   SelectorUnsupportedPart,
+  RenderSignal,
+  RenderSignalClass,
+  RenderSignalOptions,
   StyleDeclarationSignal,
   StyleRuleSignal,
   StyleSignalOptions,
@@ -2017,6 +2023,55 @@ function declarationSignalsFromContainer(container: CssNode): readonly StyleDecl
   return signals;
 }
 
+function normalizeDeclarationValueForRenderSignals(value: string): string {
+  return value.toLowerCase().replace(/\s+/g, " ").trim();
+}
+
+function classifyRenderSignalClass(
+  declaration: StyleDeclarationSignal,
+  options: RenderSignalOptions
+): RenderSignalClass | null {
+  const includeControlAffordance = options.includeControlAffordance !== false;
+  const includeVisibilitySignals = options.includeVisibilitySignals !== false;
+  const property = declaration.property.toLowerCase();
+  const normalizedValue = normalizeDeclarationValueForRenderSignals(declaration.value);
+
+  if (includeVisibilitySignals) {
+    if (property === "display" && normalizedValue === "none") {
+      return "visibility-hidden-subtree";
+    }
+    if (property === "visibility" && (normalizedValue === "hidden" || normalizedValue === "collapse")) {
+      return "visibility-hidden-subtree";
+    }
+    if (property === "content-visibility" && normalizedValue === "hidden") {
+      return "visibility-hidden-subtree";
+    }
+    if (property === "opacity" && normalizedValue === "0") {
+      return "visibility-hidden-self";
+    }
+    if (property === "font-size" && normalizedValue === "0") {
+      return "visibility-hidden-self";
+    }
+  }
+
+  if (includeControlAffordance) {
+    if (property === "cursor" && normalizedValue === "pointer") {
+      return "control-affordance";
+    }
+    if (property === "appearance" && normalizedValue.includes("button")) {
+      return "control-affordance";
+    }
+    if (property === "user-select" && normalizedValue === "none") {
+      return "control-affordance";
+    }
+    if (property === "pointer-events" && normalizedValue === "none") {
+      return "control-affordance";
+    }
+  }
+
+  return null;
+}
+
 export function extractStyleRuleSignals(
   cssOrTree: string | StyleSheetTree,
   options: StyleSignalOptions = {}
@@ -2086,6 +2141,62 @@ export function extractInlineStyleSignals(styleText: string): readonly StyleDecl
     declarationOrder += 1;
   }
   return signals;
+}
+
+export function extractRenderSignals(
+  cssOrTree: string | StyleSheetTree,
+  options: RenderSignalOptions = {}
+): readonly RenderSignal[] {
+  const ruleSignals = extractStyleRuleSignals(cssOrTree, options);
+  const renderSignals: RenderSignal[] = [];
+  for (const ruleSignal of ruleSignals) {
+    for (const declaration of ruleSignal.declarations) {
+      const signalClass = classifyRenderSignalClass(declaration, options);
+      if (!signalClass) {
+        continue;
+      }
+      renderSignals.push({
+        signalClass,
+        source: "rule",
+        property: declaration.property,
+        value: declaration.value,
+        important: declaration.important,
+        declarationOrder: declaration.declarationOrder,
+        selectorText: ruleSignal.selectorText,
+        declarationNodeId: declaration.declarationNodeId,
+        ruleNodeId: ruleSignal.ruleNodeId,
+        cascadeOrder: ruleSignal.cascadeOrder
+      });
+    }
+  }
+  return renderSignals;
+}
+
+export function extractInlineRenderSignals(
+  styleText: string,
+  options: RenderSignalOptions = {}
+): readonly RenderSignal[] {
+  const declarations = extractInlineStyleSignals(styleText);
+  const renderSignals: RenderSignal[] = [];
+  for (const declaration of declarations) {
+    const signalClass = classifyRenderSignalClass(declaration, options);
+    if (!signalClass) {
+      continue;
+    }
+    renderSignals.push({
+      signalClass,
+      source: "inline",
+      property: declaration.property,
+      value: declaration.value,
+      important: declaration.important,
+      declarationOrder: declaration.declarationOrder,
+      selectorText: null,
+      declarationNodeId: declaration.declarationNodeId,
+      ruleNodeId: null,
+      cascadeOrder: null
+    });
+  }
+  return renderSignals;
 }
 
 const MAX_SELECTOR_COMPILE_CACHE_SIZE = 256;

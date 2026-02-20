@@ -11,10 +11,12 @@ async function main() {
   const reportPath = resolve(process.cwd(), "realworld/reports/bench-realworld.json");
   const selectorReportPath = resolve(process.cwd(), "realworld/reports/bench-selectors.json");
   const selectorStabilityReportPath = resolve(process.cwd(), "realworld/reports/bench-selectors-stability.json");
+  const renderSignalsReportPath = resolve(process.cwd(), "realworld/reports/css-render-signals-v2.json");
   const targetsCheckPath = resolve(process.cwd(), "realworld/reports/realworld-targets-check.json");
   const report = JSON.parse(await readFile(reportPath, "utf8"));
   const selectorReport = JSON.parse(await readFile(selectorReportPath, "utf8"));
   const selectorStabilityReport = JSON.parse(await readFile(selectorStabilityReportPath, "utf8"));
+  const renderSignalsReport = JSON.parse(await readFile(renderSignalsReportPath, "utf8"));
   const targetsCheck = JSON.parse(await readFile(targetsCheckPath, "utf8"));
 
   const selectorFixtureBenchmark = Array.isArray(selectorReport.benchmarks)
@@ -78,6 +80,14 @@ async function main() {
     `- recoverableErrorCases: ${String(report.errors.recoverableErrorCases ?? 0)}`,
     `- recoverableErrorRate: ${String(report.errors.recoverableErrorRate ?? 0)}`,
     `- totalCases: ${String(report.errors.totalCases)}`,
+    "",
+    "## Render signal lift v2",
+    `- selected payloads: ${String(renderSignalsReport.selection?.selectedCount ?? 0)}`,
+    `- signal count: ${String(renderSignalsReport.totals?.signalCount ?? 0)}`,
+    `- parse failure count: ${String(renderSignalsReport.totals?.parseFailureCount ?? 0)}`,
+    ...Object.entries(renderSignalsReport.classCounts ?? {}).map(
+      ([signalClass, count]) => `- ${signalClass}: ${String(count)}`
+    ),
     "",
     "## Target checks",
     `- overall: ${targetsCheck.overall.ok ? "ok" : "fail"}`,

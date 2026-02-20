@@ -11,11 +11,13 @@ Agent-first behavior is measured as observable runtime and evaluation outcomes.
 - Deterministic parse error taxonomy with stable spec references.
 - Deterministic selector matching for structured extraction workflows.
 - Deterministic style-signal extraction with explicit selector support and cascade-order metadata.
+- Deterministic render-signal extraction (`extractRenderSignals`, `extractInlineRenderSignals`) for non-layout visibility/control reasoning.
 
 ## Verification surface
 - `reports/agent.json`
 - `reports/selectors.json`
 - `reports/stream.json`
+- `realworld/reports/css-render-signals-v2.json`
 - `reports/determinism.json`
 - `reports/budgets.json`
 - `reports/gates.json`
