@@ -66,16 +66,30 @@ function median(values) {
   return sorted[middle] ?? 0;
 }
 
+function percentile(values, fraction) {
+  const sorted = [...values].sort((left, right) => left - right);
+  if (sorted.length === 0) {
+    return 0;
+  }
+  const index = Math.min(sorted.length - 1, Math.max(0, Math.floor((sorted.length - 1) * fraction)));
+  return sorted[index] ?? 0;
+}
+
 function summarize(values) {
   const min = Math.min(...values);
   const max = Math.max(...values);
   const medianValue = median(values);
+  const p10 = percentile(values, 0.1);
+  const p90 = percentile(values, 0.9);
   return {
     values,
     min,
     max,
     median: medianValue,
-    spreadFraction: medianValue === 0 ? 0 : (max - min) / medianValue
+    p10,
+    p90,
+    spreadFraction: medianValue === 0 ? 0 : (max - min) / medianValue,
+    robustSpreadFraction: medianValue === 0 ? 0 : (p90 - p10) / medianValue
   };
 }
 
