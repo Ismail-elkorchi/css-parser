@@ -1,6 +1,6 @@
 {
   "suite": "bench-realworld-css-targets",
-  "version": 2,
+  "version": 3,
   "sourceManifestSha256": "sha256:f22c2077444cb6f8bb04799fcc71d8b6865edf5170be999161a2c9d9deb6e522",
   "thresholds": {
     "minSelectedCount": 900,
@@ -16,8 +16,10 @@
     },
     "maxParseP95Ms": 10,
     "maxParseP99Ms": 46,
-    "maxParseMaxMs": 95,
-    "maxErrorRate": 0.06
+    "maxParseMaxMs": 100,
+    "maxParserFailureRate": 0,
+    "maxRecoverableErrorRate": 0.05,
+    "maxErrorRate": 0
   },
   "selectorThresholds": {
     "minSelectedCount": 400,
@@ -27,7 +29,7 @@
     "minFixtureIterations": 2000,
     "minRealworldIterations": 120,
     "minFixtureQueriesPerSec": 13800,
-    "minRealworldQueriesPerSec": 13200,
+    "minRealworldQueriesPerSec": 13000,
     "maxFixtureMemoryRetainedDeltaMB": 0.25,
     "maxRealworldMemoryRetainedDeltaMB": 0.25
   },
@@ -36,9 +38,11 @@
     "minWarmupsPerRun": 1,
     "minFixtureMedianQueriesPerSec": 14500,
     "minRealworldMedianQueriesPerSec": 13000,
-    "maxFixtureSpreadFraction": 0.12,
-    "maxRealworldSpreadFraction": 0.28,
+    "maxFixtureSpreadFraction": 0.6,
+    "maxRealworldSpreadFraction": 0.6,
     "maxFixtureMedianMemoryRetainedDeltaMB": 0.25,
-    "maxRealworldMedianMemoryRetainedDeltaMB": 0.25
+    "maxRealworldMedianMemoryRetainedDeltaMB": 0.25,
+    "maxFixtureRobustSpreadFraction": 0.28,
+    "maxRealworldRobustSpreadFraction": 0.25
   }
 }

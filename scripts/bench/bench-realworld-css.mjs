@@ -127,25 +127,34 @@ async function main() {
 
     const parseSamplesMs = [];
     let parseErrorCount = null;
+    let parserFailed = false;
+    let parserFailureReason = null;
     for (let iteration = 0; iteration < ITERATIONS_PER_CASE; iteration += 1) {
       const startedAt = performance.now();
-      const tree = record.kind === "style-attr"
-        ? parseDeclarationList(cssSource, {
-          captureSpans: false,
-          trace: false
-        })
-        : parse(cssSource, {
-          captureSpans: false,
-          trace: false
-        });
-      parseSamplesMs.push(performance.now() - startedAt);
-      if (parseErrorCount === null) {
-        parseErrorCount = tree.errors.length;
-      } else if (parseErrorCount !== tree.errors.length) {
-        throw new Error(
-          `realworld parse error count drift for ${record.sha256}: ` +
-          `first=${String(parseErrorCount)} current=${String(tree.errors.length)}`
-        );
+      try {
+        const tree = record.kind === "style-attr"
+          ? parseDeclarationList(cssSource, {
+            captureSpans: false,
+            trace: false
+          })
+          : parse(cssSource, {
+            captureSpans: false,
+            trace: false
+          });
+        parseSamplesMs.push(performance.now() - startedAt);
+        if (parseErrorCount === null) {
+          parseErrorCount = tree.errors.length;
+        } else if (parseErrorCount !== tree.errors.length) {
+          throw new Error(
+            `realworld parse error count drift for ${record.sha256}: ` +
+            `first=${String(parseErrorCount)} current=${String(tree.errors.length)}`
+          );
+        }
+      } catch (error) {
+        parserFailed = true;
+        parserFailureReason = error instanceof Error ? error.message : String(error);
+        parseSamplesMs.push(performance.now() - startedAt);
+        break;
       }
     }
     const elapsedMs = median(parseSamplesMs);
@@ -155,7 +164,9 @@ async function main() {
       kind: record.kind,
       sizeBytes: record.sizeBytes,
       parseTimeMs: toMillis(elapsedMs),
-      parseErrorCount: Number(parseErrorCount ?? 0)
+      parseErrorCount: Number(parseErrorCount ?? 0),
+      parserFailed,
+      ...(parserFailureReason ? { parserFailureReason } : {})
     });
   }
 
@@ -167,7 +178,10 @@ async function main() {
   const sortedKindCounts = Object.fromEntries(
     Object.keys(kindCounts).sort((left, right) => left.localeCompare(right)).map((key) => [key, kindCounts[key]])
   );
-  const errorCases = cases.filter((entry) => entry.parseErrorCount > 0).length;
+  const recoverableErrorCases = cases.filter((entry) => entry.parseErrorCount > 0).length;
+  const parserFailureCases = cases.filter((entry) => entry.parserFailed === true).length;
+  const recoverableErrorRate = toRatio(ratio(recoverableErrorCases, cases.length));
+  const parserFailureRate = toRatio(ratio(parserFailureCases, cases.length));
 
   const summary = {
     suite: "bench-realworld-css",
@@ -203,9 +217,14 @@ async function main() {
       }
     },
     errors: {
-      errorCases,
+      parserFailureCases,
+      parserFailureRate,
+      recoverableErrorCases,
+      recoverableErrorRate,
+      // Legacy aliases retained for compatibility with historical consumers.
+      errorCases: parserFailureCases,
+      errorRate: parserFailureRate,
       totalCases: cases.length,
-      errorRate: toRatio(ratio(errorCases, cases.length))
     },
     worstByParseTime: [...cases]
       .sort((left, right) => right.parseTimeMs - left.parseTimeMs)

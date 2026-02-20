@@ -72,10 +72,12 @@ async function main() {
     `- selector realworld qps spread: ${String(selectorStabilityRealworld?.queriesPerSec?.spreadFraction ?? 0)}`,
     `- selector realworld memory median delta MB: ${String(selectorStabilityRealworld?.memoryRetainedDeltaMB?.median ?? 0)}`,
     "",
-    "## Error rate",
-    `- errorCases: ${String(report.errors.errorCases)}`,
+    "## Error surfaces",
+    `- parserFailureCases: ${String(report.errors.parserFailureCases ?? report.errors.errorCases ?? 0)}`,
+    `- parserFailureRate: ${String(report.errors.parserFailureRate ?? report.errors.errorRate ?? 0)}`,
+    `- recoverableErrorCases: ${String(report.errors.recoverableErrorCases ?? 0)}`,
+    `- recoverableErrorRate: ${String(report.errors.recoverableErrorRate ?? 0)}`,
     `- totalCases: ${String(report.errors.totalCases)}`,
-    `- errorRate: ${String(report.errors.errorRate)}`,
     "",
     "## Target checks",
     `- overall: ${targetsCheck.overall.ok ? "ok" : "fail"}`,
@@ -87,12 +89,12 @@ async function main() {
     "",
     "## Worst by parse time",
     ...summarizeWorst(report.cases, "parseTimeMs", 20).map((entry) =>
-      `- ${entry.sha256} kind=${entry.kind} sizeBytes=${String(entry.sizeBytes)} parseTimeMs=${String(entry.parseTimeMs)} parseErrorCount=${String(entry.parseErrorCount)}`
+      `- ${entry.sha256} kind=${entry.kind} sizeBytes=${String(entry.sizeBytes)} parseTimeMs=${String(entry.parseTimeMs)} parseErrorCount=${String(entry.parseErrorCount)} parserFailed=${String(entry.parserFailed === true)}`
     ),
     "",
     "## Largest payloads sampled",
     ...summarizeWorst(report.cases, "sizeBytes", 20).map((entry) =>
-      `- ${entry.sha256} kind=${entry.kind} sizeBytes=${String(entry.sizeBytes)} parseTimeMs=${String(entry.parseTimeMs)} parseErrorCount=${String(entry.parseErrorCount)}`
+      `- ${entry.sha256} kind=${entry.kind} sizeBytes=${String(entry.sizeBytes)} parseTimeMs=${String(entry.parseTimeMs)} parseErrorCount=${String(entry.parseErrorCount)} parserFailed=${String(entry.parserFailed === true)}`
     )
   ];
 

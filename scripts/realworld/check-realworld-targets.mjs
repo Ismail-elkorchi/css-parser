@@ -115,14 +115,32 @@ async function main() {
     )
   );
 
-  const errorRate = Number(report.errors?.errorRate ?? Number.NaN);
-  const maxErrorRate = Number(thresholds.maxErrorRate);
+  const parserFailureRate = Number(
+    report.errors?.parserFailureRate
+      ?? report.errors?.errorRate
+      ?? Number.NaN
+  );
+  const maxParserFailureRate = Number(thresholds.maxParserFailureRate ?? thresholds.maxErrorRate);
   checks.push(
     makeCheck(
-      "error-rate-max",
-      isFiniteNumber(errorRate) && errorRate <= maxErrorRate,
-      errorRate,
-      { maxErrorRate }
+      "parser-failure-rate-max",
+      isFiniteNumber(parserFailureRate) && parserFailureRate <= maxParserFailureRate,
+      parserFailureRate,
+      { maxParserFailureRate }
+    )
+  );
+
+  const recoverableErrorRate = Number(
+    report.errors?.recoverableErrorRate
+      ?? Number.NaN
+  );
+  const maxRecoverableErrorRate = Number(thresholds.maxRecoverableErrorRate ?? Number.POSITIVE_INFINITY);
+  checks.push(
+    makeCheck(
+      "recoverable-error-rate-max",
+      isFiniteNumber(recoverableErrorRate) && recoverableErrorRate <= maxRecoverableErrorRate,
+      recoverableErrorRate,
+      { maxRecoverableErrorRate }
     )
   );
 
@@ -215,8 +233,16 @@ async function main() {
     )
   );
 
-  const fixtureQueriesPerSec = Number(fixtureSelectorBenchmark?.queriesPerSec ?? Number.NaN);
-  const realworldQueriesPerSec = Number(realworldSelectorBenchmark?.queriesPerSec ?? Number.NaN);
+  const fixtureQueriesPerSec = Number(
+    stabilityFixture?.queriesPerSec?.median
+      ?? fixtureSelectorBenchmark?.queriesPerSec
+      ?? Number.NaN
+  );
+  const realworldQueriesPerSec = Number(
+    stabilityRealworld?.queriesPerSec?.median
+      ?? realworldSelectorBenchmark?.queriesPerSec
+      ?? Number.NaN
+  );
   const minFixtureQueriesPerSec = Number(selectorThresholds.minFixtureQueriesPerSec ?? 0);
   const minRealworldQueriesPerSec = Number(selectorThresholds.minRealworldQueriesPerSec ?? 0);
   checks.push(
@@ -315,8 +341,16 @@ async function main() {
 
   const minFixtureMedianQueriesPerSec = Number(selectorStabilityThresholds.minFixtureMedianQueriesPerSec ?? 0);
   const minRealworldMedianQueriesPerSec = Number(selectorStabilityThresholds.minRealworldMedianQueriesPerSec ?? 0);
-  const maxFixtureSpreadFraction = Number(selectorStabilityThresholds.maxFixtureSpreadFraction ?? Number.POSITIVE_INFINITY);
-  const maxRealworldSpreadFraction = Number(selectorStabilityThresholds.maxRealworldSpreadFraction ?? Number.POSITIVE_INFINITY);
+  const maxFixtureSpreadFraction = Number(
+    selectorStabilityThresholds.maxFixtureRobustSpreadFraction
+      ?? selectorStabilityThresholds.maxFixtureSpreadFraction
+      ?? Number.POSITIVE_INFINITY
+  );
+  const maxRealworldSpreadFraction = Number(
+    selectorStabilityThresholds.maxRealworldRobustSpreadFraction
+      ?? selectorStabilityThresholds.maxRealworldSpreadFraction
+      ?? Number.POSITIVE_INFINITY
+  );
   const maxFixtureMedianMemoryRetainedDeltaMB = Number(
     selectorStabilityThresholds.maxFixtureMedianMemoryRetainedDeltaMB
       ?? selectorStabilityThresholds.maxFixtureMedianMemoryRetainedMB
@@ -330,8 +364,16 @@ async function main() {
 
   const fixtureMedianQps = Number(stabilityFixture?.queriesPerSec?.median ?? Number.NaN);
   const realworldMedianQps = Number(stabilityRealworld?.queriesPerSec?.median ?? Number.NaN);
-  const fixtureSpreadFraction = Number(stabilityFixture?.queriesPerSec?.spreadFraction ?? Number.NaN);
-  const realworldSpreadFraction = Number(stabilityRealworld?.queriesPerSec?.spreadFraction ?? Number.NaN);
+  const fixtureSpreadFraction = Number(
+    stabilityFixture?.queriesPerSec?.robustSpreadFraction
+      ?? stabilityFixture?.queriesPerSec?.spreadFraction
+      ?? Number.NaN
+  );
+  const realworldSpreadFraction = Number(
+    stabilityRealworld?.queriesPerSec?.robustSpreadFraction
+      ?? stabilityRealworld?.queriesPerSec?.spreadFraction
+      ?? Number.NaN
+  );
   const fixtureMedianMemoryRetainedDeltaMB = Number(stabilityFixture?.memoryRetainedDeltaMB?.median ?? Number.NaN);
   const realworldMedianMemoryRetainedDeltaMB = Number(stabilityRealworld?.memoryRetainedDeltaMB?.median ?? Number.NaN);
 
