@@ -353,3 +353,26 @@ export interface StyleSignalOptions {
   readonly includeUnsupportedSelectors?: boolean;
   readonly strictSelectors?: boolean;
 }
+
+export type RenderSignalClass =
+  | "visibility-hidden-subtree"
+  | "visibility-hidden-self"
+  | "control-affordance";
+
+export interface RenderSignal {
+  readonly signalClass: RenderSignalClass;
+  readonly source: "rule" | "inline";
+  readonly property: string;
+  readonly value: string;
+  readonly important: boolean;
+  readonly declarationOrder: number;
+  readonly selectorText: string | null;
+  readonly declarationNodeId: NodeId;
+  readonly ruleNodeId: NodeId | null;
+  readonly cascadeOrder: number | null;
+}
+
+export interface RenderSignalOptions extends StyleSignalOptions {
+  readonly includeControlAffordance?: boolean;
+  readonly includeVisibilitySignals?: boolean;
+}

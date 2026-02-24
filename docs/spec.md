@@ -19,6 +19,8 @@
 - `compileSelectorList(selectorText)`
 - `extractStyleRuleSignals(cssOrTree, options?)`
 - `extractInlineStyleSignals(styleText)`
+- `extractRenderSignals(cssOrTree, options?)`
+- `extractInlineRenderSignals(styleText, options?)`
 - `matchesSelector(selector, node, root, options?)`
 - `querySelectorAll(selector, root, options?)`
 - `outline(tree, options)`
@@ -110,6 +112,14 @@ Event kinds:
 - `strictSelectors: true` throws on unsupported selectors.
 - `includeUnsupportedSelectors: false` (default) filters unsupported selector rules.
 - Selector support policy is explicit metadata; unsupported rules are never silently treated as supported.
+- Render-signal helpers expose deterministic non-layout signals:
+  - `extractRenderSignals(cssOrTree, options?)`
+  - `extractInlineRenderSignals(styleText, options?)`
+- Render signal classes:
+  - `visibility-hidden-subtree`
+  - `visibility-hidden-self`
+  - `control-affordance`
+- Render signals encode source and ordering metadata (`source`, `selectorText`, `declarationOrder`, `cascadeOrder`) for deterministic downstream policy engines.
 
 ## Parse-error taxonomy
 - `ParseError.parseErrorId` is deterministic for equal input/options.

@@ -26,6 +26,12 @@ Runtime quality reports:
 - `reports/bench.json`
 - `reports/bench-stability.json` (release/hard-gate)
 
+Realworld local reports:
+- `realworld/reports/bench-realworld.json`
+- `realworld/reports/bench-selectors.json`
+- `realworld/reports/bench-selectors-stability.json`
+- `realworld/reports/css-render-signals-v2.json`
+
 `reports/bench.json` shape:
 - `suite`: `"bench"`
 - `timestamp`: ISO string
@@ -113,3 +119,13 @@ Score interpretation rules:
 - Gate `G-128` (`Score model coherence`) includes:
   - `weights`: resolved profile weights
   - `checks[]`: `{ category, weight, policyField, pass, ... }`
+
+`realworld/reports/css-render-signals-v2.json` shape:
+- `suite`: `"css-render-signals-v2"`
+- `timestamp`: ISO string
+- `selection`: `{ selectedCount, topLargestCount, randomSampleCount, seed }`
+- `totals`: `{ signalCount, meanSignalsPerPayload, parseFailureCount }`
+- `classCounts`: object keyed by render-signal class
+- `topProperties[]`: `{ property, count }`
+- `parseFailures[]`: capped list of payload-level parse failures
+- `overall.ok`: boolean
