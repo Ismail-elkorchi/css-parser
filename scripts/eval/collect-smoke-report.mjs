@@ -3,11 +3,12 @@ import { readFile } from "node:fs/promises";
 import { nowIso, writeJson } from "./eval-primitives.mjs";
 import { buildSmokeReport } from "./smoke-report-core.mjs";
 
-const RUNTIME_REPORTS = {
-  node: "reports/smoke-node.json",
-  deno: "reports/smoke-deno.json",
-  bun: "reports/smoke-bun.json"
-};
+const RUNTIME_REPORTS = [
+  { name: "node", path: "reports/smoke-node.json", required: true },
+  { name: "deno", path: "reports/smoke-deno.json", required: true },
+  { name: "bun", path: "reports/smoke-bun.json", required: true },
+  { name: "browser", path: "reports/smoke-browser.json", required: false }
+];
 
 async function readRuntimeReport(path) {
   try {
@@ -23,18 +24,19 @@ async function readRuntimeReport(path) {
 
 async function main() {
   const runtimes = {};
-  for (const [runtime, path] of Object.entries(RUNTIME_REPORTS)) {
-    const report = await readRuntimeReport(path);
+  for (const runtimeReport of RUNTIME_REPORTS) {
+    const report = await readRuntimeReport(runtimeReport.path);
     if (report === null) {
-      runtimes[runtime] = {
+      runtimes[runtimeReport.name] = {
         suite: "smoke-runtime",
-        runtime,
-        ok: false,
+        runtime: runtimeReport.name,
+        ok: runtimeReport.required ? false : true,
+        required: runtimeReport.required,
         missing: true
       };
       continue;
     }
-    runtimes[runtime] = report;
+    runtimes[runtimeReport.name] = report;
   }
 
   const smokeReport = buildSmokeReport(runtimes);
