@@ -130,21 +130,26 @@ function checkAgent(agentReport, checks) {
   }
 }
 
-function checkSmoke(smokeReport, checks) {
+function checkSmoke(smokeReport, checks, requireBrowserSmoke) {
   const hashPattern = /^sha256:[a-f0-9]{64}$/u;
   const smokeHashes = {};
+  const requiredRuntimes = requireBrowserSmoke
+    ? ["node", "deno", "bun", "browser"]
+    : ["node", "deno", "bun"];
 
-  for (const runtimeName of ["node", "deno", "bun"]) {
+  for (const runtimeName of requiredRuntimes) {
     const runtimeReport = smokeReport?.runtimes?.[runtimeName] || null;
     const runtimeOk = runtimeReport?.ok === true;
     checks.push(makeCheck(`smoke-${runtimeName}-status`, runtimeOk, { runtime: runtimeName, runtimeReport }));
-    smokeHashes[runtimeName] = typeof runtimeReport?.determinismHash === "string" ? runtimeReport.determinismHash : null;
-    checks.push(
-      makeCheck(`smoke-${runtimeName}-determinism-hash-shape`, hashPattern.test(String(smokeHashes[runtimeName] || "")), {
-        runtime: runtimeName,
-        determinismHash: smokeHashes[runtimeName]
-      })
-    );
+    if (runtimeName !== "browser") {
+      smokeHashes[runtimeName] = typeof runtimeReport?.determinismHash === "string" ? runtimeReport.determinismHash : null;
+      checks.push(
+        makeCheck(`smoke-${runtimeName}-determinism-hash-shape`, hashPattern.test(String(smokeHashes[runtimeName] || "")), {
+          runtime: runtimeName,
+          determinismHash: smokeHashes[runtimeName]
+        })
+      );
+    }
 
     for (const smokeCheckName of REQUIRED_SMOKE_CHECKS) {
       checks.push(
@@ -242,6 +247,7 @@ function checkReleaseEvidence(reports, config, checks) {
 async function main() {
   const profile = parseProfileArg();
   const config = await readJson("evaluation.config.json");
+  const profilePolicy = config?.profiles?.[profile] || {};
   const reports = {
     tokenizer: await readJson("reports/tokenizer.json"),
     tree: await readJson("reports/tree.json"),
@@ -270,7 +276,7 @@ async function main() {
   checkDeterminism(reports.determinism, checks);
   checkStream(reports.stream, checks);
   checkAgent(reports.agent, checks);
-  checkSmoke(reports.smoke, checks);
+  checkSmoke(reports.smoke, checks, Boolean(profilePolicy.requireBrowserSmoke));
 
   if (profile !== "ci") {
     const holdoutTotal = getNumber(reports.holdout?.cases?.total);

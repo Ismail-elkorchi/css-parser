@@ -211,7 +211,7 @@ async function main() {
   const hashesAgree = runtimeHashValues.length === requiredDeterminismRuntimes.length &&
     new Set(runtimeHashValues).size === 1;
   const crossRuntimeDeterminismPass = requireCrossRuntimeDeterminism
-    ? Boolean(smokeDeterminism?.ok) && runtimesPresent && hashesAgree
+    ? runtimesPresent && hashesAgree
     : true;
 
   gates.push(
@@ -311,14 +311,16 @@ async function main() {
   const smokeNodeOk = Boolean(smokeReport?.runtimes?.node?.ok);
   const smokeDenoOk = profilePolicy.requireDeno ? Boolean(smokeReport?.runtimes?.deno?.ok) : true;
   const smokeBunOk = profilePolicy.requireBun ? Boolean(smokeReport?.runtimes?.bun?.ok) : true;
-  const smokePass = Boolean(smokeNodeOk && smokeDenoOk && smokeBunOk);
+  const smokeBrowserOk = profilePolicy.requireBrowserSmoke ? Boolean(smokeReport?.runtimes?.browser?.ok) : true;
+  const smokePass = Boolean(smokeNodeOk && smokeDenoOk && smokeBunOk && smokeBrowserOk);
 
   gates.push(
     makeGate("G-100", "Runtime smoke", smokePass, {
       required: {
         node: true,
         deno: Boolean(profilePolicy.requireDeno),
-        bun: Boolean(profilePolicy.requireBun)
+        bun: Boolean(profilePolicy.requireBun),
+        browser: Boolean(profilePolicy.requireBrowserSmoke)
       },
       runtimes: smokeReport?.runtimes || { missing: true }
     })

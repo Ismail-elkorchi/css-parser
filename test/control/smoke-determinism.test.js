@@ -52,7 +52,8 @@ test("buildSmokeReport marks cross-runtime mismatch as failed", () => {
   const equalReport = buildSmokeReport({
     node: { ok: true, determinismHash: "sha256:aa" },
     deno: { ok: true, determinismHash: "sha256:aa" },
-    bun: { ok: true, determinismHash: "sha256:aa" }
+    bun: { ok: true, determinismHash: "sha256:aa" },
+    browser: { ok: true, determinismHash: "sha256:aa" }
   });
   assert.equal(equalReport.determinism.ok, true);
   assert.equal(equalReport.overall.ok, true);
@@ -60,7 +61,8 @@ test("buildSmokeReport marks cross-runtime mismatch as failed", () => {
   const mismatchReport = buildSmokeReport({
     node: { ok: true, determinismHash: "sha256:aa" },
     deno: { ok: true, determinismHash: "sha256:bb" },
-    bun: { ok: true, determinismHash: "sha256:aa" }
+    bun: { ok: true, determinismHash: "sha256:aa" },
+    browser: { ok: true, determinismHash: "sha256:aa" }
   });
   assert.equal(mismatchReport.determinism.ok, false);
   assert.equal(mismatchReport.overall.ok, false);
