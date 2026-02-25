@@ -87,10 +87,11 @@ Performance scoring source:
 `reports/smoke.json` shape:
 - `suite`: `"smoke"`
 - `timestamp`: ISO string
-- `runtimes.node|deno|bun`: smoke-runtime report objects
+- `runtimes.node|deno|bun|browser`: smoke-runtime report objects
   - includes `ok`, `version`, `determinismHash`, `determinismFixtureId`, `checks`
 - `determinism`: `{ ok, allRuntimeHashesPresent, hashes }`
 - `overall.ok`: boolean
+  - computed from required runtime evidence only
 
 `reports/selectors.json` shape:
 - `suite`: `"selectors"`
