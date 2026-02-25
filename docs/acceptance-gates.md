@@ -54,6 +54,7 @@ Release weights (current):
 - `G-115`: Hard-gate evidence integrity report.
 - `G-120`: Benchmark stability gate (release and hard-gate profiles).
 - `G-128`: Score model coherence.
+- `G-129`: Require-flag producer coherence.
 
 ## Performance evidence policy
 - `ci` score uses single-run `reports/bench.json` when performance weight is non-zero.
@@ -75,6 +76,11 @@ Release weights (current):
   - `performance` -> `requireBenchReport`
   - `browserDiff` -> `requireBrowserDiff`
 - If a weight is `0`, the category contributes `0` points and report presence does not affect score.
+
+## Require-flag producer coherence (`G-129`)
+- Every `require*` profile key must be recognized by evaluator policy.
+- For each `require*` key set to `true`, mapped producer reports must exist in `reports/`.
+- Unknown `require*` keys fail the gate.
 
 ## Holdout discipline
 For each conformance suite:
