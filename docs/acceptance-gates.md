@@ -93,7 +93,7 @@ Hard-gate profile uses release requirements plus `G-115` strict evidence checks:
 - deterministic hash shape checks in `reports/determinism.json`
 - mandatory stream check IDs with pass status
 - mandatory agent feature checks with pass status
-- runtime smoke check matrix per runtime (`node`, `deno`, `bun`)
+- runtime smoke check matrix per runtime (`node`, `deno`, `bun`, `browser`)
 - cross-runtime determinism hash equality across `node`, `deno`, and `bun`
 - release-only evidence checks:
   - browser-diff case/engine/agreement/tag-coverage checks

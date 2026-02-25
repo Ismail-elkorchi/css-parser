@@ -1,4 +1,4 @@
-export const REQUIRED_SMOKE_RUNTIMES = ["node", "deno", "bun"];
+export const REQUIRED_SMOKE_RUNTIMES = ["node", "deno", "bun", "browser"];
 
 function allRuntimesPresent(runtimes) {
   return REQUIRED_SMOKE_RUNTIMES.every((runtimeName) => runtimes[runtimeName] !== undefined);

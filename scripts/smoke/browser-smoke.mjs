@@ -87,6 +87,7 @@ async function runBrowserSmoke(baseUrl) {
       for await (const token of mod.tokenizeStream(streamFromText(stylesheet))) {
         tokenKinds.push(token.kind);
       }
+      const tokens = mod.tokenize(stylesheet);
 
       const stablePayload = {
         serialized,
@@ -107,10 +108,12 @@ async function runBrowserSmoke(baseUrl) {
           typeof mod.parseStream === "function" &&
           typeof mod.serialize === "function" &&
           typeof mod.tokenizeStream === "function",
-        parseSerialize: serialized.includes("color:red"),
+        parse: parsed.kind === "stylesheet",
+        serialize: serialized.includes("color:red"),
         parseBytes: bytesSerialized.includes("margin:1px"),
         parseStream: streamSerialized.includes("color:red"),
         parseFragment: fragment.context === "declarationList",
+        tokenize: Array.isArray(tokens) && tokens.length > 0,
         tokenizeStream: tokenKinds.length > 0
       };
       const ok = Object.values(checks).every((value) => value === true);

@@ -65,6 +65,7 @@ async function main() {
     ["smoke-node", "npm", ["run", "smoke:node"]],
     ["smoke-deno", "npm", ["run", "smoke:deno"]],
     ["smoke-bun", "npm", ["run", "smoke:bun"]],
+    ["smoke-browser", "npm", ["run", "smoke:browser"]],
     ["collect-smoke", process.execPath, ["scripts/eval/collect-smoke-report.mjs"]],
     ["docs", process.execPath, ["scripts/eval/check-docs.mjs"]],
     ["doc-policy", process.execPath, ["scripts/eval/check-doc-policy.mjs"]],
