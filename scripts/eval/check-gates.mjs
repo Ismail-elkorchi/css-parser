@@ -247,7 +247,7 @@ async function main() {
   );
 
   let parseErrorGatePass = false;
-  let parseErrorDetails = { missing: true };
+  let parseErrorDetails;
   try {
     const publicModule = await import(pathToFileURL(resolve("dist/mod.js")).href);
     const parseResult = publicModule.parse("@media ( { color: red; }");
@@ -275,7 +275,7 @@ async function main() {
   gates.push(makeGate("G-088", "Parse-error taxonomy contract", parseErrorGatePass, parseErrorDetails));
 
   let parseContextGatePass = false;
-  let parseContextDetails = { missing: true };
+  let parseContextDetails;
   try {
     const publicModule = await import(pathToFileURL(resolve("dist/mod.js")).href);
     const ruleList = publicModule.parseRuleList(".x{color:red}");
