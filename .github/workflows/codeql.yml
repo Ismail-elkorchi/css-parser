@@ -14,7 +14,17 @@ permissions:
 
 jobs:
   analyze:
-    name: codeql-analyze
+    name: codeql-${{ matrix.lane }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - lane: security-extended
+            queries: security-extended
+            category: "/language:javascript-typescript/security-extended"
+          - lane: security-and-quality
+            queries: security-and-quality
+            category: "/language:javascript-typescript/security-and-quality"
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -27,6 +37,7 @@ jobs:
         uses: github/codeql-action/init@89a39a4e59826350b863aa6b6252a07ad50cf83e # v4.32.4
         with:
           languages: javascript-typescript
+          queries: ${{ matrix.queries }}
 
       - name: Autobuild
         uses: github/codeql-action/autobuild@89a39a4e59826350b863aa6b6252a07ad50cf83e # v4.32.4
@@ -34,4 +45,4 @@ jobs:
       - name: Analyze
         uses: github/codeql-action/analyze@89a39a4e59826350b863aa6b6252a07ad50cf83e # v4.32.4
         with:
-          category: "/language:javascript-typescript"
+          category: ${{ matrix.category }}

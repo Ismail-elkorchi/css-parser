@@ -7,6 +7,12 @@ Profiles:
 - `ci`: day-to-day enforcement
 - `release`: release enforcement
 
+## Code scanning policy
+- CodeQL runs on pull requests, pushes to `main`, and weekly schedule.
+- Two explicit CodeQL query suites run in CI:
+  - `security-extended` (merge-blocking lane)
+  - `security-and-quality` (additional triage lane)
+
 ## Score model (profile-weighted)
 Evaluation scoring uses profile-specific weights from `evaluation.config.json`:
 - `profiles.ci.weights`
