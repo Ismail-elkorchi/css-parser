@@ -55,6 +55,9 @@
     "eval:hard-gate": "node scripts/eval/run-eval.mjs --profile=hard-gate"
   },
   "dependencies": {},
+  "overrides": {
+    "ajv": "6.14.0"
+  },
   "devDependencies": {
     "@eslint/js": "9.39.3",
     "eslint": "9.39.3",
