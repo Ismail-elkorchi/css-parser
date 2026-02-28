@@ -9,4 +9,7 @@ Report security issues privately to the maintainer with:
 - reproducible proof-of-concept
 - impact assessment
 
+Private reporting entry point:
+`https://github.com/Ismail-elkorchi/css-parser/security/advisories/new`
+
 Please do not open public issues for undisclosed vulnerabilities.
