@@ -108,7 +108,7 @@ async function main() {
     )
   ];
 
-  const docPath = resolve(process.cwd(), "docs/realworld-css-performance.md");
+  const docPath = resolve(process.cwd(), "realworld/reports/realworld-css-performance.md");
   await writeFile(docPath, `${lines.join("\n")}\n`, "utf8");
 
   process.stdout.write(

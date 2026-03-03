@@ -11,6 +11,11 @@ Agent-first TypeScript CSS parser with deterministic output, bounded execution, 
 - Patch planning primitives for deterministic rewrite workflows.
 - No runtime dependencies are used by production library code.
 
+## What this library is not
+- Not a browser CSS engine.
+- Not a layout engine.
+- Not a sanitizer.
+
 ## Runtime compatibility
 - Node.js: current stable and active LTS with Web Streams and TextDecoder support.
 - Deno: stable channel.
@@ -123,6 +128,12 @@ const plan = computePatch(originalCss, [
 const patchedCss = applyPatchPlan(originalCss, plan);
 ```
 
+Run the executable examples bundle:
+
+```bash
+npm run examples:run
+```
+
 ## Determinism contract
 For equal input and equal options:
 - parse output structure is stable,
@@ -145,6 +156,13 @@ See:
 - `docs/hard-gates.md`
 - `evaluation.config.json`
 - `scripts/eval/run-eval.mjs`
+
+## Docs map
+- Entry index: `docs/index.md`
+- Tutorial: `docs/tutorial/first-parse.md`
+- How-to: `docs/how-to/release-validation.md`
+- Reference: `docs/reference/api-overview.md`
+- Explanation: `docs/explanation/architecture-and-tradeoffs.md`
 
 ## Local realworld loop
 Use the local verge-browser corpus to run deterministic CSS workload checks:
