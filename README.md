@@ -8,7 +8,11 @@ Deterministic CSS parsing and selector evaluation for automation pipelines that 
 npm install @ismail-elkorchi/css-parser
 ```
 
-```ts
+```bash
+deno add jsr:@ismail-elkorchi/css-parser
+```
+
+```txt
 import { parse } from "jsr:@ismail-elkorchi/css-parser";
 ```
 
@@ -75,3 +79,18 @@ npm run examples:run
 ## Security Note
 
 Use explicit budgets for untrusted input and fail closed on `BudgetExceededError`. Parsing validates syntax structure, not trust or safety policy. See [SECURITY.md](./SECURITY.md).
+
+## Runtime Compatibility
+
+- Node.js (current LTS and current stable)
+- Deno (stable)
+- Bun (stable)
+- Modern evergreen browsers (smoke-tested)
+
+## No Runtime Dependencies
+
+No runtime dependencies are used by production parser code.
+
+## Docs Map
+
+- [Documentation index](./docs/index.md)
