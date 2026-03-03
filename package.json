@@ -1,5 +1,5 @@
 {
-  "name": "css-parser",
+  "name": "@ismail-elkorchi/css-parser",
   "version": "0.1.0",
   "private": true,
   "description": "Policy and tooling baseline for an agent-first TypeScript CSS parser.",
