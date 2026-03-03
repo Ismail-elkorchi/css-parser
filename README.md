@@ -1,178 +1,96 @@
-# css-parser
+# @ismail-elkorchi/css-parser
 
-Agent-first TypeScript CSS parser with deterministic output, bounded execution, and zero runtime dependencies.
+Deterministic CSS parsing and selector evaluation for automation pipelines that need stable output across Node, Deno, Bun, and modern browsers.
 
-`docs/spec.md` is the normative API contract. This README is operational guidance.
+## Install
 
-## What this library is
-- Deterministic CSS parsing and serialization for agent and automation workflows.
-- Web-API-first runtime design that runs on Node, Deno, Bun, and modern browsers.
-- Structured budgeting and trace output for bounded, explainable parsing.
-- Patch planning primitives for deterministic rewrite workflows.
-- No runtime dependencies are used by production library code.
-
-## What this library is not
-- Not a browser CSS engine.
-- Not a layout engine.
-- Not a sanitizer.
-
-## Runtime compatibility
-- Node.js: current stable and active LTS with Web Streams and TextDecoder support.
-- Deno: stable channel.
-- Bun: stable channel.
-- Browsers: modern evergreen engines.
-
-See `docs/runtime-compatibility.md` for the exact runtime API surface used by `src/`.
-
-## Security
-Security policy and reporting process: `SECURITY.md`.
-
-## Install status
-- npm publication is disabled while alpha hardening is active (`private: true`).
-- Intended public package identity: `@ismail-elkorchi/css-parser`.
-
-## Quickstart
-
-### Parse a stylesheet
-```ts
-import { parse, serialize } from "@ismail-elkorchi/css-parser";
-
-const tree = parse(".card { color: red; margin: 1px; }");
-const css = serialize(tree);
+```bash
+npm install @ismail-elkorchi/css-parser
 ```
 
-### Parse bytes with encoding sniff
-```ts
-import { parseBytes } from "@ismail-elkorchi/css-parser";
-
-const bytes = new TextEncoder().encode(".x { color: red; }");
-const tree = parseBytes(bytes);
+```bash
+deno add jsr:@ismail-elkorchi/css-parser
 ```
 
-### Parse a stream
-```ts
-import { parseStream } from "@ismail-elkorchi/css-parser";
+```txt
+import { parse } from "jsr:@ismail-elkorchi/css-parser";
+```
 
-const stream = new ReadableStream<Uint8Array>({
-  start(controller) {
-    controller.enqueue(new TextEncoder().encode(".a{"));
-    controller.enqueue(new TextEncoder().encode("color:red}"));
-    controller.close();
-  }
+## Success Path
+
+```ts
+import {
+  compileSelectorList,
+  parse,
+  parseStream,
+  querySelectorAll,
+  serialize
+} from "@ismail-elkorchi/css-parser";
+
+const css = ".card { color: red; } #content .card { margin: 1px; }";
+const parsed = parse(css, {
+  budgets: { maxInputBytes: 4096, maxNodes: 256, maxDepth: 32 }
 });
 
-const tree = await parseStream(stream, {
-  budgets: {
-    maxInputBytes: 1024,
-    maxBufferedBytes: 256
-  }
-});
-```
-
-### Tokenize a stream
-```ts
-import { tokenizeStream } from "@ismail-elkorchi/css-parser";
-
-const stream = new ReadableStream<Uint8Array>({
+const stream = new ReadableStream({
   start(controller) {
     controller.enqueue(new TextEncoder().encode(".a{display:block}"));
     controller.close();
   }
 });
 
-for await (const token of tokenizeStream(stream)) {
-  console.log(token.rawKind, token.value);
-}
-```
-
-### Match selectors against a node tree
-```ts
-import { compileSelectorList, querySelectorAll } from "@ismail-elkorchi/css-parser";
-
-const root = {
-  kind: "document",
-  children: [
-    {
-      kind: "element",
-      tagName: "main",
-      attributes: [{ name: "id", value: "content" }],
-      children: [
-        {
-          kind: "element",
-          tagName: "section",
-          attributes: [{ name: "class", value: "card" }],
-          children: []
-        }
-      ]
-    }
-  ]
-};
+const streamed = await parseStream(stream, {
+  budgets: { maxInputBytes: 4096, maxBufferedBytes: 256, maxNodes: 256 }
+});
 
 const selector = compileSelectorList("#content .card");
-const nodes = querySelectorAll(selector, root);
+const root = {
+  kind: "document",
+  children: [{ kind: "element", tagName: "main", attributes: [{ name: "id", value: "content" }], children: [] }]
+};
+
+console.log(querySelectorAll(selector, root).length);
+console.log(serialize(parsed));
+console.log(serialize(streamed));
 ```
 
-### Compute and apply patch plan
-```ts
-import { applyPatchPlan, computePatch, findAllByType, parse } from "@ismail-elkorchi/css-parser";
-
-const originalCss = ".a{color:red}.b{margin:1px}";
-const tree = parse(originalCss, { captureSpans: true });
-const rules = [...findAllByType(tree, "Rule")];
-
-const plan = computePatch(originalCss, [
-  { kind: "replaceNode", target: rules[0]!.id, css: ".a{color:blue}" },
-  { kind: "insertCssAfter", target: rules[1]!.id, css: ".c{padding:2px}" }
-]);
-
-const patchedCss = applyPatchPlan(originalCss, plan);
-```
-
-Run the executable examples bundle:
+Runnable examples:
 
 ```bash
 npm run examples:run
 ```
 
-## Determinism contract
-For equal input and equal options:
-- parse output structure is stable,
-- NodeId assignment order is stable,
-- serialization output is stable,
-- trace event sequence is stable when enabled under the same budgets,
-- token stream output is stable.
-- Cross-runtime smoke evaluation enforces hash equality of canonical parse output across Node, Deno, and Bun.
+## Options / API Reference
 
-## Budgets contract
-Budget violations throw `BudgetExceededError` with structured payload:
-- `code`: `BUDGET_EXCEEDED`
-- `budget`: one of the supported budget keys
-- `limit`: configured threshold
-- `actual`: observed value
+- [Options and API reference](./docs/reference/options.md)
 
-## Conformance and quality gates
-See:
-- `docs/acceptance-gates.md`
-- `docs/hard-gates.md`
-- `evaluation.config.json`
-- `scripts/eval/run-eval.mjs`
+## When To Use
 
-## Docs map
-- Entry index: `docs/index.md`
-- Tutorial: `docs/tutorial/first-parse.md`
-- How-to: `docs/how-to/release-validation.md`, `docs/how-to/mutation-pilot.md`
-- Reference: `docs/reference/api-overview.md`
-- Explanation: `docs/explanation/architecture-and-tradeoffs.md`
+- You need deterministic CSS parse/serialize behavior for repeatable tooling.
+- You need parse budgets to bound runtime work and memory growth.
+- You need selector matching utilities in the same package as parsing.
 
-## Local realworld loop
-Use the local verge-browser corpus to run deterministic CSS workload checks:
-- `npm run realworld:import`
-- `npm run realworld:bench`
-- `npm run realworld:check`
-- `npm run eval:realworld`
+## When Not To Use
 
-`realworld/targets.json` defines strict p95/p99/max/error-rate targets and a pinned manifest hash.
-Raw corpus payloads stay outside tracked files; only metadata and derived summaries are committed.
+- You need a browser layout engine.
+- You need CSS sanitization or policy enforcement beyond parsing.
+- You need runtime execution of scripts or DOM behavior.
 
-## License
-MIT (`LICENSE`).
+## Security Note
+
+Use explicit budgets for untrusted input and fail closed on `BudgetExceededError`. Parsing validates syntax structure, not trust or safety policy. See [SECURITY.md](./SECURITY.md).
+
+## Runtime Compatibility
+
+- Node.js (current LTS and current stable)
+- Deno (stable)
+- Bun (stable)
+- Modern evergreen browsers (smoke-tested)
+
+## No Runtime Dependencies
+
+No runtime dependencies are used by production parser code.
+
+## Docs Map
+
+- [Documentation index](./docs/index.md)

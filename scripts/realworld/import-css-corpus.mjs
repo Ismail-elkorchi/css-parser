@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 function resolveVergeCorpusDir() {
   return resolve(
     process.env.VERGE_CORPUS_DIR
-      ?? "/home/ismail-el-korchi/Documents/Projects/verge-browser/realworld/corpus"
+      ?? resolve(process.cwd(), "..", "verge-browser", "realworld", "corpus")
   );
 }
 

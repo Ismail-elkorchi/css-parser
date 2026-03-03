@@ -1,17 +1,16 @@
 # Documentation Index
 
-This is the entry page for `css-parser` documentation.
+Use this index to choose documentation by intent.
 
 ## Tutorial
 - [First parse walkthrough](./tutorial/first-parse.md)
 
 ## How-to
-- [Release and hard-gate validation](./how-to/release-validation.md)
+- [Release validation](./how-to/release-validation.md)
 - [Mutation pilot workflow](./how-to/mutation-pilot.md)
 
 ## Reference
-- [API overview](./reference/api-overview.md)
-- [Specification contract](./spec.md)
+- [Options and API reference](./reference/options.md)
 - [Acceptance gates](./acceptance-gates.md)
 - [Hard-gate profile](./hard-gates.md)
 - [Evaluation report format](./eval-report-format.md)
@@ -19,8 +18,3 @@ This is the entry page for `css-parser` documentation.
 ## Explanation
 - [Architecture and tradeoffs](./explanation/architecture-and-tradeoffs.md)
 - [Selector model](./selectors.md)
-
-## Project policy and operations
-- [Security triage](./security-triage.md)
-- [Releasing](./releasing.md)
-- [Third-party datasets](./third-party.md)
