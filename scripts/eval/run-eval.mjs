@@ -58,6 +58,7 @@ async function main() {
   const steps = [
     ["clean-reports", process.execPath, ["scripts/eval/clean-reports.mjs"]],
     ["tests", "npm", ["run", "test"]],
+    ["examples", "npm", ["run", "examples:run"]],
     ["conformance", process.execPath, ["scripts/conformance/run-all.mjs"]],
     ["determinism-budgets", process.execPath, ["scripts/eval/write-stub-reports.mjs"]],
     ["agent-report", process.execPath, ["scripts/eval/write-agent-report.mjs"]],
