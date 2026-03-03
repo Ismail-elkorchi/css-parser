@@ -86,3 +86,29 @@ git push origin v0.x.y
 If trusted publishing is not yet enabled, publication can be run manually after explicit approval:
 - npm: `npm publish --provenance --access public`
 - JSR: `npx jsr publish`
+
+## 0.1.0 dry-run evidence snapshot (March 3, 2026)
+
+Dry-runs:
+- `npm pack --dry-run --json`: pass
+- `npm publish --dry-run --json --access public`: pass
+- `npx -y jsr publish --dry-run --allow-dirty`: pass
+
+Canary packed-artifact check:
+- packed artifact extracted and imported from `dist/mod.js`
+- parse/serialize canary (`.x{color:red}`) passes
+
+Manual artifact sample review:
+- required entries present: `package.json`, `dist/mod.js`, `dist/mod.d.ts`, `THIRD_PARTY_NOTICES.md`
+- forbidden content absent: `scripts/`, `test*/`, `docs/`, `reports/`
+
+Automation freshness evidence:
+- Release Audit: failure (run `22622280846`)  
+  <https://github.com/Ismail-elkorchi/css-parser/actions/runs/22622280846>
+- Runtime Latest (Non-blocking): success (run `22622280876`)  
+  <https://github.com/Ismail-elkorchi/css-parser/actions/runs/22622280876>
+
+Residual risk from latest release-audit run:
+- workflow currently evaluates release profile without Deno/Bun toolchain setup
+- hard-gate profile fails in CI because cross-runtime smoke lanes do not have all required runtimes available
+- release-audit lane must be hardened before `0.1.0` go/no-go can be marked green
