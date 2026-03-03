@@ -1,15 +1,43 @@
 # Security policy
 
 ## Supported versions
-This project is in active alpha hardening (`0.x`). Security fixes are applied on the active `main` branch.
+This project is in the active `0.x` line. Security fixes land on `main` and the latest `0.x` release.
 
 ## Reporting a vulnerability
-Report security issues privately to the maintainer with:
-- affected version/commit
-- reproducible proof-of-concept
-- impact assessment
 
-Private reporting entry point:
+Report vulnerabilities privately through GitHub Security Advisories:
+
 `https://github.com/Ismail-elkorchi/css-parser/security/advisories/new`
 
-Please do not open public issues for undisclosed vulnerabilities.
+Include:
+- affected version or commit
+- minimal reproduction input
+- expected vs observed behavior
+- impact assessment
+
+## Security boundaries
+
+- Parsing is not sanitization or policy enforcement.
+- Untrusted input must run with explicit budgets.
+- Budget limits are the primary protection against resource exhaustion.
+
+## Budget guidance
+
+Set and review at least:
+- `maxInputBytes`
+- `maxBufferedBytes`
+- `maxTokens`
+- `maxNodes`
+- `maxDepth`
+- `maxTimeMs`
+
+Parsing beyond configured limits throws `BudgetExceededError` with a structured payload.
+
+## Verification commands
+
+```bash
+npm run check:fast
+npm run examples:run
+npm run docs:lint:jsr
+npm run docs:test:jsr
+```

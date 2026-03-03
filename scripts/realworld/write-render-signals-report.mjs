@@ -29,7 +29,10 @@ function xorshift32(seed) {
 }
 
 function resolveVergeCorpusDir() {
-  return resolve(process.env.VERGE_CORPUS_DIR ?? "/home/ismail-el-korchi/Documents/Projects/verge-browser/realworld/corpus");
+  return resolve(
+    process.env.VERGE_CORPUS_DIR
+      ?? resolve(process.cwd(), "..", "verge-browser", "realworld", "corpus")
+  );
 }
 
 async function readNdjson(path) {

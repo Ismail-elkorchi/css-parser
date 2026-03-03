@@ -13,7 +13,7 @@ const ITERATIONS_PER_CASE = 3;
 function resolveVergeCorpusDir() {
   return resolve(
     process.env.VERGE_CORPUS_DIR
-      ?? "/home/ismail-el-korchi/Documents/Projects/verge-browser/realworld/corpus"
+      ?? resolve(process.cwd(), "..", "verge-browser", "realworld", "corpus")
   );
 }
 

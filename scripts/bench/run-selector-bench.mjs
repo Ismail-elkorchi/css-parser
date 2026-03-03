@@ -5,7 +5,7 @@ import { resolve } from "node:path";
 import { compileSelectorList, querySelectorAll } from "../../dist/mod.js";
 import { sha256Bytes, writeJson } from "../eval/eval-primitives.mjs";
 
-const DEFAULT_VERGE_CORPUS_DIR = "/home/ismail-el-korchi/Documents/Projects/verge-browser/realworld/corpus";
+const DEFAULT_VERGE_CORPUS_DIR = resolve(process.cwd(), "..", "verge-browser", "realworld", "corpus");
 const MAX_REALWORLD_RECORDS = 140;
 const MAX_REALWORLD_SELECTORS = 400;
 const FIXTURE_ITERATIONS = 2000;
