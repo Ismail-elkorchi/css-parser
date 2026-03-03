@@ -1,0 +1,43 @@
+{
+  "schema": "mutation-pilot/v1",
+  "generatedAt": "2026-03-03T12:58:03.469Z",
+  "config": "scripts/mutation/pilot-config.json",
+  "targetFile": "dist/internal/encoding/sniff.js",
+  "testCommand": [
+    "node",
+    "--test",
+    "test/control/encoding-sniff.test.js"
+  ],
+  "mutants": [
+    {
+      "id": "alias-windows1252",
+      "description": "Disable latin1/latin-1/us-ascii alias mapping to windows-1252.",
+      "status": "killed",
+      "testExitCode": 1
+    },
+    {
+      "id": "transport-precedence",
+      "description": "Disable transport encoding branch before charset rule evaluation.",
+      "status": "killed",
+      "testExitCode": 1
+    },
+    {
+      "id": "charset-rule-disabled",
+      "description": "Disable @charset rule evaluation.",
+      "status": "killed",
+      "testExitCode": 1
+    },
+    {
+      "id": "bom-utf8-disabled",
+      "description": "Disable UTF-8 BOM detection branch.",
+      "status": "killed",
+      "testExitCode": 1
+    }
+  ],
+  "totals": {
+    "total": 4,
+    "killed": 4,
+    "survived": 0,
+    "invalid": 0
+  }
+}

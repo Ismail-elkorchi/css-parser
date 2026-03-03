@@ -1,0 +1,30 @@
+{
+  "targetFile": "dist/internal/encoding/sniff.js",
+  "testCommand": ["node", "--test", "test/control/encoding-sniff-baseline.js"],
+  "mutants": [
+    {
+      "id": "alias-windows1252",
+      "description": "Disable latin1/latin-1/us-ascii alias mapping to windows-1252.",
+      "search": "if (WINDOWS_1252_ALIASES.has(normalized)) {",
+      "replace": "if (false && WINDOWS_1252_ALIASES.has(normalized)) {"
+    },
+    {
+      "id": "transport-precedence",
+      "description": "Disable transport encoding branch before charset rule evaluation.",
+      "search": "if (options.transportEncodingLabel) {",
+      "replace": "if (false && options.transportEncodingLabel) {"
+    },
+    {
+      "id": "charset-rule-disabled",
+      "description": "Disable @charset rule evaluation.",
+      "search": "const charset = sniffCharsetRule(bytes, options.maxPrescanBytes ?? 1024);",
+      "replace": "const charset = null;"
+    },
+    {
+      "id": "bom-utf8-disabled",
+      "description": "Disable UTF-8 BOM detection branch.",
+      "search": "if (bytes.length >= 3 && bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf) {",
+      "replace": "if (false && bytes.length >= 3 && bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf) {"
+    }
+  ]
+}
