@@ -1,6 +1,6 @@
 {
   "name": "@ismail-elkorchi/css-parser",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Deterministic CSS parser for automation workflows across Node, Deno, Bun, and modern browsers.",
   "license": "MIT",
   "repository": {
