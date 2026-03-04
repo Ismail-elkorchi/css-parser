@@ -94,3 +94,7 @@ No runtime dependencies are used by production parser code.
 ## Docs Map
 
 - [Documentation index](./docs/index.md)
+
+## Release Trigger
+
+See [RELEASING.md](./RELEASING.md) for required secrets, trigger methods, and post-publish checks.
