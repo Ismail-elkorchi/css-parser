@@ -1,53 +1,65 @@
-# Options and API Reference
+# Options
 
-This page is the primary API surface summary for `@ismail-elkorchi/css-parser`.
+## Parse APIs (`parse`, `parseBytes`, `parseFragment`, `parseRuleList`, `parseDeclarationList`, `parseStream`)
 
-## Core API
+### `captureSpans`
+- Type: `boolean`
+- Default: `false`
+- Includes source spans on parsed nodes.
 
-- `parse(input, options?)`
-- `parseBytes(input, options?)`
-- `parseStream(stream, options?)`
-- `parseFragment(input, contextTagName, options?)`
-- `serialize(treeOrNode)`
-- `tokenize(input, options?)`
-- `tokenizeStream(stream, options?)`
-- `compileSelectorList(selectorText)`
-- `querySelectorAll(compiledSelector, root)`
+### `includeSpans`
+- Type: `boolean`
+- Default: `false`
+- Backward-compatible alias for `captureSpans`.
 
-## Parse options
+### `trace`
+- Type: `boolean`
+- Default: `false`
+- Emits structured decode/token/parse/budget trace events.
 
-- `captureSpans?: boolean`
-- `includeSpans?: boolean`
-- `trace?: boolean`
-- `transportEncodingLabel?: string`
-- `context?: "stylesheet" | "fragment" | "rule-list" | "declaration-list"`
-- `budgets?: BudgetOptions`
+### `transportEncodingLabel`
+- Type: `string`
+- Default: unset
+- Optional transport hint for byte parsing.
 
-## BudgetOptions
+### `context`
+- Type: `string`
+- Default: `"stylesheet"` for `parse`
+- Used by fragment-oriented parsing paths.
 
-- `maxInputBytes?: number`
-- `maxBufferedBytes?: number`
-- `maxTokens?: number`
-- `maxNodes?: number`
-- `maxDepth?: number`
-- `maxTraceEvents?: number`
-- `maxTraceBytes?: number`
-- `maxTimeMs?: number`
+### `budgets`
+- Type: `ParseBudgets`
+- Default: all limits unset (no budget enforcement unless specified)
+- Supported keys:
+  - `maxInputBytes`
+  - `maxBufferedBytes` (stream decode)
+  - `maxTokens`
+  - `maxNodes`
+  - `maxDepth`
+  - `maxTraceEvents`
+  - `maxTraceBytes`
+  - `maxTimeMs`
 
-## Determinism and failures
+## Tokenize APIs (`tokenize`, `tokenizeStream`)
 
-- Equal input and equal options produce stable parse structure and serialization output.
-- Budget overruns throw `BudgetExceededError` with structured payload:
-  - `code: "BUDGET_EXCEEDED"`
-  - `budget`
-  - `limit`
-  - `actual`
+### `TokenizeOptions.transportEncodingLabel`
+- Type: `string`
+- Default: unset
 
-## Verify these claims
+### `TokenizeOptions.budgets`
+- Type: `ParseBudgets`
+- Relevant keys: `maxInputBytes`, `maxBufferedBytes`, `maxTokens`, `maxTimeMs`
 
-```bash
-npm run check:fast
-npm run examples:run
-npm run docs:lint:jsr
-npm run docs:test:jsr
-```
+## Selector APIs
+
+### `querySelectorAll(selector, root, options?)`
+
+`options` is `SelectorQueryOptions`:
+- `strict` (default `false`): fail on unsupported selector parts.
+- `maxVisitedNodes` (default unset): bounds traversal work.
+
+## Related
+- [API overview](./api-overview.md)
+- [Data model](./data-model.md)
+- [Error model](./error-model.md)
+- [Selector behavior](./selectors.md)

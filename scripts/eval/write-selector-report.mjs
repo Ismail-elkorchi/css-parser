@@ -4,7 +4,7 @@ import { pathToFileURL } from "node:url";
 import { fileExists, nowIso, readJson, writeJson } from "./eval-primitives.mjs";
 
 const FIXTURE_PATH = "test/fixtures/selectors/v1/cases.json";
-const DOC_PATH = "docs/selectors.md";
+const DOC_PATH = "docs/reference/selectors.md";
 const TEST_PATH = "test/control/selectors.test.js";
 const REPORT_PATH = "reports/selectors.json";
 

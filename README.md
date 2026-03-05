@@ -1,6 +1,20 @@
 # @ismail-elkorchi/css-parser
 
-Deterministic CSS parsing and selector evaluation for automation pipelines that need stable output across Node, Deno, Bun, and modern browsers.
+Deterministic CSS parsing and selector utilities for automation across Node, Deno, Bun, and modern browsers.
+
+No runtime dependencies: this package ships with zero runtime dependencies.
+
+## When To Use
+
+- You need deterministic CSS parse/serialize output.
+- You need selector querying without browser-engine side effects.
+- You need explicit resource budgets for untrusted stylesheets.
+
+## When Not To Use
+
+- You need browser layout/cascade computation.
+- You need stylesheet sanitization and policy enforcement in one step.
+- You need script or DOM runtime semantics.
 
 ## Install
 
@@ -12,25 +26,31 @@ npm install @ismail-elkorchi/css-parser
 deno add jsr:@ismail-elkorchi/css-parser
 ```
 
+## Import
+
+```ts
+import { parse } from "@ismail-elkorchi/css-parser";
+```
+
 ```txt
 import { parse } from "jsr:@ismail-elkorchi/css-parser";
 ```
 
-## Success Path
+## Copy/Paste Examples
+
+### Example 1: Parse CSS
 
 ```ts
-import {
-  compileSelectorList,
-  parse,
-  parseStream,
-  querySelectorAll,
-  serialize
-} from "@ismail-elkorchi/css-parser";
+import { parse } from "@ismail-elkorchi/css-parser";
 
-const css = ".card { color: red; } #content .card { margin: 1px; }";
-const parsed = parse(css, {
-  budgets: { maxInputBytes: 4096, maxNodes: 256, maxDepth: 32 }
-});
+const tree = parse(".card { color: red; }");
+console.log(tree.kind);
+```
+
+### Example 2: Parse streaming input
+
+```ts
+import { parseStream } from "@ismail-elkorchi/css-parser";
 
 const stream = new ReadableStream({
   start(controller) {
@@ -39,62 +59,54 @@ const stream = new ReadableStream({
   }
 });
 
-const streamed = await parseStream(stream, {
-  budgets: { maxInputBytes: 4096, maxBufferedBytes: 256, maxNodes: 256 }
-});
-
-const selector = compileSelectorList("#content .card");
-const root = {
-  kind: "document",
-  children: [{ kind: "element", tagName: "main", attributes: [{ name: "id", value: "content" }], children: [] }]
-};
-
-console.log(querySelectorAll(selector, root).length);
-console.log(serialize(parsed));
-console.log(serialize(streamed));
+const tree = await parseStream(stream, { budgets: { maxInputBytes: 4096, maxBufferedBytes: 512 } });
+console.log(tree.kind);
 ```
 
-Runnable examples:
+### Example 3: Query selectors
+
+```ts
+import { compileSelectorList, querySelectorAll } from "@ismail-elkorchi/css-parser";
+
+const selector = compileSelectorList(".card");
+console.log(selector.supported, querySelectorAll(selector, { kind: "document", children: [] }).length);
+```
+
+### Example 4: Extract render signals
+
+```ts
+import { extractRenderSignals, parse } from "@ismail-elkorchi/css-parser";
+
+const tree = parse(".card { color: red; }");
+console.log(extractRenderSignals(tree).length >= 0);
+```
+
+Run packaged examples:
 
 ```bash
 npm run examples:run
 ```
 
-## Options / API Reference
+## Compatibility
 
-- [Options and API reference](./docs/reference/options.md)
+Runtime compatibility matrix:
 
-## When To Use
+| Runtime | Status |
+| --- | --- |
+| Node.js | Supported |
+| Deno | Supported |
+| Bun | Supported |
+| Browser (evergreen) | Supported |
 
-- You need deterministic CSS parse/serialize behavior for repeatable tooling.
-- You need parse budgets to bound runtime work and memory growth.
-- You need selector matching utilities in the same package as parsing.
+## Security and Safety Notes
 
-## When Not To Use
+Parsing is not sanitization. For untrusted input:
+- configure strict budgets,
+- handle `BudgetExceededError` explicitly,
+- apply separate policy checks before execution or rendering.
 
-- You need a browser layout engine.
-- You need CSS sanitization or policy enforcement beyond parsing.
-- You need runtime execution of scripts or DOM behavior.
+## Documentation
 
-## Security Note
-
-Use explicit budgets for untrusted input and fail closed on `BudgetExceededError`. Parsing validates syntax structure, not trust or safety policy. See [SECURITY.md](./SECURITY.md).
-
-## Runtime Compatibility
-
-- Node.js (current LTS and current stable)
-- Deno (stable)
-- Bun (stable)
-- Modern evergreen browsers (smoke-tested)
-
-## No Runtime Dependencies
-
-No runtime dependencies are used by production parser code.
-
-## Docs Map
-
-- [Documentation index](./docs/index.md)
-
-## Release Trigger
-
-See [RELEASING.md](./RELEASING.md) for required secrets, trigger methods, and post-publish checks.
+- [Docs index](./docs/index.md)
+- [First parse success tutorial](./docs/tutorial/first-parse.md)
+- [Options reference](./docs/reference/options.md)

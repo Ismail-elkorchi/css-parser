@@ -65,7 +65,7 @@
     "realworld:bench:selectors:stability": "npm run build && node scripts/bench/run-selector-bench-stability.mjs",
     "realworld:check": "node scripts/realworld/check-realworld-targets.mjs",
     "eval:realworld": "npm run realworld:bench && npm run realworld:signals && npm run realworld:bench:selectors && npm run realworld:bench:selectors:stability && npm run realworld:check && node scripts/realworld/eval-realworld.mjs",
-    "mutation:pilot": "npm run build && node scripts/mutation/run-pilot.mjs --config=scripts/mutation/pilot-config.json --out=docs/reference/mutation-pilot-report.json",
+    "mutation:pilot": "npm run build && node scripts/mutation/run-pilot.mjs --config=scripts/mutation/pilot-config.json --out=docs/maintainers/mutation-pilot-report.json",
     "eval:ci": "node scripts/eval/run-eval.mjs --profile=ci",
     "eval:release": "node scripts/eval/run-eval.mjs --profile=release",
     "eval:hard-gate": "node scripts/eval/run-eval.mjs --profile=hard-gate"

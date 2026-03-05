@@ -1,58 +1,42 @@
-# First Parse Walkthrough
+# First Parse Success
 
-This tutorial shows the minimum flow to parse CSS and run selector matching.
+This tutorial shows the shortest path to parse CSS and run deterministic selector queries.
 
-## 1. Parse a stylesheet
+## Step 1: Parse CSS
+
+```ts
+import { parse } from "@ismail-elkorchi/css-parser";
+
+const tree = parse(".card { color: red; }");
+console.log(tree.kind);
+```
+
+Expected output:
+
+```txt
+stylesheet
+```
+
+## Step 2: Serialize parsed output
 
 ```ts
 import { parse, serialize } from "@ismail-elkorchi/css-parser";
 
-const tree = parse(".card { color: red; margin: 1px; }");
-const css = serialize(tree);
-console.log(css);
-```
-
-## 2. Parse bytes safely
-
-```ts
-import { parseBytes, serialize } from "@ismail-elkorchi/css-parser";
-
-const bytes = new TextEncoder().encode(".title { font-weight: 700; }");
-const tree = parseBytes(bytes);
+const tree = parse(".card { color: red; }");
 console.log(serialize(tree));
 ```
 
-## 3. Match selectors
+Expected output:
 
-```ts
-import { compileSelectorList, querySelectorAll } from "@ismail-elkorchi/css-parser";
-
-const selector = compileSelectorList("#content .card");
-const root = {
-  kind: "document",
-  children: [
-    {
-      kind: "element",
-      tagName: "main",
-      attributes: [{ name: "id", value: "content" }],
-      children: [
-        {
-          kind: "element",
-          tagName: "section",
-          attributes: [{ name: "class", value: "card" }],
-          children: []
-        }
-      ]
-    }
-  ]
-};
-
-const matches = querySelectorAll(selector, root);
-console.log(matches.length);
+```txt
+.card{color:red}
 ```
 
-## 4. Run bundled examples
+## Step 3: Run examples
 
 ```bash
 npm run examples:run
 ```
+
+What you get:
+- Confirmation that packaged examples run on your local build.

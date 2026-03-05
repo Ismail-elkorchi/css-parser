@@ -1,20 +1,24 @@
-# Documentation Index
+# CSS Parser Docs
 
-Use this index to choose documentation by intent.
+`@ismail-elkorchi/css-parser` provides deterministic CSS parsing and selector utilities with explicit resource limits.
 
 ## Tutorial
-- [First parse walkthrough](./tutorial/first-parse.md)
+- [First parse success](./tutorial/first-parse.md)
 
 ## How-to
-- [Release validation](./how-to/release-validation.md)
-- [Mutation pilot workflow](./how-to/mutation-pilot.md)
+- [Parse a stylesheet](./how-to/parse-stylesheet.md)
+- [Parse a declaration list](./how-to/parse-declaration-list.md)
+- [Avoid selector and tokenization pitfalls](./how-to/selectors-and-tokenization-pitfalls.md)
+- [Parse streaming CSS input](./how-to/parse-streaming-css.md)
 
 ## Reference
-- [Options and API reference](./reference/options.md)
-- [Acceptance gates](./acceptance-gates.md)
-- [Hard-gate profile](./hard-gates.md)
-- [Evaluation report format](./eval-report-format.md)
+- [API overview](./reference/api-overview.md)
+- [Options](./reference/options.md)
+- [Data model](./reference/data-model.md)
+- [Error model](./reference/error-model.md)
+- [Selector behavior](./reference/selectors.md)
 
 ## Explanation
-- [Architecture and tradeoffs](./explanation/architecture-and-tradeoffs.md)
-- [Selector model](./selectors.md)
+- [Design constraints](./explanation/design-constraints.md)
+- [Security posture](./explanation/security-posture.md)
+- [Performance characteristics](./explanation/performance-characteristics.md)
