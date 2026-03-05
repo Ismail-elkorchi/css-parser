@@ -1,38 +1,47 @@
 # API Overview
 
-This page tracks exported public functions from `src/public/mod.ts`.
+All exported runtime entrypoints from `src/public/mod.ts`.
+
+## Error classes
+- `BudgetExceededError`
+- `PatchPlanningError`
 
 ## Parsing and encoding
-- `parse`
-- `parseFragment`
-- `parseRuleList`
-- `parseDeclarationList`
-- `parseBytes`
-- `parseStream`
-- `tokenize`
-- `tokenizeStream`
-- `getParseErrorSpecRef`
+- `parse(input, options?)`
+- `parseFragment(input, context?, options?)`
+- `parseRuleList(input, options?)`
+- `parseDeclarationList(input, options?)`
+- `getParseErrorSpecRef(parseErrorId)`
+- `tokenize(input, options?)`
+- `tokenizeStream(stream, options?)`
+- `parseBytes(input, options?)`
+- `parseStream(stream, options?)`
+- `serialize(treeOrNode)`
 
-## Traversal and analysis
-- `walk`
-- `walkByType`
-- `findById`
-- `findAllByType`
-- `outline`
-- `chunk`
+## Tree traversal and search
+- `walk(nodeOrTree, visitor)`
+- `walkByType(nodeOrTree, type, visitor)`
+- `findById(nodeOrTree, id)`
+- `findAllByType(nodeOrTree, type)`
+- `outline(nodeOrTree)`
+- `chunk(nodeOrTree, options?)`
 
-## Serialization and patching
-- `serialize`
-- `computePatch`
-- `applyPatchPlan`
+## Patch planning
+- `applyPatchPlan(originalCss, plan)`
+- `computePatch(originalCss, edits)`
 
-## Selectors and render signals
-- `compileSelectorList`
-- `matchesSelector`
-- `querySelectorAll`
-- `extractStyleRuleSignals`
-- `extractInlineStyleSignals`
-- `extractRenderSignals`
-- `extractInlineRenderSignals`
+## Selector utilities
+- `compileSelectorList(selectorText)`
+- `matchesSelector(compiled, node, root)`
+- `querySelectorAll(compiled, root, options?)`
 
-For full behavior and type contracts, see [`docs/spec.md`](../spec.md).
+## Signal extraction
+- `extractStyleRuleSignals(tree, options?)`
+- `extractInlineStyleSignals(styleText, options?)`
+- `extractRenderSignals(tree, options?)`
+- `extractInlineRenderSignals(styleText, options?)`
+
+## Related
+- [Options](./options.md)
+- [Error model](./error-model.md)
+- [Selector behavior](./selectors.md)

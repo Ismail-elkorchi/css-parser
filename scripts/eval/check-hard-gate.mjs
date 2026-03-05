@@ -307,13 +307,13 @@ async function main() {
   );
   checks.push(makeCheck("docs-contract", reports.docs?.ok === true, { docs: reports.docs }));
   checks.push(
-    makeCheck("docs-hard-gate-policy", await fileExists("docs/hard-gates.md"), {
-      requiredPath: "docs/hard-gates.md"
+    makeCheck("docs-hard-gate-policy", await fileExists("docs/reference/error-model.md"), {
+      requiredPath: "docs/reference/error-model.md"
     })
   );
   checks.push(
-    makeCheck("docs-hard-gate-adr", await fileExists("docs/decisions/ADR-007-hard-gate-evidence-build.md"), {
-      requiredPath: "docs/decisions/ADR-007-hard-gate-evidence-build.md"
+    makeCheck("docs-hard-gate-adr", await fileExists("docs/explanation/design-constraints.md"), {
+      requiredPath: "docs/explanation/design-constraints.md"
     })
   );
 

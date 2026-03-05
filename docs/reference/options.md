@@ -1,53 +1,37 @@
-# Options and API Reference
+# Options
 
-This page is the primary API surface summary for `@ismail-elkorchi/css-parser`.
+## Parse APIs (`parse`, `parseFragment`, `parseRuleList`, `parseDeclarationList`, `parseBytes`, `parseStream`)
 
-## Core API
+### `captureSpans`
+- Type: `boolean`
+- Default: `false`
 
-- `parse(input, options?)`
-- `parseBytes(input, options?)`
-- `parseStream(stream, options?)`
-- `parseFragment(input, contextTagName, options?)`
-- `serialize(treeOrNode)`
-- `tokenize(input, options?)`
-- `tokenizeStream(stream, options?)`
-- `compileSelectorList(selectorText)`
-- `querySelectorAll(compiledSelector, root)`
+### `trace`
+- Type: `boolean`
+- Default: `false`
 
-## Parse options
+### `budgets`
+- `maxInputBytes`
+- `maxBufferedBytes` (streaming)
+- `maxNodes`
+- `maxDepth`
+- `maxTraceEvents`
+- `maxTraceBytes`
 
-- `captureSpans?: boolean`
-- `includeSpans?: boolean`
-- `trace?: boolean`
-- `transportEncodingLabel?: string`
-- `context?: "stylesheet" | "fragment" | "rule-list" | "declaration-list"`
-- `budgets?: BudgetOptions`
+## Selector APIs
 
-## BudgetOptions
+### `querySelectorAll(compiled, root, options?)`
+- `strict`: fail on unsupported selector parts.
+- `maxVisitedNodes`: bounds traversal during selection.
 
-- `maxInputBytes?: number`
-- `maxBufferedBytes?: number`
-- `maxTokens?: number`
-- `maxNodes?: number`
-- `maxDepth?: number`
-- `maxTraceEvents?: number`
-- `maxTraceBytes?: number`
-- `maxTimeMs?: number`
+## Signal extraction APIs
 
-## Determinism and failures
+### `extractStyleRuleSignals(tree, options?)`
+- Options tune normalization and unsupported-selector handling.
 
-- Equal input and equal options produce stable parse structure and serialization output.
-- Budget overruns throw `BudgetExceededError` with structured payload:
-  - `code: "BUDGET_EXCEEDED"`
-  - `budget`
-  - `limit`
-  - `actual`
+### `extractRenderSignals(tree, options?)`
+- Options tune included signal classes and declaration filtering.
 
-## Verify these claims
-
-```bash
-npm run check:fast
-npm run examples:run
-npm run docs:lint:jsr
-npm run docs:test:jsr
-```
+## Related
+- [API overview](./api-overview.md)
+- [Error model](./error-model.md)

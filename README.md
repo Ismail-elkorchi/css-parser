@@ -1,18 +1,20 @@
 # @ismail-elkorchi/css-parser
 
-Deterministic CSS parsing and selector evaluation for automation pipelines that need stable output across Node, Deno, Bun, and modern browsers.
+Deterministic CSS parsing and selector utilities for automation across Node, Deno, Bun, and modern browsers.
+
+No runtime dependencies: this package ships with zero runtime dependencies.
 
 ## When To Use
 
-- You need deterministic CSS parse/serialize behavior for repeatable tooling.
-- You need parse budgets to bound runtime work and memory growth.
-- You need selector matching utilities in the same package as parsing.
+- You need deterministic CSS parse/serialize output.
+- You need selector querying without browser-engine side effects.
+- You need explicit resource budgets for untrusted stylesheets.
 
 ## When Not To Use
 
-- You need a browser layout engine.
-- You need CSS sanitization or policy enforcement beyond parsing.
-- You need runtime execution of scripts or DOM behavior.
+- You need browser layout/cascade computation.
+- You need stylesheet sanitization and policy enforcement in one step.
+- You need script or DOM runtime semantics.
 
 ## Install
 
@@ -24,21 +26,31 @@ npm install @ismail-elkorchi/css-parser
 deno add jsr:@ismail-elkorchi/css-parser
 ```
 
-## Quickstart
+## Import
 
 ```ts
-import {
-  compileSelectorList,
-  parse,
-  parseStream,
-  querySelectorAll,
-  serialize
-} from "@ismail-elkorchi/css-parser";
+import { parse } from "@ismail-elkorchi/css-parser";
+```
 
-const css = ".card { color: red; } #content .card { margin: 1px; }";
-const parsed = parse(css, {
-  budgets: { maxInputBytes: 4096, maxNodes: 256, maxDepth: 32 }
-});
+```txt
+import { parse } from "jsr:@ismail-elkorchi/css-parser";
+```
+
+## Copy/Paste Examples
+
+### Example 1: Parse CSS
+
+```ts
+import { parse } from "@ismail-elkorchi/css-parser";
+
+const tree = parse(".card { color: red; }");
+console.log(tree.kind);
+```
+
+### Example 2: Parse streaming input
+
+```ts
+import { parseStream } from "@ismail-elkorchi/css-parser";
 
 const stream = new ReadableStream({
   start(controller) {
@@ -47,73 +59,56 @@ const stream = new ReadableStream({
   }
 });
 
-const streamed = await parseStream(stream, {
-  budgets: { maxInputBytes: 4096, maxBufferedBytes: 256, maxNodes: 256 }
-});
-
-const selector = compileSelectorList("#content .card");
-const root = {
-  kind: "document",
-  children: [{ kind: "element", tagName: "main", attributes: [{ name: "id", value: "content" }], children: [] }]
-};
-
-console.log(querySelectorAll(selector, root).length);
-console.log(serialize(parsed));
-console.log(serialize(streamed));
+const tree = await parseStream(stream, { budgets: { maxInputBytes: 4096, maxBufferedBytes: 512 } });
+console.log(tree.kind);
 ```
 
-Runnable examples:
+### Example 3: Query selectors
+
+```ts
+import { compileSelectorList, querySelectorAll } from "@ismail-elkorchi/css-parser";
+
+const selector = compileSelectorList(".card");
+console.log(selector.supported, querySelectorAll(selector, { kind: "document", children: [] }).length);
+```
+
+### Example 4: Extract render signals
+
+```ts
+import { extractRenderSignals, parse } from "@ismail-elkorchi/css-parser";
+
+const tree = parse(".card { color: red; }");
+console.log(extractRenderSignals(tree).length >= 0);
+```
+
+Run packaged examples:
 
 ```bash
 npm run examples:run
 ```
 
-## Options and Config Reference
+## Compatibility
 
-- [Options and API reference](https://github.com/Ismail-elkorchi/css-parser/blob/main/docs/reference/options.md)
-- [API overview](https://github.com/Ismail-elkorchi/css-parser/blob/main/docs/reference/api-overview.md)
+Runtime compatibility matrix:
 
-## Error Handling and Gotchas
+| Runtime | Status |
+| --- | --- |
+| Node.js | Supported |
+| Deno | Supported |
+| Bun | Supported |
+| Browser (evergreen) | Supported |
 
-- Treat `BudgetExceededError` as a normal guardrail for untrusted or huge stylesheets.
-- `parseFragment()` and `parseRuleList()` are intended for partial CSS inputs.
-- Selector matching is structural and deterministic, not a full browser cascade engine.
-- Parsing validates structure; it does not enforce a CSS safety policy.
+## Security and Safety Notes
 
-## Compatibility Matrix
+Parsing is not sanitization. For untrusted input:
+- configure strict budgets,
+- handle `BudgetExceededError` explicitly,
+- apply separate policy checks before execution or rendering.
 
-| Runtime | Status | Notes |
-| --- | --- | --- |
-| Node.js | ✅ | CI + smoke coverage |
-| Deno | ✅ | CI + smoke coverage |
-| Bun | ✅ | CI + smoke coverage |
-| Browser (evergreen) | ✅ | Smoke-tested behavior |
+## Docs Map
 
-## Security Notes
-
-Use explicit budgets for untrusted input and fail closed on `BudgetExceededError`. Parsing validates syntax structure, not trust or safety policy. See [SECURITY.md](https://github.com/Ismail-elkorchi/css-parser/blob/main/SECURITY.md).
-
-## Design Constraints / Non-goals
-
-- Deterministic parsing and selector matching are prioritized over browser-engine emulation.
-- The package does not model layout, cascade side effects, or script-driven behavior.
-- The package does not replace stylesheet sanitization or policy enforcement.
-
-## Documentation Map
-
+- [Docs index](https://github.com/Ismail-elkorchi/css-parser/blob/main/docs/index.md)
 - [Tutorial](https://github.com/Ismail-elkorchi/css-parser/blob/main/docs/tutorial/first-parse.md)
 - [How-to guides](https://github.com/Ismail-elkorchi/css-parser/tree/main/docs/how-to)
 - [Reference](https://github.com/Ismail-elkorchi/css-parser/tree/main/docs/reference)
 - [Explanation](https://github.com/Ismail-elkorchi/css-parser/tree/main/docs/explanation)
-
-## Release Validation
-
-```bash
-npm run check:fast
-npm run docs:lint:jsr
-npm run docs:test:jsr
-npm run examples:run
-npm pack --dry-run
-```
-
-Release workflow details: [RELEASING.md](https://github.com/Ismail-elkorchi/css-parser/blob/main/RELEASING.md)
