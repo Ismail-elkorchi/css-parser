@@ -1,6 +1,6 @@
 # Parse Streaming CSS Input
 
-Goal: parse CSS that arrives in chunks.
+Goal: parse CSS bytes that arrive in chunks.
 
 ```ts
 import { parseStream } from "@ismail-elkorchi/css-parser";

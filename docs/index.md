@@ -6,10 +6,10 @@
 - [First parse success](./tutorial/first-parse.md)
 
 ## How-to
-- [Parse untrusted CSS safely](./how-to/parse-untrusted-css.md)
+- [Parse a stylesheet](./how-to/parse-stylesheet.md)
+- [Parse a declaration list](./how-to/parse-declaration-list.md)
+- [Avoid selector and tokenization pitfalls](./how-to/selectors-and-tokenization-pitfalls.md)
 - [Parse streaming CSS input](./how-to/parse-streaming-css.md)
-- [Run selector queries](./how-to/run-selector-queries.md)
-- [Extract render signals](./how-to/extract-render-signals.md)
 
 ## Reference
 - [API overview](./reference/api-overview.md)

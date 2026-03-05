@@ -18,7 +18,7 @@ async function main() {
   const checks = [
     makeCheck("contributing-has-naming-policy", /##\s*Naming policy/i.test(contributingDoc)),
     makeCheck("contributing-has-local-verification", /##\s*Local verification/i.test(contributingDoc)),
-    makeCheck("readme-docs-map-present", /##\s*Docs Map/i.test(readmeDoc))
+    makeCheck("readme-docs-map-present", /##\s*(?:Docs Map|Documentation)/i.test(readmeDoc))
   ];
 
   const failures = checks.filter((check) => !check.ok);

@@ -24,3 +24,7 @@ npm run eval:ci
 - Keep documentation aligned with code behavior.
 - Keep reference pages aligned with exported APIs and options.
 - Keep third-party attributions complete in `THIRD_PARTY_NOTICES.md`.
+
+## Maintainer docs
+
+- [Maintainer index](./docs/maintainers/index.md)
