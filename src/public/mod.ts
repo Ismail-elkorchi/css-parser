@@ -109,7 +109,10 @@ const SUPPORTED_PARSE_CONTEXTS = new Set<ParseContext>([
   "declarationList",
   "declaration",
   "value"
-]);
+]);/**
+ * Represents a structured public error for `BudgetExceededError` failure cases.
+ */
+
 
 export class BudgetExceededError extends Error {
   readonly payload: BudgetExceededPayload;
@@ -121,7 +124,10 @@ export class BudgetExceededError extends Error {
     this.name = "BudgetExceededError";
     this.payload = payload;
   }
-}
+}/**
+ * Represents a structured public error for `PatchPlanningError` failure cases.
+ */
+
 
 export class PatchPlanningError extends Error {
   readonly payload: PatchPlanningErrorPayload;
@@ -670,7 +676,10 @@ function parseInternal(css: string, context: ParseContext, options: ParseOptions
     errors: publicErrors,
     ...(trace ? { trace } : {})
   };
-}
+}/**
+ * Parses input deterministically for the `parse` public API.
+ */
+
 
 export function parse(css: string, options: ParseOptions = {}): StyleSheetTree {
   if (options.context !== undefined && options.context !== "stylesheet") {
@@ -687,7 +696,10 @@ export function parse(css: string, options: ParseOptions = {}): StyleSheetTree {
     errors: parsed.errors,
     ...(parsed.trace ? { trace: parsed.trace } : {})
   };
-}
+}/**
+ * Parses input deterministically for the `parseFragment` public API.
+ */
+
 
 export function parseFragment(css: string, contextTagName: string, options: ParseOptions = {}): FragmentTree {
   const context = normalizeFragmentContext(contextTagName);
@@ -705,15 +717,24 @@ export function parseFragment(css: string, contextTagName: string, options: Pars
     errors: parsed.errors,
     ...(parsed.trace ? { trace: parsed.trace } : {})
   };
-}
+}/**
+ * Parses input deterministically for the `parseRuleList` public API.
+ */
+
 
 export function parseRuleList(css: string, options: ParseOptions = {}): FragmentTree {
   return parseFragment(css, "rule", options);
-}
+}/**
+ * Parses input deterministically for the `parseDeclarationList` public API.
+ */
+
 
 export function parseDeclarationList(css: string, options: ParseOptions = {}): FragmentTree {
   return parseFragment(css, "declarationList", options);
-}
+}/**
+ * Returns deterministic public metadata for `getParseErrorSpecRef`.
+ */
+
 
 export function getParseErrorSpecRef(parseErrorId: string): string {
   void parseErrorId;
@@ -848,7 +869,10 @@ async function decodeStreamToText(
     totalBytes: total,
     maxBufferedObserved
   };
-}
+}/**
+ * Tokenizes input deterministically for the `tokenize` public API.
+ */
+
 
 export function tokenize(css: string, options: TokenizeOptions = {}): readonly Token[] {
   enforceBudget("maxInputBytes", options.budgets?.maxInputBytes, css.length);
@@ -860,7 +884,10 @@ export function tokenize(css: string, options: TokenizeOptions = {}): readonly T
   });
   enforceBudget("maxTokens", options.budgets?.maxTokens, tokenized.tokens.length);
   return tokenized.tokens.map((token) => toPublicToken(token));
-}
+}/**
+ * Tokenizes input deterministically for the `tokenizeStream` public API.
+ */
+
 
 export async function* tokenizeStream(
   stream: ReadableStream<Uint8Array>,
@@ -871,7 +898,10 @@ export async function* tokenizeStream(
   for (const token of tokens) {
     yield token;
   }
-}
+}/**
+ * Parses input deterministically for the `parseBytes` public API.
+ */
+
 
 export function parseBytes(bytes: Uint8Array, options: ParseOptions = {}): StyleSheetTree {
   enforceBudget("maxInputBytes", options.budgets?.maxInputBytes, bytes.byteLength);
@@ -904,7 +934,10 @@ export function parseBytes(bytes: Uint8Array, options: ParseOptions = {}): Style
     ...parsed,
     trace: withDecodeTrace
   };
-}
+}/**
+ * Parses input deterministically for the `parseStream` public API.
+ */
+
 
 export async function parseStream(
   stream: ReadableStream<Uint8Array>,
@@ -964,7 +997,10 @@ function nodeFromTree(treeOrNode: StyleSheetTree | FragmentTree | CssNode): CssN
   }
 
   return treeOrNode;
-}
+}/**
+ * Serializes data deterministically for the `serialize` public API.
+ */
+
 
 export function serialize(treeOrNode: StyleSheetTree | FragmentTree | CssNode): string {
   const node = nodeFromTree(treeOrNode);
@@ -977,11 +1013,17 @@ function walkNode(node: CssNode, depth: number, visitor: NodeVisitor): void {
   for (const child of childNodes(node)) {
     walkNode(child, depth + 1, visitor);
   }
-}
+}/**
+ * Traverses parsed data deterministically for the `walk` public API.
+ */
+
 
 export function walk(tree: StyleSheetTree | FragmentTree, visitor: NodeVisitor): void {
   walkNode(tree.root, 0, visitor);
-}
+}/**
+ * Traverses parsed data deterministically for the `walkByType` public API.
+ */
+
 
 export function walkByType(
   tree: StyleSheetTree | FragmentTree,
@@ -994,7 +1036,10 @@ export function walkByType(
       visitor(node, depth);
     }
   });
-}
+}/**
+ * Traverses parsed data deterministically for the `findById` public API.
+ */
+
 
 export function findById(tree: StyleSheetTree | FragmentTree, id: NodeId): CssNode | null {
   let matched: CssNode | null = null;
@@ -1004,7 +1049,10 @@ export function findById(tree: StyleSheetTree | FragmentTree, id: NodeId): CssNo
     }
   });
   return matched;
-}
+}/**
+ * Traverses parsed data deterministically for the `findAllByType` public API.
+ */
+
 
 export function* findAllByType(tree: StyleSheetTree | FragmentTree, type: string): IterableIterator<CssNode> {
   const normalizedType = type.toLowerCase();
@@ -1018,7 +1066,10 @@ export function* findAllByType(tree: StyleSheetTree | FragmentTree, type: string
   for (const node of found) {
     yield node;
   }
-}
+}/**
+ * Provides deterministic public behavior for `outline`.
+ */
+
 
 export function outline(tree: StyleSheetTree | FragmentTree): Outline {
   const entries: OutlineEntry[] = [];
@@ -1054,7 +1105,10 @@ function countNodes(node: CssNode): number {
 
 function topLevelNodes(tree: StyleSheetTree | FragmentTree): readonly CssNode[] {
   return tree.children.length > 0 ? tree.children : [tree.root];
-}
+}/**
+ * Provides deterministic public behavior for `chunk`.
+ */
+
 
 export function chunk(tree: StyleSheetTree | FragmentTree, options: ChunkOptions = {}): Chunk[] {
   const maxChars = options.maxChars ?? 8192;
@@ -1208,7 +1262,10 @@ function buildReplacement(
     end: span.end,
     replacementCss: edit.css
   };
-}
+}/**
+ * Provides deterministic public behavior for `applyPatchPlan`.
+ */
+
 
 export function applyPatchPlan(originalCss: string, plan: PatchPlan): string {
   let cursor = 0;
@@ -1233,7 +1290,10 @@ export function applyPatchPlan(originalCss: string, plan: PatchPlan): string {
   }
 
   return output;
-}
+}/**
+ * Computes deterministic public output for `computePatch`.
+ */
+
 
 export function computePatch(originalCss: string, edits: readonly Edit[]): PatchPlan {
   if (edits.length === 0) {
@@ -1909,7 +1969,10 @@ function compileSingleSelector(selectorNode: SelectorRecord, selectorIndex: numb
     supported: unsupported.length === 0,
     unsupportedParts: unsupported
   };
-}
+}/**
+ * Provides deterministic public behavior for `compileSelectorList`.
+ */
+
 
 export function compileSelectorList(selectorText: string): CompiledSelectorList {
   const parsed = parseFragment(selectorText, "selectorList");
@@ -2070,7 +2133,10 @@ function classifyRenderSignalClass(
   }
 
   return null;
-}
+}/**
+ * Extracts deterministic public data for `extractStyleRuleSignals`.
+ */
+
 
 export function extractStyleRuleSignals(
   cssOrTree: string | StyleSheetTree,
@@ -2126,7 +2192,10 @@ export function extractStyleRuleSignals(
   });
 
   return signals;
-}
+}/**
+ * Extracts deterministic public data for `extractInlineStyleSignals`.
+ */
+
 
 export function extractInlineStyleSignals(styleText: string): readonly StyleDeclarationSignal[] {
   const fragment = parseDeclarationList(styleText);
@@ -2141,7 +2210,10 @@ export function extractInlineStyleSignals(styleText: string): readonly StyleDecl
     declarationOrder += 1;
   }
   return signals;
-}
+}/**
+ * Extracts deterministic public data for `extractRenderSignals`.
+ */
+
 
 export function extractRenderSignals(
   cssOrTree: string | StyleSheetTree,
@@ -2170,7 +2242,10 @@ export function extractRenderSignals(
     }
   }
   return renderSignals;
-}
+}/**
+ * Extracts deterministic public data for `extractInlineRenderSignals`.
+ */
+
 
 export function extractInlineRenderSignals(
   styleText: string,
@@ -2224,7 +2299,10 @@ function resolveCompiledSelectorList(selector: string | CompiledSelectorList): C
   }
 
   return compiled;
-}
+}/**
+ * Provides deterministic public behavior for `matchesSelector`.
+ */
+
 
 export function matchesSelector<TNode extends SelectorNodeLike>(
   selector: string | CompiledSelectorList,
@@ -2251,7 +2329,10 @@ export function matchesSelector<TNode extends SelectorNodeLike>(
   }
 
   return false;
-}
+}/**
+ * Traverses parsed data deterministically for the `querySelectorAll` public API.
+ */
+
 
 export function querySelectorAll<TNode extends SelectorNodeLike>(
   selector: string | CompiledSelectorList,
