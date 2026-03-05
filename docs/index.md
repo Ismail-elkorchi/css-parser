@@ -18,3 +18,5 @@ Use this index to choose documentation by intent.
 ## Explanation
 - [Architecture and tradeoffs](./explanation/architecture-and-tradeoffs.md)
 - [Selector model](./selectors.md)
+- [Design constraints and non-goals](./explanation/design-constraints-and-non-goals.md)
+- [v0.1.1 CI failure postmortem](./explanation/ci-failure-postmortem-v0.1.1.md)

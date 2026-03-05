@@ -2,6 +2,18 @@
 
 Deterministic CSS parsing and selector evaluation for automation pipelines that need stable output across Node, Deno, Bun, and modern browsers.
 
+## When To Use
+
+- You need deterministic CSS parse/serialize behavior for repeatable tooling.
+- You need parse budgets to bound runtime work and memory growth.
+- You need selector matching utilities in the same package as parsing.
+
+## When Not To Use
+
+- You need a browser layout engine.
+- You need CSS sanitization or policy enforcement beyond parsing.
+- You need runtime execution of scripts or DOM behavior.
+
 ## Install
 
 ```bash
@@ -12,11 +24,7 @@ npm install @ismail-elkorchi/css-parser
 deno add jsr:@ismail-elkorchi/css-parser
 ```
 
-```txt
-import { parse } from "jsr:@ismail-elkorchi/css-parser";
-```
-
-## Success Path
+## Quickstart
 
 ```ts
 import {
@@ -60,41 +68,52 @@ Runnable examples:
 npm run examples:run
 ```
 
-## Options / API Reference
+## Options and Config Reference
 
-- [Options and API reference](./docs/reference/options.md)
+- [Options and API reference](https://github.com/Ismail-elkorchi/css-parser/blob/main/docs/reference/options.md)
+- [API overview](https://github.com/Ismail-elkorchi/css-parser/blob/main/docs/reference/api-overview.md)
 
-## When To Use
+## Error Handling and Gotchas
 
-- You need deterministic CSS parse/serialize behavior for repeatable tooling.
-- You need parse budgets to bound runtime work and memory growth.
-- You need selector matching utilities in the same package as parsing.
+- Treat `BudgetExceededError` as a normal guardrail for untrusted or huge stylesheets.
+- `parseFragment()` and `parseRuleList()` are intended for partial CSS inputs.
+- Selector matching is structural and deterministic, not a full browser cascade engine.
+- Parsing validates structure; it does not enforce a CSS safety policy.
 
-## When Not To Use
+## Compatibility Matrix
 
-- You need a browser layout engine.
-- You need CSS sanitization or policy enforcement beyond parsing.
-- You need runtime execution of scripts or DOM behavior.
+| Runtime | Status | Notes |
+| --- | --- | --- |
+| Node.js | ✅ | CI + smoke coverage |
+| Deno | ✅ | CI + smoke coverage |
+| Bun | ✅ | CI + smoke coverage |
+| Browser (evergreen) | ✅ | Smoke-tested behavior |
 
-## Security Note
+## Security Notes
 
-Use explicit budgets for untrusted input and fail closed on `BudgetExceededError`. Parsing validates syntax structure, not trust or safety policy. See [SECURITY.md](./SECURITY.md).
+Use explicit budgets for untrusted input and fail closed on `BudgetExceededError`. Parsing validates syntax structure, not trust or safety policy. See [SECURITY.md](https://github.com/Ismail-elkorchi/css-parser/blob/main/SECURITY.md).
 
-## Runtime Compatibility
+## Design Constraints / Non-goals
 
-- Node.js (current LTS and current stable)
-- Deno (stable)
-- Bun (stable)
-- Modern evergreen browsers (smoke-tested)
+- Deterministic parsing and selector matching are prioritized over browser-engine emulation.
+- The package does not model layout, cascade side effects, or script-driven behavior.
+- The package does not replace stylesheet sanitization or policy enforcement.
 
-## No Runtime Dependencies
+## Documentation Map
 
-No runtime dependencies are used by production parser code.
+- [Tutorial](https://github.com/Ismail-elkorchi/css-parser/blob/main/docs/tutorial/first-parse.md)
+- [How-to guides](https://github.com/Ismail-elkorchi/css-parser/tree/main/docs/how-to)
+- [Reference](https://github.com/Ismail-elkorchi/css-parser/tree/main/docs/reference)
+- [Explanation](https://github.com/Ismail-elkorchi/css-parser/tree/main/docs/explanation)
 
-## Docs Map
+## Release Validation
 
-- [Documentation index](./docs/index.md)
+```bash
+npm run check:fast
+npm run docs:lint:jsr
+npm run docs:test:jsr
+npm run examples:run
+npm pack --dry-run
+```
 
-## Release Trigger
-
-See [RELEASING.md](./RELEASING.md) for required secrets, trigger methods, and post-publish checks.
+Release workflow details: [RELEASING.md](https://github.com/Ismail-elkorchi/css-parser/blob/main/RELEASING.md)

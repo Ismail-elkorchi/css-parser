@@ -1,5 +1,7 @@
 /**
- * Demonstrates selector compilation and deterministic node matching.
+ * What it does: compiles a selector list and queries a deterministic node tree.
+ * Expected output: prints "selector-query ok" and confirms exactly one match.
+ * Constraints: sample tree must include matching id/class attributes for the selector.
  * Run: npm run build && node examples/selector-query.mjs
  */
 import { compileSelectorList, querySelectorAll } from "../dist/mod.js";
