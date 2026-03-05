@@ -1,47 +1,46 @@
 # API Overview
 
-All exported runtime entrypoints from `src/public/mod.ts`.
+## JSR Surface
 
-## Error classes
-- `BudgetExceededError`
-- `PatchPlanningError`
+JSR exports are defined by [`jsr/mod.ts`](../../jsr/mod.ts).
 
-## Parsing and encoding
+Primary JSR runtime exports:
 - `parse(input, options?)`
-- `parseFragment(input, context?, options?)`
+- `parseBytes(input, options?)`
+- `parseFragment(input, contextTagName, options?)`
 - `parseRuleList(input, options?)`
 - `parseDeclarationList(input, options?)`
-- `getParseErrorSpecRef(parseErrorId)`
+- `parseStream(stream, options?)`
 - `tokenize(input, options?)`
 - `tokenizeStream(stream, options?)`
-- `parseBytes(input, options?)`
-- `parseStream(stream, options?)`
-- `serialize(treeOrNode)`
-
-## Tree traversal and search
-- `walk(nodeOrTree, visitor)`
-- `walkByType(nodeOrTree, type, visitor)`
-- `findById(nodeOrTree, id)`
-- `findAllByType(nodeOrTree, type)`
-- `outline(nodeOrTree)`
-- `chunk(nodeOrTree, options?)`
-
-## Patch planning
-- `applyPatchPlan(originalCss, plan)`
-- `computePatch(originalCss, edits)`
-
-## Selector utilities
+- `serialize(input)`
 - `compileSelectorList(selectorText)`
-- `matchesSelector(compiled, node, root)`
-- `querySelectorAll(compiled, root, options?)`
+- `querySelectorAll(selector, root, options?)`
 
-## Signal extraction
-- `extractStyleRuleSignals(tree, options?)`
-- `extractInlineStyleSignals(styleText, options?)`
-- `extractRenderSignals(tree, options?)`
-- `extractInlineRenderSignals(styleText, options?)`
+Primary JSR type exports:
+- `ParseBudgets`, `ParseOptions`, `TokenizeOptions`
+- `StyleSheetTree`, `FragmentTree`, `CssNode`, `ParseError`
+- `CssSerializable`, `CssToken`, `CompiledSelectorList`, `SelectorNodeLike`, `SelectorQueryOptions`
+
+## Node/npm Surface
+
+Node/npm type surface is shipped from `dist/mod.d.ts` (source: `src/public/mod.ts`).
+
+In addition to JSR exports, Node/npm includes:
+- `matchesSelector(...)`
+- `BudgetExceededError`, `PatchPlanningError`, `getParseErrorSpecRef(parseErrorId)`
+- traversal/search helpers (`walk`, `walkByType`, `findById`, `findAllByType`, `outline`, `chunk`)
+- patch planning helpers (`computePatch`, `applyPatchPlan`)
+- signal extraction helpers (`extractStyleRuleSignals`, `extractInlineStyleSignals`, `extractRenderSignals`, `extractInlineRenderSignals`)
+
+## JSR Surface vs Node Surface
+
+- JSR exposes parse/tokenize/selector primitives for portable Deno/JSR use.
+- Node/npm additionally exposes authoring workflows (patching, traversal, and signal extraction).
+- Shared types (`ParseOptions`, selector types, parse trees) are intentionally aligned.
 
 ## Related
 - [Options](./options.md)
+- [Data model](./data-model.md)
 - [Error model](./error-model.md)
 - [Selector behavior](./selectors.md)
