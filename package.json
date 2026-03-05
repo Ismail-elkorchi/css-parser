@@ -48,7 +48,7 @@
     "test:bench": "npm run build && node --expose-gc scripts/bench/run-bench.mjs",
     "test:bench:stability": "npm run build && node --expose-gc scripts/bench/run-bench-stability.mjs",
     "examples:run": "npm run build && node examples/run-all.mjs",
-    "check:fast": "npm run lint && npm run typecheck && npm run test:control && npm run examples:run",
+    "check:fast": "npm run lint && npm run typecheck && npm run test:control && npm run docs:required && npm run examples:run",
     "docs:lint:jsr": "deno doc --lint --sloppy-imports jsr/mod.ts",
     "docs:test:jsr": "deno test --doc --no-check --sloppy-imports jsr/mod.ts",
     "smoke:node": "npm run build && node scripts/smoke/control.mjs --runtime=node --report=reports/smoke-node.json",
@@ -68,7 +68,10 @@
     "mutation:pilot": "npm run build && node scripts/mutation/run-pilot.mjs --config=scripts/mutation/pilot-config.json --out=docs/maintainers/mutation-pilot-report.json",
     "eval:ci": "node scripts/eval/run-eval.mjs --profile=ci",
     "eval:release": "node scripts/eval/run-eval.mjs --profile=release",
-    "eval:hard-gate": "node scripts/eval/run-eval.mjs --profile=hard-gate"
+    "eval:hard-gate": "node scripts/eval/run-eval.mjs --profile=hard-gate",
+    "docs:required": "node scripts/quality/doc-required.mjs",
+    "release:notes:dry-run": "node scripts/release/render-notes.mjs --dry-run",
+    "changelog:update:dry-run": "node scripts/release/update-changelog.mjs --dry-run"
   },
   "dependencies": {},
   "overrides": {
