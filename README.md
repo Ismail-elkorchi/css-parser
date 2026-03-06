@@ -1,6 +1,6 @@
 # @ismail-elkorchi/css-parser
 
-Deterministic CSS parsing and selector utilities for automation across Node, Deno, Bun, and modern browsers.
+Deterministic CSS parsing with selector utilities and resource budgets across Node, Deno, Bun, and browsers.
 
 No runtime dependencies: this package ships with zero runtime dependencies.
 
@@ -97,6 +97,8 @@ Runtime compatibility matrix:
 | Deno | Supported |
 | Bun | Supported |
 | Browser (evergreen) | Supported |
+
+The Node.js package surface is verified against Node 20, 22, and 24.
 
 ## Security and Safety Notes
 

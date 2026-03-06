@@ -9,7 +9,9 @@
 - [Parse a stylesheet](./how-to/parse-stylesheet.md)
 - [Parse a declaration list](./how-to/parse-declaration-list.md)
 - [Avoid selector and tokenization pitfalls](./how-to/selectors-and-tokenization-pitfalls.md)
+- [Tune parser budgets](./how-to/tune-parser-budgets.md)
 - [Parse streaming CSS input](./how-to/parse-streaming-css.md)
+- [Understand why parsing is not policy or sanitization](./how-to/parsing-is-not-policy-or-sanitization.md)
 
 ## Reference
 - [API overview](./reference/api-overview.md)

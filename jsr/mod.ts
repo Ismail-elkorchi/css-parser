@@ -355,6 +355,15 @@ export async function* tokenizeStream(
  * @param selectorText CSS selector list source text.
  * @returns Compiled selector representation with parse diagnostics.
  * @throws {Error} When selector parsing fails.
+ *
+ * @example
+ * ```ts
+ * import { compileSelectorList } from "./mod.ts";
+ *
+ * const compiled = compileSelectorList(".card[data-kind='promo']");
+ * console.log(compiled.selectors.length);
+ * console.log(compiled.supported);
+ * ```
  */
 export function compileSelectorList(selectorText: string): CompiledSelectorList {
   return compileSelectorListInternal(selectorText);
