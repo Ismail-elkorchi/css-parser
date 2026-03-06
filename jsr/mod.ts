@@ -1,5 +1,5 @@
 /**
- * Deno/JSR entrypoint for deterministic CSS parsing and selector utilities.
+ * Deno/JSR entrypoint for CSS parsing with stylesheet structure, selector utilities, and tokenization helpers.
  *
  * Quickstart:
  * @example

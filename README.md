@@ -1,6 +1,8 @@
 # @ismail-elkorchi/css-parser
 
-Deterministic CSS parsing with selector utilities and resource budgets across Node, Deno, Bun, and browsers.
+CSS parser with stylesheet structure, selector utilities, and tokenization helpers.
+
+Supports Node, Deno, Bun, and browsers with explicit resource budgets.
 
 No runtime dependencies: this package ships with zero runtime dependencies.
 
@@ -109,6 +111,6 @@ Parsing is not sanitization. For untrusted input:
 
 ## Documentation
 
-- [Docs index](./docs/index.md)
-- [First parse success tutorial](./docs/tutorial/first-parse.md)
-- [Options reference](./docs/reference/options.md)
+- [Docs index](https://github.com/Ismail-elkorchi/css-parser/blob/main/docs/index.md)
+- [First parse success tutorial](https://github.com/Ismail-elkorchi/css-parser/blob/main/docs/tutorial/first-parse.md)
+- [Options reference](https://github.com/Ismail-elkorchi/css-parser/blob/main/docs/reference/options.md)

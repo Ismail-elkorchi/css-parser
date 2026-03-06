@@ -1,7 +1,7 @@
 {
   "name": "@ismail-elkorchi/css-parser",
   "version": "0.1.1",
-  "description": "Deterministic CSS parser with selector utilities and resource budgets for Node, Deno, Bun, and browsers.",
+  "description": "CSS parser with stylesheet structure, selector utilities, and tokenization helpers.",
   "license": "MIT",
   "repository": {
     "type": "git",

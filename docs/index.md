@@ -1,6 +1,6 @@
 # CSS Parser Docs
 
-`@ismail-elkorchi/css-parser` provides deterministic CSS parsing and selector utilities with explicit resource limits.
+`@ismail-elkorchi/css-parser` provides CSS parsing with stylesheet structure, selector utilities, and tokenization helpers.
 
 ## Tutorial
 - [First parse success](./tutorial/first-parse.md)
