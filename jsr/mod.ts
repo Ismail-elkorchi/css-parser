@@ -171,13 +171,117 @@ export interface CssToken {
 }
 
 /**
- * Compiled selector program returned by `compileSelectorList`.
+ * Supported selector combinators emitted by `compileSelectorList`.
+ */
+export type SelectorCombinator = " " | ">";
+
+/**
+ * Compiled type or universal selector.
+ */
+export interface SelectorSimpleType {
+  /** Discriminator for type/universal selector parts. */
+  readonly kind: "type";
+  /** Element name from the selector source. */
+  readonly name: string;
+  /** Whether the selector is the universal `*` form. */
+  readonly universal: boolean;
+}
+
+/**
+ * Compiled `#id` selector part.
+ */
+export interface SelectorSimpleId {
+  /** Discriminator for id selector parts. */
+  readonly kind: "id";
+  /** Identifier value without the `#` prefix. */
+  readonly value: string;
+}
+
+/**
+ * Compiled `.class` selector part.
+ */
+export interface SelectorSimpleClass {
+  /** Discriminator for class selector parts. */
+  readonly kind: "class";
+  /** Class name without the `.` prefix. */
+  readonly value: string;
+}
+
+/**
+ * Compiled attribute selector part.
+ */
+export interface SelectorSimpleAttribute {
+  /** Discriminator for attribute selector parts. */
+  readonly kind: "attribute";
+  /** Attribute name used in the selector. */
+  readonly name: string;
+  /** Optional attribute matcher operator. */
+  readonly matcher: null | "=" | "~=" | "|=" | "^=" | "$=" | "*=";
+  /** Optional attribute comparison value. */
+  readonly value: string | null;
+  /** Optional attribute selector flags such as `i` or `s`. */
+  readonly flags: string | null;
+}
+
+/**
+ * Supported simple selector part returned by the selector compiler.
+ */
+export type SelectorSimple =
+  | SelectorSimpleType
+  | SelectorSimpleId
+  | SelectorSimpleClass
+  | SelectorSimpleAttribute;
+
+/**
+ * One compound selector segment between combinators.
+ */
+export interface CompiledSelectorCompound {
+  /** Simple selectors that must all match this segment. */
+  readonly simpleSelectors: readonly SelectorSimple[];
+}
+
+/**
+ * Unsupported selector construct preserved as structured diagnostics.
+ */
+export interface SelectorUnsupportedPart {
+  /** Zero-based selector index within the original selector list. */
+  readonly selectorIndex: number;
+  /** Stable category describing the unsupported selector construct. */
+  readonly partType: string;
+  /** Human-readable detail about the unsupported construct. */
+  readonly detail: string;
+}
+
+/**
+ * One compiled selector from a selector list.
+ */
+export interface CompiledSelector {
+  /** Zero-based selector index within the original selector list. */
+  readonly selectorIndex: number;
+  /** Compound selector segments in match order. */
+  readonly compounds: readonly CompiledSelectorCompound[];
+  /** Combinators between compound selector segments. */
+  readonly combinators: readonly SelectorCombinator[];
+  /** Whether this selector contains only supported selector features. */
+  readonly supported: boolean;
+  /** Unsupported selector constructs discovered within this selector. */
+  readonly unsupportedParts: readonly SelectorUnsupportedPart[];
+}
+
+/**
+ * Compiled selector list returned by `compileSelectorList`.
  */
 export interface CompiledSelectorList {
   /** Original selector list source text. */
-  readonly source?: string;
-  /** Optional parser diagnostics for unsupported selector syntax. */
-  readonly errors?: readonly ParseError[];
+  readonly source: string;
+  /** Structured parser diagnostics for malformed selector syntax. */
+  readonly parseErrors: readonly ParseError[];
+  /** Compiled selectors in source order. */
+  readonly selectors: readonly CompiledSelector[];
+  /** Whether the whole selector list uses only supported selector features. */
+  readonly supported: boolean;
+  /** Unsupported selector constructs collected across the selector list. */
+  readonly unsupportedParts: readonly SelectorUnsupportedPart[];
 }
 
 /**
@@ -353,7 +457,8 @@ export async function* tokenizeStream(
  * Compiles selector text into a reusable selector program.
  *
  * @param selectorText CSS selector list source text.
- * @returns Compiled selector representation with parse diagnostics.
+ * @returns Compiled selector representation with parse diagnostics, selector segments,
+ * unsupported selector details, and an aggregate support flag.
  * @throws {Error} When selector parsing fails.
  *
  * @example

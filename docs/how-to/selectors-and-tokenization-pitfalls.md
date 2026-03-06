@@ -41,7 +41,7 @@ const tree = {
 
 const matches = querySelectorAll(compiled, tree, { strict: true });
 console.log(matches.length);
-console.log(compiled.errors?.length ?? 0);
+console.log(compiled.parseErrors.length);
 ```
 
 ## Expected output
