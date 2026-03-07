@@ -1,7 +1,7 @@
 {
   "name": "@ismail-elkorchi/css-parser",
   "version": "0.1.1",
-  "description": "Deterministic CSS parser for automation workflows across Node, Deno, Bun, and modern browsers.",
+  "description": "CSS parser with stylesheet structure, selector utilities, and tokenization helpers.",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -13,8 +13,8 @@
   "type": "module",
   "packageManager": "npm@11.10.0",
   "engines": {
-    "node": ">=24.0.0",
-    "npm": ">=11.0.0"
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
   },
   "main": "./dist/mod.js",
   "types": "./dist/mod.d.ts",
@@ -36,7 +36,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.build.json",
     "build": "tsc -p tsconfig.build.json && node scripts/build/copy-vendor.mjs",
     "test": "npm run test:control",
-    "test:control": "npm run build && node --test test/control/**/*.test.js tests/control/**/*.test.js && node scripts/eval/write-stub-reports.mjs",
+    "test:control": "npm run build && node scripts/test/run-node-tests.mjs test/control tests/control && node scripts/eval/write-stub-reports.mjs",
     "test:conformance": "node scripts/conformance/run-all.mjs",
     "test:encoding": "npm run build && node scripts/conformance/run-encoding-fixtures.mjs",
     "test:tokenizer": "npm run build && node scripts/conformance/run-tokenizer-fixtures.mjs",
@@ -48,7 +48,7 @@
     "test:bench": "npm run build && node --expose-gc scripts/bench/run-bench.mjs",
     "test:bench:stability": "npm run build && node --expose-gc scripts/bench/run-bench-stability.mjs",
     "examples:run": "npm run build && node examples/run-all.mjs",
-    "check:fast": "npm run lint && npm run typecheck && npm run test:control && npm run docs:required && npm run examples:run",
+    "check:fast": "npm run lint && npm run typecheck && npm run test:control && npm run docs:required && npm run docs:quality:jsr && npm run examples:run",
     "docs:lint:jsr": "deno doc --lint --sloppy-imports jsr/mod.ts",
     "docs:test:jsr": "deno test --doc --no-check --sloppy-imports jsr/mod.ts",
     "smoke:node": "npm run build && node scripts/smoke/control.mjs --runtime=node --report=reports/smoke-node.json",
@@ -70,6 +70,7 @@
     "eval:release": "node scripts/eval/run-eval.mjs --profile=release",
     "eval:hard-gate": "node scripts/eval/run-eval.mjs --profile=hard-gate",
     "docs:required": "node scripts/quality/doc-required.mjs",
+    "docs:quality:jsr": "node scripts/quality/doc-jsr-quality.mjs",
     "release:notes:dry-run": "node scripts/release/render-notes.mjs --dry-run",
     "changelog:update:dry-run": "node scripts/release/update-changelog.mjs --dry-run"
   },
