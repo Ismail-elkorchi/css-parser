@@ -1,4 +1,4 @@
-import type { CssTreeParseContext } from "../csstree-runtime.js";
+import type { CssTreeParseContext } from "../csstree-runtime.ts";
 
 export interface TreeSpan {
   readonly start: number;

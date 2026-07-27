@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES2023",
-    "module": "ES2022",
-    "moduleResolution": "Bundler",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "strict": true,
     "noUncheckedIndexedAccess": true,
@@ -17,9 +17,10 @@
     "noEmitOnError": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
+    "rewriteRelativeImportExtensions": true,
     "moduleDetection": "force",
     "noErrorTruncation": true,
-    "skipLibCheck": true,
+    "skipLibCheck": false,
     "allowJs": false,
     "resolveJsonModule": false,
     "newLine": "lf",

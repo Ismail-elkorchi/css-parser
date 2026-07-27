@@ -3,125 +3,57 @@ name: CI
 on:
   pull_request:
   push:
-    branches:
-      - main
-  schedule:
-    - cron: "31 3 * * 1"
+    branches: [main]
 
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  node:
+  build-test:
+    name: build-test-${{ matrix.node-version }}
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         node-version: [20, 22, 24]
-    runs-on: ubuntu-latest
-    name: node-${{ matrix.node-version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          submodules: recursive
-
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Node
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
-
-      - name: Setup Deno
-        uses: denoland/setup-deno@e95548e56dfa95d4e1a28d6f422fafe75c4c26fb # v2
-        with:
-          deno-version: v2.x
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@3d267786b128fe76c2f16a390aa2448b815359f3 # v2
-
       - name: Install
         run: npm ci
+      - name: Verify Node build, types, lint, and tests
+        run: npm run lint && npm run typecheck && npm test
 
-      - name: Lint
-        run: npm run lint
-
-      - name: Typecheck
-        run: npm run typecheck
-
-      - name: Docblocks required
-        run: npm run docs:required
-
-      - name: Build
-        run: npm run build
-
-      - name: Install Playwright Chromium
+  qualification:
+    name: qualification
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+      - name: Setup Deno
+        uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
+        with:
+          deno-version: v2.x
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+      - name: Install
+        run: npm ci
+      - name: Install Chromium
         run: npx playwright install --with-deps chromium
-
-      - name: Test
-        run: npm test
-
-      - name: Evaluate CI profile
-        if: github.event_name != 'pull_request'
-        run: npm run eval:ci
-
-      - name: Upload eval reports
-        if: github.event_name != 'pull_request' && always()
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
-        with:
-          name: eval-reports-node
-          if-no-files-found: warn
-          path: reports/**
-
-  deno:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          submodules: recursive
-
-      - name: Setup Node
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Setup Deno
-        uses: denoland/setup-deno@e95548e56dfa95d4e1a28d6f422fafe75c4c26fb # v2
-        with:
-          deno-version: v2.x
-
-      - name: Install
-        run: npm ci
-
-      - name: Build
-        run: npm run build
-
-      - name: Control smoke (Deno)
-        run: npm run smoke:deno
-
-  bun:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          submodules: recursive
-
-      - name: Setup Node
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@3d267786b128fe76c2f16a390aa2448b815359f3 # v2
-
-      - name: Install
-        run: npm ci
-
-      - name: Build
-        run: npm run build
-
-      - name: Control smoke (Bun)
-        run: npm run smoke:bun
+      - name: Run qualification
+        run: npm run qualification:ci

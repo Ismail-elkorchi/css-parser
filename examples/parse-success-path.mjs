@@ -1,9 +1,4 @@
-/**
- * What it does: parses a stylesheet and serializes it back to deterministic CSS.
- * Expected output: prints "parse-success-path ok" with serialization assertions passing.
- * Constraints: relies on stable parse/serialize behavior for unchanged input.
- * Run: npm run build && node examples/parse-success-path.mjs
- */
+/** Parses and serializes a stylesheet. */
 import { parse, serialize } from "../dist/mod.js";
 
 function assert(condition, message) {

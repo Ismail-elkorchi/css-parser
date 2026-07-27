@@ -1,5 +1,4 @@
 // Vendored CSSTree runtime entrypoint.
-// @ts-expect-error Vendored JS module does not include local .d.ts in this repository.
 import * as runtime from "./vendor/csstree/csstree.esm.js";
 
 export type CssTreeParseContext =
@@ -31,7 +30,7 @@ export interface CssTreeParseOptions {
   readonly onParseError?: (error: CssTreeParseError) => void;
 }
 
-type CssTreeRuntimeFacade = {
+interface CssTreeRuntimeFacade {
   parse(source: string, options?: CssTreeParseOptions): unknown;
   generate(ast: unknown): string;
   tokenize(source: string, callback: (type: number, start: number, end: number) => void): void;
@@ -39,7 +38,7 @@ type CssTreeRuntimeFacade = {
   fromPlainObject(ast: Record<string, unknown>): unknown;
   tokenNames: readonly string[];
   version: string;
-};
+}
 
 const csstree = runtime as unknown as CssTreeRuntimeFacade;
 

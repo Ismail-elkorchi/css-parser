@@ -1,26 +1,11 @@
-# CSS Parser Docs
+# CSS Parser Documentation
 
-`@ismail-elkorchi/css-parser` provides CSS parsing with stylesheet structure, selector utilities, and tokenization helpers.
+Start with the [README](../README.md) for installation and common examples.
 
-## Tutorial
-- [First parse success](./tutorial/first-parse.md)
+- [Parsing, diagnostics, and budgets](./parsing.md) explains text, byte, fragment, token, and stream entrypoints.
+- [Trees, traversal, and source edits](./trees-and-editing.md) covers the returned tree, serialization, traversal, chunking, and patch plans.
+- [Selector support](./selectors.md) documents selector compilation and querying.
+- [Style and render signals](./render-signals.md) covers the extraction helpers used by downstream document tools.
+- [Development and releases](./development.md) contains the repository layout and verification commands.
 
-## How-to
-- [Parse a stylesheet](./how-to/parse-stylesheet.md)
-- [Parse a declaration list](./how-to/parse-declaration-list.md)
-- [Avoid selector and tokenization pitfalls](./how-to/selectors-and-tokenization-pitfalls.md)
-- [Tune parser budgets](./how-to/tune-parser-budgets.md)
-- [Parse streaming CSS input](./how-to/parse-streaming-css.md)
-- [Understand why parsing is not policy or sanitization](./how-to/parsing-is-not-policy-or-sanitization.md)
-
-## Reference
-- [API overview](./reference/api-overview.md)
-- [Options](./reference/options.md)
-- [Data model](./reference/data-model.md)
-- [Error model](./reference/error-model.md)
-- [Selector behavior](./reference/selectors.md)
-
-## Explanation
-- [Design constraints](./explanation/design-constraints.md)
-- [Security posture](./explanation/security-posture.md)
-- [Performance characteristics](./explanation/performance-characteristics.md)
+The [runnable examples](../examples/) exercise the main package entrypoint. Security-sensitive consumers should also read the [security policy](../SECURITY.md).

@@ -1,9 +1,4 @@
-/**
- * What it does: parses streamed CSS chunks while enforcing parser budgets.
- * Expected output: prints "parse-stream-budget ok" when streamed content parses cleanly.
- * Constraints: requires built artifacts and budget values that allow the sample input.
- * Run: npm run build && node examples/parse-stream-budget.mjs
- */
+/** Parses streamed CSS while enforcing resource budgets. */
 import { parseStream, serialize } from "../dist/mod.js";
 
 function assert(condition, message) {

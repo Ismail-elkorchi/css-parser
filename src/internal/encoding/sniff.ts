@@ -68,11 +68,8 @@ function canonicalizeLabel(label: string): string | null {
 
 function decodeLatin1(bytes: Uint8Array): string {
   let out = "";
-  for (let index = 0; index < bytes.length; index += 1) {
-    const value = bytes[index];
-    if (value !== undefined) {
-      out += String.fromCharCode(value);
-    }
+  for (const value of bytes) {
+    out += String.fromCharCode(value);
   }
   return out;
 }
@@ -84,7 +81,7 @@ function sniffCharsetRule(bytes: Uint8Array, maxPrescanBytes: number): string | 
     scan = scan.slice(1);
   }
 
-  const match = scan.match(/^\s*@charset\s+("([^"]+)"|'([^']+)')\s*;/i);
+  const match = /^\s*@charset\s+("([^"]+)"|'([^']+)')\s*;/i.exec(scan);
   if (!match) {
     return null;
   }

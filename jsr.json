@@ -5,12 +5,23 @@
   "exports": {
     ".": "./jsr/mod.ts"
   },
+  "publish": {
+    "include": [
+      "src/**/*.ts",
+      "src/internal/vendor/csstree/**",
+      "jsr/mod.ts",
+      "README.md",
+      "THIRD_PARTY_NOTICES.md",
+      "LICENSE"
+    ]
+  },
   "exclude": [
-    "vendor/**",
+    "dist/**",
+    "node_modules/**",
     "test/**",
-    "tests/**",
     "reports/**",
     "tmp/**",
-    "scripts/**"
+    "scripts/**",
+    "css-parser-*.tgz"
   ]
 }

@@ -3,9 +3,9 @@ import {
   toPlainObject,
   type CssTreeParseContext,
   type CssTreeParseError
-} from "../csstree-runtime.js";
+} from "../csstree-runtime.ts";
 
-import type { CssAstNode, TreeBuildOptions, TreeBuildResult, TreeBuilderError } from "./types.js";
+import type { CssAstNode, TreeBuildOptions, TreeBuildResult, TreeBuilderError } from "./types.ts";
 
 const SUPPORTED_CONTEXTS = new Set<CssTreeParseContext>([
   "stylesheet",
@@ -79,7 +79,7 @@ export function buildTreeFromCss(input: string, options: TreeBuildOptions = {}):
     });
 
     const plain = toPlainObject(parsed);
-    if (!isRecord(plain) || typeof plain["type"] !== "string") {
+    if (!isRecord(plain) || typeof plain.type !== "string") {
       throw new Error("CSSTree parse result was not a valid AST node");
     }
 

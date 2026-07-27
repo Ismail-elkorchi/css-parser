@@ -1,1 +1,1 @@
-export { sanitizeCssNode, serializeTreeNode } from "./serialize.js";
+export { sanitizeCssNode, serializeTreeNode } from "./serialize.ts";

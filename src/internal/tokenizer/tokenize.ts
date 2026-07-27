@@ -1,6 +1,6 @@
-import { tokenNames, tokenize as tokenizeWithCssTree } from "../csstree-runtime.js";
+import { tokenNames, tokenize as tokenizeWithCssTree } from "../csstree-runtime.ts";
 
-import type { CssTokenInternal, TokenizeOptions, TokenizeResult, TokenizerParseError } from "./tokens.js";
+import type { CssTokenInternal, TokenizeOptions, TokenizeResult, TokenizerParseError } from "./tokens.ts";
 
 function normalizeTokenKind(rawKind: string): string {
   return rawKind.endsWith("-token") ? rawKind.slice(0, -6) : rawKind;

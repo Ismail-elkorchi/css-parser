@@ -1,11 +1,11 @@
-import { decodeCssBytes, sniffCssEncoding } from "../internal/encoding/mod.js";
-import { sanitizeCssNode, serializeTreeNode } from "../internal/serializer/mod.js";
+import { decodeCssBytes, sniffCssEncoding } from "../internal/encoding/mod.ts";
+import { sanitizeCssNode, serializeTreeNode } from "../internal/serializer/mod.ts";
 import {
   tokenize as tokenizeInternal,
   type CssTokenInternal,
   type TokenizerBudgets
-} from "../internal/tokenizer/mod.js";
-import { buildTreeFromCss, type CssAstNode, type TreeBuilderError } from "../internal/tree/mod.js";
+} from "../internal/tokenizer/mod.ts";
+import { buildTreeFromCss, type CssAstNode, type TreeBuilderError } from "../internal/tree/mod.ts";
 
 import type {
   BudgetExceededPayload,
@@ -46,51 +46,9 @@ import type {
   Token,
   TokenizeOptions,
   TraceEvent
-} from "./types.js";
+} from "./types.ts";
 
-export type {
-  BudgetExceededPayload,
-  BudgetOptions,
-  CompiledSelector,
-  CompiledSelectorCompound,
-  CompiledSelectorList,
-  Chunk,
-  ChunkOptions,
-  CssNode,
-  Edit,
-  FragmentTree,
-  NodeId,
-  NodeVisitor,
-  Outline,
-  OutlineEntry,
-  ParseContext,
-  ParseError,
-  ParseOptions,
-  PatchInsertStep,
-  PatchPlan,
-  PatchPlanningErrorPayload,
-  PatchSliceStep,
-  PatchStep,
-  Span,
-  SpanProvenance,
-  SelectorCombinator,
-  SelectorNodeLike,
-  SelectorQueryOptions,
-  SelectorSimple,
-  SelectorUnsupportedPart,
-  RenderSignal,
-  RenderSignalClass,
-  RenderSignalOptions,
-  StyleDeclarationSignal,
-  StyleRuleSignal,
-  StyleSignalOptions,
-  StyleSignalSpecificity,
-  StartEndToken,
-  StyleSheetTree,
-  Token,
-  TokenizeOptions,
-  TraceEvent
-} from "./types.js";
+export type * from "./types.ts";
 
 const STREAM_ENCODING_PRESCAN_BYTES = 1024;
 const CSS_PARSE_ERRORS_SECTION_URL = "https://drafts.csswg.org/css-syntax/#error-handling";
@@ -109,14 +67,14 @@ const SUPPORTED_PARSE_CONTEXTS = new Set<ParseContext>([
   "declarationList",
   "declaration",
   "value"
-]);/**
- * Represents a structured public error for `BudgetExceededError` failure cases.
- */
+]);
 
-
+/** Thrown when parser work or retained data exceeds a configured resource limit. */
 export class BudgetExceededError extends Error {
+  /** Details of the exceeded resource budget. */
   readonly payload: BudgetExceededPayload;
 
+  /** Creates an error for an exceeded parser resource budget. */
   constructor(payload: BudgetExceededPayload) {
     super(
       `Budget exceeded: ${payload.budget} limit=${String(payload.limit)} actual=${String(payload.actual)}`
@@ -124,14 +82,14 @@ export class BudgetExceededError extends Error {
     this.name = "BudgetExceededError";
     this.payload = payload;
   }
-}/**
- * Represents a structured public error for `PatchPlanningError` failure cases.
- */
+}
 
-
+/** Thrown when source-preserving edits cannot form a valid patch plan. */
 export class PatchPlanningError extends Error {
+  /** Details of the invalid edit or source span. */
   readonly payload: PatchPlanningErrorPayload;
 
+  /** Creates an error for a patch that cannot be planned safely. */
   constructor(payload: PatchPlanningErrorPayload) {
     super(
       `Patch planning failed: ${payload.code}${
@@ -184,55 +142,12 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function isPublicNode(value: unknown): value is CssNode {
-  return isRecord(value) && typeof value["id"] === "number" && typeof value["type"] === "string";
+  return isRecord(value) && typeof value.id === "number" && typeof value.type === "string";
 }
 
 function normalizeParseErrorId(message: string): string {
   const normalized = message.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
   return normalized.length > 0 ? normalized : "css-syntax-error";
-}
-
-function normalizeFragmentContext(contextTagName: string): ParseContext {
-  const normalized = contextTagName.trim().toLowerCase();
-
-  switch (normalized) {
-    case "stylesheet":
-      return "stylesheet";
-    case "atrule":
-    case "at-rule":
-      return "atrule";
-    case "atruleprelude":
-    case "at-rule-prelude":
-      return "atrulePrelude";
-    case "mediaquerylist":
-    case "media-query-list":
-      return "mediaQueryList";
-    case "mediaquery":
-    case "media-query":
-      return "mediaQuery";
-    case "condition":
-      return "condition";
-    case "rule":
-    case "rulelist":
-    case "rule-list":
-      return "rule";
-    case "selectorlist":
-    case "selector-list":
-      return "selectorList";
-    case "selector":
-      return "selector";
-    case "block":
-      return "block";
-    case "declarationlist":
-    case "declaration-list":
-      return "declarationList";
-    case "declaration":
-      return "declaration";
-    case "value":
-      return "value";
-    default:
-      throw new Error(`Unsupported parse context: ${contextTagName}`);
-  }
 }
 
 function enforceBudget(
@@ -311,14 +226,14 @@ function toPublicSpanFromLoc(loc: unknown, captureSpans: boolean): Span | undefi
     return undefined;
   }
 
-  const start = loc["start"];
-  const end = loc["end"];
+  const start = loc.start;
+  const end = loc.end;
   if (!isRecord(start) || !isRecord(end)) {
     return undefined;
   }
 
-  const startOffset = start["offset"];
-  const endOffset = end["offset"];
+  const startOffset = start.offset;
+  const endOffset = end.offset;
   if (
     typeof startOffset !== "number" ||
     typeof endOffset !== "number" ||
@@ -340,14 +255,14 @@ function annotateAnyWithSpans(value: unknown, nodeIdState: NodeIdState): void {
   }
 
   if (Array.isArray(value)) {
-    for (let index = 0; index < value.length; index += 1) {
-      annotateAnyWithSpans(value[index], nodeIdState);
+    for (const entry of value) {
+      annotateAnyWithSpans(entry, nodeIdState);
     }
     return;
   }
 
   const mutable = value as Record<string, unknown>;
-  const isTypedNode = typeof mutable["type"] === "string";
+  const isTypedNode = typeof mutable.type === "string";
 
   for (const key in mutable) {
     if (isTypedNode && (key === "loc" || key === "type")) {
@@ -361,8 +276,7 @@ function annotateAnyWithSpans(value: unknown, nodeIdState: NodeIdState): void {
 
     if (Array.isArray(entry)) {
       const children = entry as unknown[];
-      for (let index = 0; index < children.length; index += 1) {
-        const child = children[index];
+      for (const child of children) {
         if (child !== null && typeof child === "object") {
           annotateAnyWithSpans(child, nodeIdState);
         }
@@ -377,12 +291,12 @@ function annotateAnyWithSpans(value: unknown, nodeIdState: NodeIdState): void {
     return;
   }
 
-  mutable["id"] = nodeIdState.next;
+  mutable.id = nodeIdState.next;
   nodeIdState.next += 1;
-  const span = toPublicSpanFromLoc(mutable["loc"], true);
-  mutable["spanProvenance"] = span ? "input" : "none";
+  const span = toPublicSpanFromLoc(mutable.loc, true);
+  mutable.spanProvenance = span ? "input" : "none";
   if (span) {
-    mutable["span"] = span;
+    mutable.span = span;
   }
 }
 
@@ -392,14 +306,14 @@ function annotateAnyNoSpans(value: unknown, nodeIdState: NodeIdState): void {
   }
 
   if (Array.isArray(value)) {
-    for (let index = 0; index < value.length; index += 1) {
-      annotateAnyNoSpans(value[index], nodeIdState);
+    for (const entry of value) {
+      annotateAnyNoSpans(entry, nodeIdState);
     }
     return;
   }
 
   const mutable = value as Record<string, unknown>;
-  const isTypedNode = typeof mutable["type"] === "string";
+  const isTypedNode = typeof mutable.type === "string";
 
   for (const key in mutable) {
     if (isTypedNode && (key === "loc" || key === "type")) {
@@ -413,8 +327,7 @@ function annotateAnyNoSpans(value: unknown, nodeIdState: NodeIdState): void {
 
     if (Array.isArray(entry)) {
       const children = entry as unknown[];
-      for (let index = 0; index < children.length; index += 1) {
-        const child = children[index];
+      for (const child of children) {
         if (child !== null && typeof child === "object") {
           annotateAnyNoSpans(child, nodeIdState);
         }
@@ -429,7 +342,7 @@ function annotateAnyNoSpans(value: unknown, nodeIdState: NodeIdState): void {
     return;
   }
 
-  mutable["id"] = nodeIdState.next;
+  mutable.id = nodeIdState.next;
   nodeIdState.next += 1;
 }
 
@@ -539,7 +452,7 @@ function toPublicToken(token: CssTokenInternal): Token {
 }
 
 function topLevelChildren(root: CssNode): readonly CssNode[] {
-  const maybeChildren = root["children"];
+  const maybeChildren = root.children;
   if (!Array.isArray(maybeChildren)) {
     return [];
   }
@@ -549,16 +462,16 @@ function topLevelChildren(root: CssNode): readonly CssNode[] {
 function isStyleSheetTree(value: unknown): value is StyleSheetTree {
   return (
     isRecord(value) &&
-    value["kind"] === "stylesheet" &&
-    isPublicNode(value["root"])
+    value.kind === "stylesheet" &&
+    isPublicNode(value.root)
   );
 }
 
 function isFragmentTree(value: unknown): value is FragmentTree {
   return (
     isRecord(value) &&
-    value["kind"] === "fragment" &&
-    isPublicNode(value["root"])
+    value.kind === "fragment" &&
+    isPublicNode(value.root)
   );
 }
 
@@ -567,7 +480,7 @@ function parseInternal(css: string, context: ParseContext, options: ParseOptions
   const maxTimeMs = budgets?.maxTimeMs;
   const hasTimeBudget = maxTimeMs !== undefined;
   const startedAt = hasTimeBudget ? Date.now() : 0;
-  const captureSpans = options.captureSpans ?? options.includeSpans ?? false;
+  const captureSpans = options.captureSpans ?? false;
   let trace: TraceEvent[] | undefined = options.trace ? [] : undefined;
   const needsTokenization =
     options.trace === true ||
@@ -676,16 +589,10 @@ function parseInternal(css: string, context: ParseContext, options: ParseOptions
     errors: publicErrors,
     ...(trace ? { trace } : {})
   };
-}/**
- * Parses input deterministically for the `parse` public API.
- */
+}
 
-
+/** Parses a complete CSS stylesheet. */
 export function parse(css: string, options: ParseOptions = {}): StyleSheetTree {
-  if (options.context !== undefined && options.context !== "stylesheet") {
-    throw new Error("parse() only supports context \"stylesheet\"; use parseFragment() for other contexts");
-  }
-
   const parsed = parseInternal(css, "stylesheet", options);
   return {
     id: parsed.root.id,
@@ -696,15 +603,12 @@ export function parse(css: string, options: ParseOptions = {}): StyleSheetTree {
     errors: parsed.errors,
     ...(parsed.trace ? { trace: parsed.trace } : {})
   };
-}/**
- * Parses input deterministically for the `parseFragment` public API.
- */
+}
 
-
-export function parseFragment(css: string, contextTagName: string, options: ParseOptions = {}): FragmentTree {
-  const context = normalizeFragmentContext(contextTagName);
+/** Parses CSS using an explicit grammar context. */
+export function parseFragment(css: string, context: ParseContext, options: ParseOptions = {}): FragmentTree {
   if (!SUPPORTED_PARSE_CONTEXTS.has(context)) {
-    throw new Error(`Unsupported parse context: ${contextTagName}`);
+    throw new Error(`Unsupported parse context: ${context}`);
   }
 
   const parsed = parseInternal(css, context, options);
@@ -717,27 +621,20 @@ export function parseFragment(css: string, contextTagName: string, options: Pars
     errors: parsed.errors,
     ...(parsed.trace ? { trace: parsed.trace } : {})
   };
-}/**
- * Parses input deterministically for the `parseRuleList` public API.
- */
+}
 
-
+/** Parses a CSS rule list. */
 export function parseRuleList(css: string, options: ParseOptions = {}): FragmentTree {
   return parseFragment(css, "rule", options);
-}/**
- * Parses input deterministically for the `parseDeclarationList` public API.
- */
+}
 
-
+/** Parses a CSS declaration list, such as an inline `style` value. */
 export function parseDeclarationList(css: string, options: ParseOptions = {}): FragmentTree {
   return parseFragment(css, "declarationList", options);
-}/**
- * Returns deterministic public metadata for `getParseErrorSpecRef`.
- */
+}
 
-
-export function getParseErrorSpecRef(parseErrorId: string): string {
-  void parseErrorId;
+/** Returns the CSS Syntax specification section that defines parse-error recovery. */
+export function getParseErrorSpecRef(): string {
   return CSS_PARSE_ERRORS_SECTION_URL;
 }
 
@@ -869,11 +766,9 @@ async function decodeStreamToText(
     totalBytes: total,
     maxBufferedObserved
   };
-}/**
- * Tokenizes input deterministically for the `tokenize` public API.
- */
+}
 
-
+/** Tokenizes a decoded CSS string. */
 export function tokenize(css: string, options: TokenizeOptions = {}): readonly Token[] {
   enforceBudget("maxInputBytes", options.budgets?.maxInputBytes, css.length);
   const tokenized = tokenizeInternal(css, {
@@ -884,11 +779,9 @@ export function tokenize(css: string, options: TokenizeOptions = {}): readonly T
   });
   enforceBudget("maxTokens", options.budgets?.maxTokens, tokenized.tokens.length);
   return tokenized.tokens.map((token) => toPublicToken(token));
-}/**
- * Tokenizes input deterministically for the `tokenizeStream` public API.
- */
+}
 
-
+/** Decodes a byte stream and yields its CSS tokens. */
 export async function* tokenizeStream(
   stream: ReadableStream<Uint8Array>,
   options: TokenizeOptions = {}
@@ -898,11 +791,9 @@ export async function* tokenizeStream(
   for (const token of tokens) {
     yield token;
   }
-}/**
- * Parses input deterministically for the `parseBytes` public API.
- */
+}
 
-
+/** Detects the CSS encoding and parses a byte array. */
 export function parseBytes(bytes: Uint8Array, options: ParseOptions = {}): StyleSheetTree {
   enforceBudget("maxInputBytes", options.budgets?.maxInputBytes, bytes.byteLength);
 
@@ -934,11 +825,9 @@ export function parseBytes(bytes: Uint8Array, options: ParseOptions = {}): Style
     ...parsed,
     trace: withDecodeTrace
   };
-}/**
- * Parses input deterministically for the `parseStream` public API.
- */
+}
 
-
+/** Decodes a byte stream and parses the complete stylesheet. */
 export async function parseStream(
   stream: ReadableStream<Uint8Array>,
   options: ParseOptions = {}
@@ -997,11 +886,9 @@ function nodeFromTree(treeOrNode: StyleSheetTree | FragmentTree | CssNode): CssN
   }
 
   return treeOrNode;
-}/**
- * Serializes data deterministically for the `serialize` public API.
- */
+}
 
-
+/** Serializes a parsed tree or node as normalized CSS. */
 export function serialize(treeOrNode: StyleSheetTree | FragmentTree | CssNode): string {
   const node = nodeFromTree(treeOrNode);
   const sanitized = sanitizeCssNode(node);
@@ -1013,18 +900,14 @@ function walkNode(node: CssNode, depth: number, visitor: NodeVisitor): void {
   for (const child of childNodes(node)) {
     walkNode(child, depth + 1, visitor);
   }
-}/**
- * Traverses parsed data deterministically for the `walk` public API.
- */
+}
 
-
+/** Visits every node in depth-first tree order. */
 export function walk(tree: StyleSheetTree | FragmentTree, visitor: NodeVisitor): void {
   walkNode(tree.root, 0, visitor);
-}/**
- * Traverses parsed data deterministically for the `walkByType` public API.
- */
+}
 
-
+/** Visits nodes whose type matches case-insensitively. */
 export function walkByType(
   tree: StyleSheetTree | FragmentTree,
   type: string,
@@ -1036,11 +919,9 @@ export function walkByType(
       visitor(node, depth);
     }
   });
-}/**
- * Traverses parsed data deterministically for the `findById` public API.
- */
+}
 
-
+/** Finds a node by its tree-local identifier. */
 export function findById(tree: StyleSheetTree | FragmentTree, id: NodeId): CssNode | null {
   let matched: CssNode | null = null;
   walk(tree, (node) => {
@@ -1049,11 +930,9 @@ export function findById(tree: StyleSheetTree | FragmentTree, id: NodeId): CssNo
     }
   });
   return matched;
-}/**
- * Traverses parsed data deterministically for the `findAllByType` public API.
- */
+}
 
-
+/** Yields nodes whose type matches case-insensitively. */
 export function* findAllByType(tree: StyleSheetTree | FragmentTree, type: string): IterableIterator<CssNode> {
   const normalizedType = type.toLowerCase();
   const found: CssNode[] = [];
@@ -1066,11 +945,9 @@ export function* findAllByType(tree: StyleSheetTree | FragmentTree, type: string
   for (const node of found) {
     yield node;
   }
-}/**
- * Provides deterministic public behavior for `outline`.
- */
+}
 
-
+/** Builds a compact outline of structurally significant nodes. */
 export function outline(tree: StyleSheetTree | FragmentTree): Outline {
   const entries: OutlineEntry[] = [];
 
@@ -1105,11 +982,9 @@ function countNodes(node: CssNode): number {
 
 function topLevelNodes(tree: StyleSheetTree | FragmentTree): readonly CssNode[] {
   return tree.children.length > 0 ? tree.children : [tree.root];
-}/**
- * Provides deterministic public behavior for `chunk`.
- */
+}
 
-
+/** Groups top-level CSS nodes into bounded serialized chunks. */
 export function chunk(tree: StyleSheetTree | FragmentTree, options: ChunkOptions = {}): Chunk[] {
   const maxChars = options.maxChars ?? 8192;
   const maxNodes = options.maxNodes ?? 256;
@@ -1155,9 +1030,7 @@ export function chunk(tree: StyleSheetTree | FragmentTree, options: ChunkOptions
       flush();
     }
 
-    if (activeNodeId === null) {
-      activeNodeId = node.id;
-    }
+    activeNodeId ??= node.id;
 
     activeContent += content;
     activeNodes += nodes;
@@ -1262,11 +1135,9 @@ function buildReplacement(
     end: span.end,
     replacementCss: edit.css
   };
-}/**
- * Provides deterministic public behavior for `applyPatchPlan`.
- */
+}
 
-
+/** Applies a validated patch plan to its original CSS source. */
 export function applyPatchPlan(originalCss: string, plan: PatchPlan): string {
   let cursor = 0;
   let output = "";
@@ -1290,11 +1161,9 @@ export function applyPatchPlan(originalCss: string, plan: PatchPlan): string {
   }
 
   return output;
-}/**
- * Computes deterministic public output for `computePatch`.
- */
+}
 
-
+/** Plans source-preserving node edits against the original CSS. */
 export function computePatch(originalCss: string, edits: readonly Edit[]): PatchPlan {
   if (edits.length === 0) {
     const steps: readonly PatchStep[] = [
@@ -1607,7 +1476,7 @@ function buildSelectorTreeIndex<TNode extends SelectorNodeLike>(
 ): SelectorTreeIndex<TNode> {
   const parentByNode = new Map<TNode, TNode | null>();
   const elements: TNode[] = [];
-  const stack: Array<{ node: TNode; parent: TNode | null }> = [{ node: root, parent: null }];
+  const stack: { node: TNode; parent: TNode | null }[] = [{ node: root, parent: null }];
 
   let visited = 0;
   while (stack.length > 0) {
@@ -1969,11 +1838,9 @@ function compileSingleSelector(selectorNode: SelectorRecord, selectorIndex: numb
     supported: unsupported.length === 0,
     unsupportedParts: unsupported
   };
-}/**
- * Provides deterministic public behavior for `compileSelectorList`.
- */
+}
 
-
+/** Compiles a selector list for reuse by the selector helpers. */
 export function compileSelectorList(selectorText: string): CompiledSelectorList {
   const parsed = parseFragment(selectorText, "selectorList");
   const selectorNodes = Array.isArray(parsed.root.children)
@@ -2053,15 +1920,15 @@ function declarationSignalFromNode(node: CssNode, declarationOrder: number): Sty
     return null;
   }
 
-  const propertyRaw = typeof node["property"] === "string" ? node["property"] : "";
+  const propertyRaw = typeof node.property === "string" ? node.property : "";
   const property = propertyRaw.trim().toLowerCase();
   if (property.length === 0) {
     return null;
   }
 
-  const valueNode = isPublicNode(node["value"]) ? node["value"] : null;
+  const valueNode = isPublicNode(node.value) ? node.value : null;
   const value = valueNode ? serialize(valueNode).trim() : "";
-  const important = node["important"] === true;
+  const important = node.important === true;
 
   return {
     declarationNodeId: node.id,
@@ -2133,11 +2000,9 @@ function classifyRenderSignalClass(
   }
 
   return null;
-}/**
- * Extracts deterministic public data for `extractStyleRuleSignals`.
- */
+}
 
-
+/** Extracts selector, specificity, cascade-order, and declaration data from style rules. */
 export function extractStyleRuleSignals(
   cssOrTree: string | StyleSheetTree,
   options: StyleSignalOptions = {}
@@ -2157,8 +2022,8 @@ export function extractStyleRuleSignals(
     const ruleOrder = cascadeOrder;
     cascadeOrder += 1;
 
-    const preludeNode = isPublicNode(node["prelude"]) ? node["prelude"] : null;
-    const blockNode = isPublicNode(node["block"]) ? node["block"] : null;
+    const preludeNode = isPublicNode(node.prelude) ? node.prelude : null;
+    const blockNode = isPublicNode(node.block) ? node.block : null;
     if (!preludeNode || !blockNode) {
       return;
     }
@@ -2192,11 +2057,9 @@ export function extractStyleRuleSignals(
   });
 
   return signals;
-}/**
- * Extracts deterministic public data for `extractInlineStyleSignals`.
- */
+}
 
-
+/** Extracts ordered declarations from inline style text. */
 export function extractInlineStyleSignals(styleText: string): readonly StyleDeclarationSignal[] {
   const fragment = parseDeclarationList(styleText);
   const signals: StyleDeclarationSignal[] = [];
@@ -2210,11 +2073,9 @@ export function extractInlineStyleSignals(styleText: string): readonly StyleDecl
     declarationOrder += 1;
   }
   return signals;
-}/**
- * Extracts deterministic public data for `extractRenderSignals`.
- */
+}
 
-
+/** Classifies rendering-related declarations in stylesheet rules. */
 export function extractRenderSignals(
   cssOrTree: string | StyleSheetTree,
   options: RenderSignalOptions = {}
@@ -2242,11 +2103,9 @@ export function extractRenderSignals(
     }
   }
   return renderSignals;
-}/**
- * Extracts deterministic public data for `extractInlineRenderSignals`.
- */
+}
 
-
+/** Classifies rendering-related declarations in inline style text. */
 export function extractInlineRenderSignals(
   styleText: string,
   options: RenderSignalOptions = {}
@@ -2299,11 +2158,9 @@ function resolveCompiledSelectorList(selector: string | CompiledSelectorList): C
   }
 
   return compiled;
-}/**
- * Provides deterministic public behavior for `matchesSelector`.
- */
+}
 
-
+/** Tests whether a node matches any selector in a compiled selector list. */
 export function matchesSelector<TNode extends SelectorNodeLike>(
   selector: string | CompiledSelectorList,
   node: TNode,
@@ -2329,11 +2186,9 @@ export function matchesSelector<TNode extends SelectorNodeLike>(
   }
 
   return false;
-}/**
- * Traverses parsed data deterministically for the `querySelectorAll` public API.
- */
+}
 
-
+/** Finds matching element-like nodes in document order. */
 export function querySelectorAll<TNode extends SelectorNodeLike>(
   selector: string | CompiledSelectorList,
   root: TNode,

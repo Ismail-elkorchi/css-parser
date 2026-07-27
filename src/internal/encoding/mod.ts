@@ -3,4 +3,4 @@ export {
   sniffCssEncoding,
   type EncodingSniffOptions,
   type EncodingSniffResult
-} from "./sniff.js";
+} from "./sniff.ts";

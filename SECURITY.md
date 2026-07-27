@@ -33,11 +33,9 @@ Set and review at least:
 
 Parsing beyond configured limits throws `BudgetExceededError` with a structured payload.
 
-## Verification commands
+## Verification
 
 ```bash
 npm run check:fast
-npm run examples:run
-npm run docs:lint:jsr
-npm run docs:test:jsr
+npm run qualification:ci
 ```

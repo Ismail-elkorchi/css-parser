@@ -1,6 +1,6 @@
-import { fromPlainObject, generate } from "../csstree-runtime.js";
+import { fromPlainObject, generate } from "../csstree-runtime.ts";
 
-import type { CssAstNode } from "../tree/types.js";
+import type { CssAstNode } from "../tree/types.ts";
 
 const METADATA_KEYS = new Set(["id", "span", "spanProvenance"]);
 
@@ -17,14 +17,14 @@ function hasLeadingWhitespace(value: string): boolean {
 }
 
 function normalizeCustomPropertyValue(valueNode: Record<string, unknown>): void {
-  const valueType = valueNode["type"];
+  const valueType = valueNode.type;
 
   if (valueType === "Raw") {
-    const rawValue = valueNode["value"];
+    const rawValue = valueNode.value;
     if (typeof rawValue !== "string" || rawValue.length === 0 || hasLeadingWhitespace(rawValue)) {
       return;
     }
-    valueNode["value"] = ` ${rawValue}`;
+    valueNode.value = ` ${rawValue}`;
     return;
   }
 
@@ -32,13 +32,13 @@ function normalizeCustomPropertyValue(valueNode: Record<string, unknown>): void 
     return;
   }
 
-  const children = valueNode["children"];
+  const children = valueNode.children;
   if (!Array.isArray(children) || children.length === 0) {
     return;
   }
 
   const [first] = children as unknown[];
-  if (isRecord(first) && first["type"] === "WhiteSpace") {
+  if (isRecord(first) && first.type === "WhiteSpace") {
     return;
   }
 
@@ -61,9 +61,9 @@ function normalizeCustomPropertySpacing(node: unknown): void {
     return;
   }
 
-  if (node["type"] === "Declaration") {
-    const property = node["property"];
-    const value = node["value"];
+  if (node.type === "Declaration") {
+    const property = node.property;
+    const value = node.value;
     if (typeof property === "string" && property.startsWith("--") && isRecord(value)) {
       normalizeCustomPropertyValue(value);
     }

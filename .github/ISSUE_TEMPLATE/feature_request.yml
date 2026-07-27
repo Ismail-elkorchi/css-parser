@@ -18,12 +18,3 @@ body:
       description: Describe the API, behavior, or workflow change.
     validations:
       required: true
-  - type: textarea
-    id: evidence
-    attributes:
-      label: Evidence
-      description: Provide examples, prior art, or other justification.
-  - type: textarea
-    id: alternatives
-    attributes:
-      label: Alternatives considered

@@ -43,8 +43,3 @@ body:
       placeholder: Node 24.13.1
     validations:
       required: true
-  - type: textarea
-    id: evidence
-    attributes:
-      label: Verification evidence
-      description: Include commands run, failing tests, or other concrete evidence.
