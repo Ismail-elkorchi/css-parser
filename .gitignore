@@ -3,6 +3,3 @@
 /tmp/
 /reports/*
 !/reports/.gitkeep
-/realworld/corpus/**
-/realworld/reports/**
-/realworld/cache/**

@@ -1,4 +1,4 @@
-export { tokenize } from "./tokenize.js";
+export { tokenize } from "./tokenize.ts";
 
 export type {
   CssTokenInternal,
@@ -6,4 +6,4 @@ export type {
   TokenizeResult,
   TokenizerBudgets,
   TokenizerParseError
-} from "./tokens.js";
+} from "./tokens.ts";

@@ -1,30 +1,23 @@
 # Contributing
 
-## Local verification
-- Runtime dependencies in `package.json` must stay empty.
-- Runtime code under `src/` must not import Node builtin modules.
-- Public API behavior changes must update `docs/reference/api-overview.md`.
+Bug fixes and focused maintenance changes can go directly to a pull request. Open an issue before investing in a substantial API or parser-behavior redesign.
 
-Run before proposing changes:
-```bash
+Keep runtime code ESM-only, portable, and free of installed dependencies. Public breaking changes are acceptable before 1.0 when they remove ambiguity or defects; do not add compatibility layers for obsolete contracts.
+
+Run:
+
+```sh
 npm ci
-npm run lint
-npm run typecheck
-npm run build
-npm test
-npm run eval:ci
+npm run check:fast
 ```
 
-## Naming policy
-- Use domain-first names and explicit reference frames.
-- Use truth-conditional booleans (`is*`, `has*`, `can*`).
-- Avoid uppercase log prefixes like `CUE:`, `ACT:`, `EVAL:`.
+Parser, package, or runtime changes also require:
 
-## Documentation policy
-- Keep documentation aligned with code behavior.
-- Keep reference pages aligned with exported APIs and options.
-- Keep third-party attributions complete in `THIRD_PARTY_NOTICES.md`.
+```sh
+npx playwright install chromium
+npm run qualification:ci
+```
 
-## Maintainer docs
+Add the smallest regression test that fails without the change. Behavior tests belong in `test/`, fixed inputs in `test/fixtures/`, and generated evidence in the ignored `reports/` directory.
 
-- [Maintainer index](./docs/maintainers/index.md)
+See [development and releases](./docs/development.md) for the repository layout and qualification profiles.

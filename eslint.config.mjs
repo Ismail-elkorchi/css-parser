@@ -1,30 +1,16 @@
 import js from "@eslint/js";
-import tseslint from "typescript-eslint";
 import boundaries from "eslint-plugin-boundaries";
-import importPlugin from "eslint-plugin-import";
+import tseslint from "typescript-eslint";
 
-const typedFiles = ["src/**/*.ts", "tests/**/*.ts"];
-
-const recommendedTypeChecked = tseslint.configs.recommendedTypeChecked.map((config) => ({
-  ...config,
-  files: typedFiles
-}));
-
-const strictTypeChecked = tseslint.configs.strictTypeChecked.map((config) => ({
-  ...config,
-  files: typedFiles
-}));
+const typedFiles = ["src/**/*.ts"];
+const typedConfigs = [
+  ...tseslint.configs.strictTypeChecked,
+  ...tseslint.configs.stylisticTypeChecked
+].map((config) => ({ ...config, files: typedFiles }));
 
 export default [
   {
-    ignores: [
-      "dist/**",
-      "node_modules/**",
-      "tmp/**",
-      "vendor/**",
-      "docs_legacy_html/**",
-      "src/internal/vendor/**"
-    ]
+    ignores: ["dist/**", "node_modules/**", "reports/**", "src/internal/vendor/**", "tmp/**"]
   },
   {
     files: ["**/*.js", "**/*.mjs", "**/*.cjs"],
@@ -32,79 +18,63 @@ export default [
     languageOptions: {
       ...js.configs.recommended.languageOptions,
       globals: {
+        AbortController: "readonly",
         Buffer: "readonly",
         console: "readonly",
+        crypto: "readonly",
+        document: "readonly",
+        performance: "readonly",
         process: "readonly",
+        ReadableStream: "readonly",
+        setTimeout: "readonly",
+        TextDecoder: "readonly",
         TextEncoder: "readonly",
-        URL: "readonly"
+        URL: "readonly",
+        window: "readonly"
       }
     }
   },
-  ...recommendedTypeChecked,
-  ...strictTypeChecked,
+  ...typedConfigs,
   {
     files: typedFiles,
     languageOptions: {
       parserOptions: {
-        project: "./tsconfig.eslint.json",
+        project: "./tsconfig.build.json",
         tsconfigRootDir: import.meta.dirname
       }
     },
-    plugins: {
-      boundaries,
-      import: importPlugin
-    },
+    plugins: { boundaries },
     settings: {
-      "import/resolver": {
-        typescript: {
-          alwaysTryTypes: false,
-          project: "./tsconfig.eslint.json"
-        }
-      },
       "boundaries/elements": [
-        { "type": "public", "pattern": "src/public/**" },
-        { "type": "internal", "pattern": "src/internal/**" },
-        { "type": "tests", "pattern": "tests/**" }
+        { type: "public", pattern: "src/public/**" },
+        { type: "internal", pattern: "src/internal/**" }
       ]
     },
     rules: {
-      "@typescript-eslint/await-thenable": "error",
       "@typescript-eslint/consistent-type-imports": [
         "error",
-        { "prefer": "type-imports", "fixStyle": "inline-type-imports" }
+        { prefer: "type-imports", fixStyle: "inline-type-imports" }
       ],
       "@typescript-eslint/no-floating-promises": "error",
       "@typescript-eslint/no-misused-promises": "error",
       "@typescript-eslint/no-unnecessary-type-assertion": "error",
-      "import/no-duplicates": "error",
-      "import/order": [
+      "@typescript-eslint/switch-exhaustiveness-check": "error",
+      "boundaries/dependencies": [
         "error",
         {
-          "groups": ["builtin", "external", "internal", "parent", "sibling", "index", "type"],
-          "newlines-between": "always",
-          "alphabetize": {
-            "order": "asc",
-            "caseInsensitive": true
-          }
-        }
-      ],
-      "boundaries/element-types": [
-        "error",
-        {
-          "default": "disallow",
-          "rules": [
-            { "from": "public", "allow": ["public", "internal"] },
-            { "from": "internal", "allow": ["internal"] },
-            { "from": "tests", "allow": ["public", "internal", "tests"] }
+          default: "disallow",
+          policies: [
+            {
+              from: { element: { types: "public" } },
+              allow: { to: { element: { types: { anyOf: ["public", "internal"] } } } }
+            },
+            {
+              from: { element: { types: "internal" } },
+              allow: { to: { element: { types: "internal" } } }
+            }
           ]
         }
       ]
-    }
-  },
-  {
-    files: ["src/**/*.ts"],
-    rules: {
-      "import/no-nodejs-modules": "error"
     }
   },
   {
@@ -113,17 +83,10 @@ export default [
       "no-restricted-imports": [
         "error",
         {
-          "patterns": [
+          patterns: [
             {
-              "group": [
-                "src/public",
-                "src/public/*",
-                "../public",
-                "../public/*",
-                "../../public",
-                "../../public/*"
-              ],
-              "message": "src/internal must not import src/public."
+              group: ["../public", "../public/*", "../../public", "../../public/*"],
+              message: "Internal modules must not import the public layer."
             }
           ]
         }

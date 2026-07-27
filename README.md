@@ -1,116 +1,96 @@
 # @ismail-elkorchi/css-parser
 
-CSS parser with stylesheet structure, selector utilities, and tokenization helpers.
+A CSS parser for Node.js, Deno, Bun, and modern browsers. It provides stylesheet and fragment parsing, byte and stream decoding, serialization, selector queries, source-based edits, traversal helpers, and render-signal extraction.
 
-Supports Node, Deno, Bun, and browsers with explicit resource budgets.
-
-No runtime dependencies: this package ships with zero runtime dependencies.
-
-## When To Use
-
-- You need deterministic CSS parse/serialize output.
-- You need selector querying without browser-engine side effects.
-- You need explicit resource budgets for untrusted stylesheets.
-
-## When Not To Use
-
-- You need browser layout/cascade computation.
-- You need stylesheet sanitization and policy enforcement in one step.
-- You need script or DOM runtime semantics.
+The package has no installed runtime dependencies. Its parser runtime is a vendored build of [CSSTree](https://github.com/csstree/csstree); see [third-party notices](./THIRD_PARTY_NOTICES.md).
 
 ## Install
 
-```bash
+```sh
 npm install @ismail-elkorchi/css-parser
 ```
 
-```bash
+```sh
 deno add jsr:@ismail-elkorchi/css-parser
 ```
 
-## Import
+## Parse CSS
 
 ```ts
-import { parse } from "@ismail-elkorchi/css-parser";
+import { parse, serialize } from "@ismail-elkorchi/css-parser";
+
+const stylesheet = parse(".card { color: red; margin: 1rem; }");
+
+if (stylesheet.errors.length > 0) {
+  throw new Error(stylesheet.errors.map((error) => error.message).join("\n"));
+}
+
+console.log(serialize(stylesheet)); // .card{color:red;margin:1rem}
 ```
 
-```txt
-import { parse } from "jsr:@ismail-elkorchi/css-parser";
-```
+`parseDeclarationList()` handles inline `style` text, while `parseRuleList()` and `parseFragment()` handle other CSS parse contexts.
 
-## Copy/Paste Examples
+## Bytes and streams
 
-### Example 1: Parse CSS
-
-```ts
-import { parse } from "@ismail-elkorchi/css-parser";
-
-const tree = parse(".card { color: red; }");
-console.log(tree.kind);
-```
-
-### Example 2: Parse streaming input
+`parseBytes()` follows CSS encoding detection. `parseStream()` enforces byte and buffering limits while decoding chunks, then builds the tree after the complete stylesheet has been decoded.
 
 ```ts
 import { parseStream } from "@ismail-elkorchi/css-parser";
 
-const stream = new ReadableStream({
-  start(controller) {
-    controller.enqueue(new TextEncoder().encode(".a{display:block}"));
-    controller.close();
+const response = await fetch("https://example.test/site.css");
+if (!response.body) throw new Error("Response has no body");
+
+const stylesheet = await parseStream(response.body, {
+  budgets: {
+    maxInputBytes: 1_000_000,
+    maxBufferedBytes: 64_000,
+    maxTokens: 100_000,
+    maxNodes: 50_000,
+    maxDepth: 128,
+    maxTimeMs: 2_000
   }
 });
-
-const tree = await parseStream(stream, { budgets: { maxInputBytes: 4096, maxBufferedBytes: 512 } });
-console.log(tree.kind);
 ```
 
-### Example 3: Query selectors
+Exceeded limits throw `BudgetExceededError`. Parsing is structural analysis, not sanitization or cascade/layout evaluation.
+
+## Query a document-like tree
 
 ```ts
 import { compileSelectorList, querySelectorAll } from "@ismail-elkorchi/css-parser";
 
-const selector = compileSelectorList(".card");
-console.log(selector.supported, querySelectorAll(selector, { kind: "document", children: [] }).length);
+const selector = compileSelectorList("#content > .card");
+if (!selector.supported) {
+  throw new Error("The selector contains unsupported features");
+}
+
+const root = {
+  kind: "document",
+  children: [{
+    kind: "element",
+    tagName: "main",
+    attributes: [{ name: "id", value: "content" }],
+    children: [{
+      kind: "element",
+      tagName: "article",
+      attributes: [{ name: "class", value: "card" }],
+      children: []
+    }]
+  }]
+};
+
+console.log(querySelectorAll(selector, root, { strict: true }).length); // 1
 ```
-
-### Example 4: Extract render signals
-
-```ts
-import { extractRenderSignals, parse } from "@ismail-elkorchi/css-parser";
-
-const tree = parse(".card { color: red; }");
-console.log(extractRenderSignals(tree).length >= 0);
-```
-
-Run packaged examples:
-
-```bash
-npm run examples:run
-```
-
-## Compatibility
-
-Runtime compatibility matrix:
-
-| Runtime | Status |
-| --- | --- |
-| Node.js | Supported |
-| Deno | Supported |
-| Bun | Supported |
-| Browser (evergreen) | Supported |
-
-The Node.js package surface is verified against Node 20, 22, and 24.
-
-## Security and Safety Notes
-
-Parsing is not sanitization. For untrusted input:
-- configure strict budgets,
-- handle `BudgetExceededError` explicitly,
-- apply separate policy checks before execution or rendering.
 
 ## Documentation
 
-- [Docs index](https://github.com/Ismail-elkorchi/css-parser/blob/main/docs/index.md)
-- [First parse success tutorial](https://github.com/Ismail-elkorchi/css-parser/blob/main/docs/tutorial/first-parse.md)
-- [Options reference](https://github.com/Ismail-elkorchi/css-parser/blob/main/docs/reference/options.md)
+- [Documentation index](./docs/index.md)
+- [Parsing, diagnostics, and budgets](./docs/parsing.md)
+- [Trees, traversal, and source edits](./docs/trees-and-editing.md)
+- [Selector support](./docs/selectors.md)
+- [Style and render signals](./docs/render-signals.md)
+- [Development and releases](./docs/development.md)
+- [Runnable examples](./examples/)
+- [Security policy](./SECURITY.md)
+
+Node.js 20, 22, and 24 are tested. Cross-runtime qualification covers Node.js, Deno, Bun, and Chromium; release qualification also compares serialization with Chromium, Firefox, and WebKit CSSOM.
