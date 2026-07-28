@@ -1,0 +1,37 @@
+{
+  "commit": "cd8d8420ecddc0c0c4363a095d10e671075bc949",
+  "cases": [
+    {
+      "id": "stylesheet",
+      "bytes": 17786,
+      "sha256": "5948202e085c40c76acec169290289e449149d8d04e6d43efd737688c8189888",
+      "serialized": "@layer base;@media (width>=40rem){article:is(.card,#lead)>h2[data-level=\"1\"i]{color:color(display-p3 1 0 0/.8);--gap: calc(1rem + 2px)}}"
+    },
+    {
+      "id": "malformed",
+      "bytes": 3137,
+      "sha256": "817e19ec2e5ba6ef25ea6bf609338ec95a697053510562452c2454ad384116d7",
+      "serialized": "@supports (display:grid { .a{display:grid} });"
+    },
+    {
+      "id": "declaration-list",
+      "bytes": 3809,
+      "sha256": "d4d81ff1ca8a8ff80db23309e3089b6d8596e9a3237e6389fa5b41c85d4fa904"
+    },
+    {
+      "id": "selector-list",
+      "bytes": 6721,
+      "sha256": "3dae41a2c4baf0540a385722f014e6e5f39ea94c9c5f6435846aeff989631159"
+    },
+    {
+      "id": "value",
+      "bytes": 5359,
+      "sha256": "fc60aa1a714b95978e9157fcd1bdd31850b742237819f28751def7ca14e23c6b"
+    },
+    {
+      "id": "tokens",
+      "bytes": 1142,
+      "sha256": "c9476d26868843dfdf1365d10b660e835048f2a4839ace1e36df0a674d17e06f"
+    }
+  ]
+}
