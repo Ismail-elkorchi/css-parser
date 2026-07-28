@@ -139,6 +139,36 @@ test("invalid top-level selectors fail with exact selector diagnostics", () => {
   }
 });
 
+test("known pseudo selectors enforce their functional form and arguments", () => {
+  for (const source of [
+    ":root(foo)",
+    ":hover(foo)",
+    ":nth-child",
+    ":is",
+    ":dir()",
+    ":dir(ltr rtl)",
+    ":lang()",
+    ":lang(en,)",
+    "::before(foo)",
+    "::slotted"
+  ]) {
+    assert.equal(parseSelectorList(source).ok, false, source);
+  }
+  for (const source of [
+    ":root",
+    ":hover",
+    ":nth-child(2n+1)",
+    ":is(.item)",
+    ":dir(ltr)",
+    ":dir(sideways)",
+    ":lang(en, \"*-Latn\")",
+    "::before",
+    "::slotted(.item)"
+  ]) {
+    assert.equal(parseSelectorList(source).ok, true, source);
+  }
+});
+
 test("selector parsing enforces deterministic work and node limits", () => {
   assert.throws(
     () => parseSelectorList("article > .card", { limits: { maxSteps: 0 } }),

@@ -43,6 +43,68 @@ const NTH_PSEUDOS = new Set([
   "nth-of-type",
   "nth-last-of-type"
 ]);
+const FUNCTIONAL_PSEUDO_CLASSES = new Set([
+  "dir",
+  "has",
+  "is",
+  "lang",
+  "not",
+  ...NTH_PSEUDOS,
+  "where"
+]);
+const NON_FUNCTIONAL_PSEUDO_CLASSES = new Set([
+  "active",
+  "any-link",
+  "autofill",
+  "buffering",
+  "checked",
+  "default",
+  "defined",
+  "disabled",
+  "empty",
+  "enabled",
+  "first-child",
+  "first-of-type",
+  "focus",
+  "focus-visible",
+  "focus-within",
+  "fullscreen",
+  "hover",
+  "in-range",
+  "indeterminate",
+  "invalid",
+  "last-child",
+  "last-of-type",
+  "link",
+  "modal",
+  "muted",
+  "only-child",
+  "only-of-type",
+  "open",
+  "optional",
+  "out-of-range",
+  "paused",
+  "picture-in-picture",
+  "placeholder-shown",
+  "playing",
+  "popover-open",
+  "read-only",
+  "read-write",
+  "required",
+  "root",
+  "scope",
+  "seeking",
+  "stalled",
+  "target",
+  "unchecked",
+  "user-invalid",
+  "user-valid",
+  "valid",
+  "visited",
+  "volume-locked"
+]);
+const FUNCTIONAL_PSEUDO_ELEMENTS = new Set(["part", "slotted"]);
+const NON_FUNCTIONAL_PSEUDO_ELEMENTS = new Set(LEGACY_PSEUDO_ELEMENTS);
 
 interface ParsedList {
   readonly selectors: readonly ComplexSelector[];
@@ -199,6 +261,17 @@ class SelectorParser {
   ): SelectorPseudoArgument | null {
     const name = lowerAscii(value.name);
     if (
+      (kind === "class" && NON_FUNCTIONAL_PSEUDO_CLASSES.has(name)) ||
+      (kind === "element" && NON_FUNCTIONAL_PSEUDO_ELEMENTS.has(name))
+    ) {
+      this.#diagnostic(
+        "invalid-pseudo",
+        `:${kind === "element" ? ":" : ""}${name} is not functional.`,
+        value.span
+      );
+      return null;
+    }
+    if (
       kind === "class" &&
       FORGIVING_SELECTOR_LIST_PSEUDOS.has(name)
     ) {
@@ -260,6 +333,35 @@ class SelectorParser {
     }
     if (kind === "class" && NTH_PSEUDOS.has(name)) {
       return this.#parseNth(value);
+    }
+    if (kind === "class" && name === "dir") {
+      const parts = significant(value.value);
+      if (parts.length !== 1 || parts[0]?.kind !== "ident") {
+        this.#diagnostic(
+          "invalid-pseudo",
+          ":dir() requires one identifier.",
+          value.span
+        );
+        return null;
+      }
+    }
+    if (kind === "class" && name === "lang") {
+      const ranges = splitAtCommas(value.value);
+      if (
+        ranges.length === 0 ||
+        ranges.some((range) => {
+          const parts = significant(range);
+          return parts.length !== 1 ||
+            (parts[0]?.kind !== "ident" && parts[0]?.kind !== "string");
+        })
+      ) {
+        this.#diagnostic(
+          "invalid-pseudo",
+          ":lang() requires a comma-separated list of identifiers or strings.",
+          value.span
+        );
+        return null;
+      }
     }
     if (kind === "element" && name === "slotted") {
       const parsed = this.#parseList(value.value, false, false, false);
@@ -718,6 +820,18 @@ class ComplexSelectorParser {
       nameValue.kind === "ident" ? nameValue.value : nameValue.name
     );
     if (kind === "class" && LEGACY_PSEUDO_ELEMENTS.has(name)) kind = "element";
+    if (
+      nameValue.kind === "ident" &&
+      ((kind === "class" && FUNCTIONAL_PSEUDO_CLASSES.has(name)) ||
+        (kind === "element" && FUNCTIONAL_PSEUDO_ELEMENTS.has(name)))
+    ) {
+      this.#fail(
+        "invalid-pseudo",
+        `:${kind === "element" ? ":" : ""}${name} requires arguments.`,
+        nameValue.span
+      );
+      return null;
+    }
     const argument = nameValue.kind === "function-block"
       ? this.pseudoArgument(nameValue, kind)
       : Object.freeze({ kind: "none" } as const);
