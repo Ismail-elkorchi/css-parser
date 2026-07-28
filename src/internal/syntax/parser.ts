@@ -25,7 +25,7 @@ import type {
 } from "./ast.ts";
 import type { CssToken, TokenizerDiagnostic } from "./tokens.ts";
 import type {
-  ResourceLimits,
+  ParserResourceLimits,
   ResourceUsage,
   SourcePosition,
   SourceSpan
@@ -34,7 +34,7 @@ import type {
 const CSS_SYNTAX = "https://drafts.csswg.org/css-syntax/";
 
 export interface SyntaxParserOptions {
-  readonly limits?: ResourceLimits;
+  readonly limits?: ParserResourceLimits;
   readonly signal?: AbortSignal;
 }
 

@@ -31,6 +31,29 @@ export interface ResourceLimits {
   readonly maxSteps?: number;
 }
 
+export type TokenizerResourceLimits = Pick<
+  ResourceLimits,
+  "maxInputBytes" | "maxTokens" | "maxSteps"
+>;
+
+export type ParserResourceLimits = Pick<
+  ResourceLimits,
+  "maxInputBytes" | "maxTokens" | "maxNodes" | "maxDepth" | "maxSteps"
+>;
+
+export type StreamTokenizerResourceLimits =
+  & TokenizerResourceLimits
+  & Pick<ResourceLimits, "maxBufferedBytes">;
+
+export type StreamParserResourceLimits =
+  & ParserResourceLimits
+  & Pick<ResourceLimits, "maxBufferedBytes">;
+
+export type SelectorResourceLimits = Pick<
+  ResourceLimits,
+  "maxNodes" | "maxDepth" | "maxSteps"
+>;
+
 export interface ResourceUsage {
   readonly inputBytes: number;
   readonly maxBufferedBytes: number;

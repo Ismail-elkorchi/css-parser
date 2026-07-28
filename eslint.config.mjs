@@ -10,7 +10,7 @@ const typedConfigs = [
 
 export default [
   {
-    ignores: ["dist/**", "node_modules/**", "reports/**", "tmp/**"]
+    ignores: ["dist/**", "node_modules/**", "reports/**"]
   },
   {
     files: ["**/*.js", "**/*.mjs", "**/*.cjs"],

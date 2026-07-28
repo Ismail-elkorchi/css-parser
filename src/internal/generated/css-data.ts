@@ -13425,5290 +13425,2808 @@ export const CSS_WEBREF_DATA: CssWebrefData = {
       "canonicalOrder": "per grammar"
     }
   ],
-  "atrules": [
-    {
-      "name": "@-webkit-keyframes",
-      "href": "https://compat.spec.whatwg.org/#at-ruledef--webkit-keyframes",
-      "descriptors": []
-    },
-    {
-      "name": "@annotation",
-      "href": "https://drafts.csswg.org/css-fonts-4/#at-ruledef-font-feature-values-annotation",
-      "syntax": "@annotation { <declaration-list> }",
-      "descriptors": []
-    },
-    {
-      "name": "@apply",
-      "href": "https://drafts.csswg.org/css-mixins-1/#at-ruledef-apply",
-      "syntax": "@apply [ <dashed-ident> | <dashed-function> ] [ { <declaration-list> } ]?;",
-      "descriptors": []
-    },
-    {
-      "name": "@bottom-center",
-      "href": "https://drafts.csswg.org/css-page-3/#at-ruledef-bottom-center",
-      "syntax": "@bottom-center { <declaration-list> };",
-      "descriptors": []
-    },
-    {
-      "name": "@bottom-left",
-      "href": "https://drafts.csswg.org/css-page-3/#at-ruledef-bottom-left",
-      "syntax": "@bottom-left { <declaration-list> };",
-      "descriptors": []
-    },
-    {
-      "name": "@bottom-left-corner",
-      "href": "https://drafts.csswg.org/css-page-3/#at-ruledef-bottom-left-corner",
-      "syntax": "@bottom-left-corner { <declaration-list> };",
-      "descriptors": []
-    },
-    {
-      "name": "@bottom-right",
-      "href": "https://drafts.csswg.org/css-page-3/#at-ruledef-bottom-right",
-      "syntax": "@bottom-right { <declaration-list> };",
-      "descriptors": []
-    },
-    {
-      "name": "@bottom-right-corner",
-      "href": "https://drafts.csswg.org/css-page-3/#at-ruledef-bottom-right-corner",
-      "syntax": "@bottom-right-corner { <declaration-list> };",
-      "descriptors": []
-    },
-    {
-      "name": "@character-variant",
-      "href": "https://drafts.csswg.org/css-fonts-4/#at-ruledef-font-feature-values-character-variant",
-      "syntax": "@character-variant { <declaration-list> }",
-      "descriptors": []
-    },
-    {
-      "name": "@charset",
-      "href": "https://drafts.csswg.org/css-syntax-3/#at-ruledef-charset",
-      "descriptors": []
-    },
-    {
-      "name": "@color-profile",
-      "href": "https://drafts.csswg.org/css-color-5/#at-ruledef-profile",
-      "syntax": "@color-profile [<dashed-ident> | device-cmyk] { <declaration-list> }",
-      "descriptors": [
-        {
-          "name": "components",
-          "href": "https://drafts.csswg.org/css-color-5/#descdef-color-profile-components",
-          "syntax": "<ident>#",
-          "initial": "n/a"
-        },
-        {
-          "name": "rendering-intent",
-          "href": "https://drafts.csswg.org/css-color-5/#descdef-color-profile-rendering-intent",
-          "syntax": "relative-colorimetric | absolute-colorimetric | perceptual | saturation",
-          "initial": "relative-colorimetric"
-        },
-        {
-          "name": "src",
-          "href": "https://drafts.csswg.org/css-color-5/#descdef-color-profile-src",
-          "syntax": "<url>",
-          "initial": "n/a"
-        }
-      ]
-    },
-    {
-      "name": "@container",
-      "href": "https://drafts.csswg.org/css-conditional-5/#at-ruledef-container",
-      "syntax": "@container <container-condition># { <rule-list> }",
-      "descriptors": [
-        {
-          "name": "aspect-ratio",
-          "href": "https://drafts.csswg.org/css-conditional-5/#descdef-container-aspect-ratio",
-          "syntax": "<ratio>"
-        },
-        {
-          "name": "block-size",
-          "href": "https://drafts.csswg.org/css-conditional-5/#descdef-container-block-size",
-          "syntax": "<length>"
-        },
-        {
-          "name": "fallback",
-          "href": "https://drafts.csswg.org/css-anchor-position-2/#descdef-container-fallback",
-          "syntax": "none | [ [<dashed-ident> || <try-tactic>] | <position-area-query> ]"
-        },
-        {
-          "name": "height",
-          "href": "https://drafts.csswg.org/css-conditional-5/#descdef-container-height",
-          "syntax": "<length>"
-        },
-        {
-          "name": "inline-size",
-          "href": "https://drafts.csswg.org/css-conditional-5/#descdef-container-inline-size",
-          "syntax": "<length>"
-        },
-        {
-          "name": "orientation",
-          "href": "https://drafts.csswg.org/css-conditional-5/#descdef-container-orientation",
-          "syntax": "portrait | landscape"
-        },
-        {
-          "name": "scrollable",
-          "href": "https://drafts.csswg.org/css-conditional-5/#descdef-container-scrollable",
-          "syntax": "none | top | right | bottom | left | block-start | inline-start | block-end | inline-end | x | y | block | inline"
-        },
-        {
-          "name": "scrolled",
-          "href": "https://drafts.csswg.org/css-conditional-5/#descdef-container-scrolled",
-          "syntax": "none | top | right | bottom | left | block-start | inline-start | block-end | inline-end | x | y | block | inline"
-        },
-        {
-          "name": "snapped",
-          "href": "https://drafts.csswg.org/css-conditional-5/#descdef-container-snapped",
-          "syntax": "none | x | y | block | inline | both"
-        },
-        {
-          "name": "stuck",
-          "href": "https://drafts.csswg.org/css-conditional-5/#descdef-container-stuck",
-          "syntax": "none | top | right | bottom | left | block-start | inline-start | block-end | inline-end"
-        },
-        {
-          "name": "width",
-          "href": "https://drafts.csswg.org/css-conditional-5/#descdef-container-width",
-          "syntax": "<length>"
-        }
-      ]
-    },
-    {
-      "name": "@contents",
-      "href": "https://drafts.csswg.org/css-mixins-1/#at-ruledef-contents",
-      "syntax": "@contents [ { <declaration-list> } ]?",
-      "descriptors": []
-    },
-    {
-      "name": "@counter-style",
-      "href": "https://drafts.csswg.org/css-counter-styles-3/#at-ruledef-counter-style",
-      "syntax": "@counter-style <counter-style-name> { <declaration-list> }",
-      "descriptors": [
-        {
-          "name": "additive-symbols",
-          "href": "https://drafts.csswg.org/css-counter-styles-3/#descdef-counter-style-additive-symbols",
-          "syntax": "[ <integer [0,∞]> && <symbol> ]#",
-          "initial": "n/a"
-        },
-        {
-          "name": "fallback",
-          "href": "https://drafts.csswg.org/css-counter-styles-3/#descdef-counter-style-fallback",
-          "syntax": "<counter-style-name>",
-          "initial": "decimal"
-        },
-        {
-          "name": "negative",
-          "href": "https://drafts.csswg.org/css-counter-styles-3/#descdef-counter-style-negative",
-          "syntax": "<symbol> <symbol>?",
-          "initial": "\"-\""
-        },
-        {
-          "name": "pad",
-          "href": "https://drafts.csswg.org/css-counter-styles-3/#descdef-counter-style-pad",
-          "syntax": "<integer [0,∞]> && <symbol>",
-          "initial": "0 \"\""
-        },
-        {
-          "name": "prefix",
-          "href": "https://drafts.csswg.org/css-counter-styles-3/#descdef-counter-style-prefix",
-          "syntax": "<symbol>",
-          "initial": "\"\""
-        },
-        {
-          "name": "range",
-          "href": "https://drafts.csswg.org/css-counter-styles-3/#descdef-counter-style-range",
-          "syntax": "[ [ <integer> | infinite ]{2} ]# | auto",
-          "initial": "auto"
-        },
-        {
-          "name": "speak-as",
-          "href": "https://drafts.csswg.org/css-counter-styles-3/#descdef-counter-style-speak-as",
-          "syntax": "auto | bullets | numbers | words | spell-out | <counter-style-name>",
-          "initial": "auto"
-        },
-        {
-          "name": "suffix",
-          "href": "https://drafts.csswg.org/css-counter-styles-3/#descdef-counter-style-suffix",
-          "syntax": "<symbol>",
-          "initial": "\". \""
-        },
-        {
-          "name": "symbols",
-          "href": "https://drafts.csswg.org/css-counter-styles-3/#descdef-counter-style-symbols",
-          "syntax": "<symbol>+",
-          "initial": "n/a"
-        },
-        {
-          "name": "system",
-          "href": "https://drafts.csswg.org/css-counter-styles-3/#descdef-counter-style-system",
-          "syntax": "cyclic | numeric | alphabetic | symbolic | additive | [fixed <integer>?] | [ extends <counter-style-name> ]",
-          "initial": "symbolic"
-        }
-      ]
-    },
-    {
-      "name": "@custom-media",
-      "href": "https://drafts.csswg.org/mediaqueries-5/#at-ruledef-custom-media",
-      "syntax": "@custom-media <extension-name> [ <media-query-list> | true | false ] ;",
-      "descriptors": []
-    },
-    {
-      "name": "@custom-selector",
-      "href": "https://drafts.csswg.org/css-extensions-1/#at-ruledef-custom-selector",
-      "syntax": "@custom-selector <custom-selector> <selector-list> ;",
-      "descriptors": []
-    },
-    {
-      "name": "@else",
-      "href": "https://drafts.csswg.org/css-conditional-5/#at-ruledef-else",
-      "syntax": "@else <boolean-condition>? { <rule-list> }",
-      "descriptors": []
-    },
-    {
-      "name": "@font-face",
-      "href": "https://drafts.csswg.org/css-fonts-4/#at-font-face-rule",
-      "syntax": "@font-face { <declaration-list> }",
-      "descriptors": [
-        {
-          "name": "ascent-override",
-          "href": "https://drafts.csswg.org/css-fonts-5/#descdef-font-face-ascent-override",
-          "syntax": "[ normal | <percentage [0,∞]> ]{1,2}",
-          "initial": "normal"
-        },
-        {
-          "name": "descent-override",
-          "href": "https://drafts.csswg.org/css-fonts-5/#descdef-font-face-descent-override",
-          "syntax": "[ normal | <percentage [0,∞]> ]{1,2}",
-          "initial": "normal"
-        },
-        {
-          "name": "font-display",
-          "href": "https://drafts.csswg.org/css-fonts-4/#descdef-font-face-font-display",
-          "syntax": "auto | block | swap | fallback | optional",
-          "initial": "auto"
-        },
-        {
-          "name": "font-family",
-          "href": "https://drafts.csswg.org/css-fonts-4/#descdef-font-face-font-family",
-          "syntax": "<font-family-name>",
-          "initial": "N/A"
-        },
-        {
-          "name": "font-feature-settings",
-          "href": "https://drafts.csswg.org/css-fonts-4/#descdef-font-face-font-feature-settings",
-          "syntax": "normal | <feature-tag-value>#",
-          "initial": "normal"
-        },
-        {
-          "name": "font-language-override",
-          "href": "https://drafts.csswg.org/css-fonts-4/#descdef-font-face-font-language-override",
-          "syntax": "normal | <string>",
-          "initial": "normal"
-        },
-        {
-          "name": "font-named-instance",
-          "href": "https://drafts.csswg.org/css-fonts-4/#descdef-font-face-font-named-instance",
-          "syntax": "auto | <string>",
-          "initial": "auto"
-        },
-        {
-          "name": "font-size",
-          "href": "https://drafts.csswg.org/css-fonts-5/#descdef-font-face-font-size",
-          "syntax": "auto | [<number>]{1,2}",
-          "initial": "auto"
-        },
-        {
-          "name": "font-style",
-          "href": "https://drafts.csswg.org/css-fonts-4/#descdef-font-face-font-style",
-          "syntax": "auto | normal | italic | left | right | oblique [ <angle [-90deg,90deg]>{1,2} ]?",
-          "initial": "auto"
-        },
-        {
-          "name": "font-variation-settings",
-          "href": "https://drafts.csswg.org/css-fonts-4/#descdef-font-face-font-variation-settings",
-          "syntax": "normal | [ <string> <number>]#",
-          "initial": "normal"
-        },
-        {
-          "name": "font-weight",
-          "href": "https://drafts.csswg.org/css-fonts-4/#descdef-font-face-font-weight",
-          "syntax": "auto | <font-weight-absolute>{1,2}",
-          "initial": "auto"
-        },
-        {
-          "name": "font-width",
-          "href": "https://drafts.csswg.org/css-fonts-4/#descdef-font-face-font-width",
-          "syntax": "auto | <'font-width'>{1,2}",
-          "initial": "auto"
-        },
-        {
-          "name": "line-gap-override",
-          "href": "https://drafts.csswg.org/css-fonts-5/#descdef-font-face-line-gap-override",
-          "syntax": "[ normal | <percentage [0,∞]> ]{1,2}",
-          "initial": "normal"
-        },
-        {
-          "name": "size-adjust",
-          "href": "https://drafts.csswg.org/css-fonts-5/#descdef-font-face-size-adjust",
-          "syntax": "<percentage [0,∞]>",
-          "initial": "100%"
-        },
-        {
-          "name": "src",
-          "href": "https://drafts.csswg.org/css-fonts-4/#descdef-font-face-src",
-          "syntax": "<font-src-list>",
-          "initial": "N/A"
-        },
-        {
-          "name": "subscript-position-override",
-          "href": "https://drafts.csswg.org/css-fonts-5/#descdef-font-face-subscript-position-override",
-          "syntax": "[ normal | from-font | <percentage> ]{1,2}",
-          "initial": "normal"
-        },
-        {
-          "name": "subscript-size-override",
-          "href": "https://drafts.csswg.org/css-fonts-5/#descdef-font-face-subscript-size-override",
-          "syntax": "[ normal | from-font | <percentage [0,∞]> ]{1,2}",
-          "initial": "normal"
-        },
-        {
-          "name": "superscript-position-override",
-          "href": "https://drafts.csswg.org/css-fonts-5/#descdef-font-face-superscript-position-override",
-          "syntax": "[ normal | from-font | <percentage> ]{1,2}",
-          "initial": "normal"
-        },
-        {
-          "name": "superscript-size-override",
-          "href": "https://drafts.csswg.org/css-fonts-5/#descdef-font-face-superscript-size-override",
-          "syntax": "[ normal | from-font | <percentage [0,∞]> ]{1,2}",
-          "initial": "normal"
-        },
-        {
-          "name": "unicode-range",
-          "href": "https://drafts.csswg.org/css-fonts-4/#descdef-font-face-unicode-range",
-          "syntax": "<unicode-range-token>#",
-          "initial": "U+0-10FFFF"
-        }
-      ]
-    },
-    {
-      "name": "@font-feature-values",
-      "href": "https://drafts.csswg.org/css-fonts-4/#at-ruledef-font-feature-values",
-      "syntax": "@font-feature-values <font-family-name># { <declaration-rule-list> }",
-      "descriptors": [
-        {
-          "name": "font-display",
-          "href": "https://drafts.csswg.org/css-fonts-4/#descdef-font-feature-values-font-display",
-          "syntax": "auto | block | swap | fallback | optional",
-          "initial": "auto"
-        }
-      ]
-    },
-    {
-      "name": "@font-palette-values",
-      "href": "https://drafts.csswg.org/css-fonts-4/#at-ruledef-font-palette-values",
-      "syntax": "@font-palette-values <dashed-ident> { <declaration-list> }",
-      "descriptors": [
-        {
-          "name": "base-palette",
-          "href": "https://drafts.csswg.org/css-fonts-4/#descdef-font-palette-values-base-palette",
-          "syntax": "light | dark | <integer [0,∞]>",
-          "initial": "N/A"
-        },
-        {
-          "name": "font-family",
-          "href": "https://drafts.csswg.org/css-fonts-4/#descdef-font-palette-values-font-family",
-          "syntax": "<font-family-name>#",
-          "initial": "N/A"
-        },
-        {
-          "name": "override-colors",
-          "href": "https://drafts.csswg.org/css-fonts-4/#descdef-font-palette-values-override-colors",
-          "syntax": "[ <integer [0,∞]> <color> ]#",
-          "initial": "N/A"
-        }
-      ]
-    },
-    {
-      "name": "@function",
-      "href": "https://drafts.csswg.org/css-mixins-1/#at-ruledef-function",
-      "syntax": "@function <function-token> <function-parameter>#? ) [ returns <css-type> ]? { <declaration-rule-list> }",
-      "descriptors": [
-        {
-          "name": "result",
-          "href": "https://drafts.csswg.org/css-mixins-1/#descdef-function-result",
-          "syntax": "<declaration-value>?",
-          "initial": "n/a (see prose)"
-        }
-      ]
-    },
-    {
-      "name": "@historical-forms",
-      "href": "https://drafts.csswg.org/css-fonts-4/#at-ruledef-font-feature-values-historical-forms",
-      "syntax": "@historical-forms { <declaration-list> }",
-      "descriptors": []
-    },
-    {
-      "name": "@import",
-      "href": "https://drafts.csswg.org/css-cascade-6/#at-ruledef-import",
-      "syntax": "@import [ <url> | <string> ] [[ layer | layer( <layer-name> ) ] || [ scope | scope( <scope-start> | <scope-boundaries> ) ] || <supports-import-condition>]? <media-import-condition> ;",
-      "descriptors": []
-    },
-    {
-      "name": "@keyframes",
-      "href": "https://drafts.csswg.org/css-animations-1/#at-ruledef-keyframes",
-      "syntax": "@keyframes <keyframes-name> { <qualified-rule-list> }",
-      "descriptors": []
-    },
-    {
-      "name": "@layer",
-      "href": "https://drafts.csswg.org/css-cascade-5/#at-ruledef-layer",
-      "syntax": "@layer <layer-name>? { <rule-list> } | @layer <layer-name>#;",
-      "descriptors": []
-    },
-    {
-      "name": "@left-bottom",
-      "href": "https://drafts.csswg.org/css-page-3/#at-ruledef-left-bottom",
-      "syntax": "@left-bottom { <declaration-list> };",
-      "descriptors": []
-    },
-    {
-      "name": "@left-middle",
-      "href": "https://drafts.csswg.org/css-page-3/#at-ruledef-left-middle",
-      "syntax": "@left-middle { <declaration-list> };",
-      "descriptors": []
-    },
-    {
-      "name": "@left-top",
-      "href": "https://drafts.csswg.org/css-page-3/#at-ruledef-left-top",
-      "syntax": "@left-top { <declaration-list> };",
-      "descriptors": []
-    },
-    {
-      "name": "@macro",
-      "href": "https://drafts.csswg.org/css-mixins-1/#macro-rule",
-      "syntax": "@macro <dashed-ident> { <declaration-rule-list> }",
-      "descriptors": []
-    },
-    {
-      "name": "@media",
-      "href": "https://drafts.csswg.org/css-conditional-3/#at-ruledef-media",
-      "syntax": "@media <media-query-list> { <rule-list> }",
-      "descriptors": [
-        {
-          "name": "-webkit-device-pixel-ratio",
-          "href": "https://compat.spec.whatwg.org/#descdef-media--webkit-device-pixel-ratio",
-          "syntax": "<number>"
-        },
-        {
-          "name": "-webkit-transform-3d",
-          "href": "https://compat.spec.whatwg.org/#descdef-media--webkit-transform-3d",
-          "syntax": "<mq-boolean>"
-        },
-        {
-          "name": "any-hover",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-any-hover",
-          "syntax": "none | hover"
-        },
-        {
-          "name": "any-pointer",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-any-pointer",
-          "syntax": "none | coarse | fine"
-        },
-        {
-          "name": "aspect-ratio",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-aspect-ratio",
-          "syntax": "<ratio>"
-        },
-        {
-          "name": "color",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-color",
-          "syntax": "<integer>"
-        },
-        {
-          "name": "color-gamut",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-color-gamut",
-          "syntax": "srgb | p3 | rec2020"
-        },
-        {
-          "name": "color-index",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-color-index",
-          "syntax": "<integer>"
-        },
-        {
-          "name": "device-aspect-ratio",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-device-aspect-ratio",
-          "syntax": "<ratio>"
-        },
-        {
-          "name": "device-height",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-device-height",
-          "syntax": "<length>"
-        },
-        {
-          "name": "device-width",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-device-width",
-          "syntax": "<length>"
-        },
-        {
-          "name": "display-mode",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-display-mode",
-          "syntax": "fullscreen | standalone | minimal-ui | browser | picture-in-picture"
-        },
-        {
-          "name": "display-state",
-          "href": "https://w3c.github.io/window-management/#descdef-media-display-state",
-          "syntax": "normal | minimized | maximized | fullscreen"
-        },
-        {
-          "name": "dynamic-range",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-dynamic-range",
-          "syntax": "standard | high"
-        },
-        {
-          "name": "environment-blending",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-environment-blending",
-          "syntax": "opaque | additive | subtractive"
-        },
-        {
-          "name": "forced-colors",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-forced-colors",
-          "syntax": "none | active"
-        },
-        {
-          "name": "grid",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-grid",
-          "syntax": "<mq-boolean>"
-        },
-        {
-          "name": "height",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-height",
-          "syntax": "<length>"
-        },
-        {
-          "name": "horizontal-viewport-segments",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-horizontal-viewport-segments",
-          "syntax": "<integer>"
-        },
-        {
-          "name": "hover",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-hover",
-          "syntax": "none | hover"
-        },
-        {
-          "name": "inverted-colors",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-inverted-colors",
-          "syntax": "none | inverted"
-        },
-        {
-          "name": "monochrome",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-monochrome",
-          "syntax": "<integer>"
-        },
-        {
-          "name": "nav-controls",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-nav-controls",
-          "syntax": "none | back"
-        },
-        {
-          "name": "orientation",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-orientation",
-          "syntax": "portrait | landscape"
-        },
-        {
-          "name": "overflow-block",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-overflow-block",
-          "syntax": "none | scroll | paged"
-        },
-        {
-          "name": "overflow-inline",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-overflow-inline",
-          "syntax": "none | scroll"
-        },
-        {
-          "name": "pointer",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-pointer",
-          "syntax": "none | coarse | fine"
-        },
-        {
-          "name": "prefers-color-scheme",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-prefers-color-scheme",
-          "syntax": "light | dark"
-        },
-        {
-          "name": "prefers-contrast",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-prefers-contrast",
-          "syntax": "no-preference | less | more | custom"
-        },
-        {
-          "name": "prefers-reduced-data",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-prefers-reduced-data",
-          "syntax": "no-preference | reduce"
-        },
-        {
-          "name": "prefers-reduced-motion",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-prefers-reduced-motion",
-          "syntax": "no-preference | reduce"
-        },
-        {
-          "name": "prefers-reduced-transparency",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-prefers-reduced-transparency",
-          "syntax": "no-preference | reduce"
-        },
-        {
-          "name": "resizable",
-          "href": "https://w3c.github.io/window-management/#descdef-media-resizable",
-          "syntax": "true | false"
-        },
-        {
-          "name": "resolution",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-resolution",
-          "syntax": "<resolution> | infinite"
-        },
-        {
-          "name": "scan",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-scan",
-          "syntax": "interlace | progressive"
-        },
-        {
-          "name": "scripting",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-scripting",
-          "syntax": "none | initial-only | enabled"
-        },
-        {
-          "name": "shape",
-          "href": "https://drafts.csswg.org/css-round-display-1/#descdef-media-shape",
-          "syntax": "rect | round"
-        },
-        {
-          "name": "ua-color-scheme",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-ua-color-scheme",
-          "syntax": "light | dark"
-        },
-        {
-          "name": "update",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-update",
-          "syntax": "none | slow | fast"
-        },
-        {
-          "name": "vertical-viewport-segments",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-vertical-viewport-segments",
-          "syntax": "<integer>"
-        },
-        {
-          "name": "video-color-gamut",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-video-color-gamut",
-          "syntax": "srgb | p3 | rec2020"
-        },
-        {
-          "name": "video-dynamic-range",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-video-dynamic-range",
-          "syntax": "standard | high"
-        },
-        {
-          "name": "width",
-          "href": "https://drafts.csswg.org/mediaqueries-5/#descdef-media-width",
-          "syntax": "<length>"
-        }
-      ]
-    },
-    {
-      "name": "@mixin",
-      "href": "https://drafts.csswg.org/css-mixins-1/#at-ruledef-mixin",
-      "syntax": "@mixin [<function-token> <function-parameter>#? ) | <ident-token> ] { <declaration-rule-list> }",
-      "descriptors": []
-    },
-    {
-      "name": "@namespace",
-      "href": "https://drafts.csswg.org/css-namespaces-3/#at-ruledef-namespace",
-      "syntax": "@namespace <namespace-prefix>? [ <string> | <url> ] ;",
-      "descriptors": []
-    },
-    {
-      "name": "@navigation",
-      "href": "https://drafts.csswg.org/css-navigation-1/#at-ruledef-navigation",
-      "syntax": "@navigation <navigation-condition> { <rule-list> }",
-      "descriptors": []
-    },
-    {
-      "name": "@ornaments",
-      "href": "https://drafts.csswg.org/css-fonts-4/#at-ruledef-font-feature-values-ornaments",
-      "syntax": "@ornaments { <declaration-list> }",
-      "descriptors": []
-    },
-    {
-      "name": "@page",
-      "href": "https://drafts.csswg.org/css-page-3/#at-ruledef-page",
-      "syntax": "@page <page-selector-list>? { <declaration-rule-list> }",
-      "descriptors": [
-        {
-          "name": "bleed",
-          "href": "https://drafts.csswg.org/css-page-3/#descdef-page-bleed",
-          "syntax": "auto | <length>",
-          "initial": "auto"
-        },
-        {
-          "name": "marks",
-          "href": "https://drafts.csswg.org/css-page-3/#descdef-page-marks",
-          "syntax": "none | [ crop || cross ]",
-          "initial": "none"
-        },
-        {
-          "name": "page-margin-safety",
-          "href": "https://drafts.csswg.org/css-page-3/#descdef-page-page-margin-safety",
-          "syntax": "none | clamp | add",
-          "initial": "auto"
-        },
-        {
-          "name": "page-orientation",
-          "href": "https://drafts.csswg.org/css-page-3/#descdef-page-page-orientation",
-          "syntax": "upright | rotate-left | rotate-right",
-          "initial": "upright"
-        },
-        {
-          "name": "size",
-          "href": "https://drafts.csswg.org/css-page-3/#descdef-page-size",
-          "syntax": "<length [0,∞]>{1,2} | auto | [ <page-size> || [ portrait | landscape ] ]",
-          "initial": "auto"
-        }
-      ]
-    },
-    {
-      "name": "@position-try",
-      "href": "https://drafts.csswg.org/css-anchor-position-1/#at-ruledef-position-try",
-      "syntax": "@position-try <dashed-ident> { <declaration-list> }",
-      "descriptors": []
-    },
-    {
-      "name": "@property",
-      "href": "https://drafts.css-houdini.org/css-properties-values-api-1/#at-ruledef-property",
-      "syntax": "@property <custom-property-name> { <declaration-list> }",
-      "descriptors": [
-        {
-          "name": "inherits",
-          "href": "https://drafts.css-houdini.org/css-properties-values-api-1/#descdef-property-inherits",
-          "syntax": "true | false",
-          "initial": "n/a (see prose)"
-        },
-        {
-          "name": "initial-value",
-          "href": "https://drafts.css-houdini.org/css-properties-values-api-1/#descdef-property-initial-value",
-          "syntax": "<declaration-value>?",
-          "initial": "the guaranteed-invalid value (but see prose)"
-        },
-        {
-          "name": "syntax",
-          "href": "https://drafts.css-houdini.org/css-properties-values-api-1/#descdef-property-syntax",
-          "syntax": "<string>",
-          "initial": "n/a (see prose)"
-        }
-      ]
-    },
-    {
-      "name": "@result",
-      "href": "https://drafts.csswg.org/css-mixins-1/#result-rule",
-      "syntax": "@result { <declaration-rule-list> }",
-      "descriptors": []
-    },
-    {
-      "name": "@right-bottom",
-      "href": "https://drafts.csswg.org/css-page-3/#at-ruledef-right-bottom",
-      "syntax": "@right-bottom { <declaration-list> };",
-      "descriptors": []
-    },
-    {
-      "name": "@right-middle",
-      "href": "https://drafts.csswg.org/css-page-3/#at-ruledef-right-middle",
-      "syntax": "@right-middle { <declaration-list> };",
-      "descriptors": []
-    },
-    {
-      "name": "@right-top",
-      "href": "https://drafts.csswg.org/css-page-3/#at-ruledef-right-top",
-      "syntax": "@right-top { <declaration-list> };",
-      "descriptors": []
-    },
-    {
-      "name": "@route",
-      "href": "https://drafts.csswg.org/css-navigation-1/#at-ruledef-route",
-      "syntax": "<route-rule>",
-      "descriptors": []
-    },
-    {
-      "name": "@scope",
-      "href": "https://drafts.csswg.org/css-cascade-6/#at-ruledef-scope",
-      "syntax": "@scope <scope-boundaries>? { <block-contents> }",
-      "descriptors": []
-    },
-    {
-      "name": "@starting-style",
-      "href": "https://drafts.csswg.org/css-transitions-2/#at-ruledef-starting-style",
-      "descriptors": []
-    },
-    {
-      "name": "@styleset",
-      "href": "https://drafts.csswg.org/css-fonts-4/#at-ruledef-font-feature-values-styleset",
-      "syntax": "@styleset { <declaration-list> }",
-      "descriptors": []
-    },
-    {
-      "name": "@stylistic",
-      "href": "https://drafts.csswg.org/css-fonts-4/#at-ruledef-font-feature-values-stylistic",
-      "syntax": "@stylistic { <declaration-list> }",
-      "descriptors": []
-    },
-    {
-      "name": "@supports",
-      "href": "https://drafts.csswg.org/css-conditional-3/#at-ruledef-supports",
-      "syntax": "@supports <supports-condition> { <rule-list> }",
-      "descriptors": []
-    },
-    {
-      "name": "@supports-condition",
-      "href": "https://drafts.csswg.org/css-conditional-5/#at-ruledef-supports-condition",
-      "syntax": "@supports-condition <supports-condition-name> { <block-contents> }",
-      "descriptors": []
-    },
-    {
-      "name": "@swash",
-      "href": "https://drafts.csswg.org/css-fonts-4/#at-ruledef-font-feature-values-swash",
-      "syntax": "@swash { <declaration-list> }",
-      "descriptors": []
-    },
-    {
-      "name": "@top-center",
-      "href": "https://drafts.csswg.org/css-page-3/#at-ruledef-top-center",
-      "syntax": "@top-center { <declaration-list> };",
-      "descriptors": []
-    },
-    {
-      "name": "@top-left",
-      "href": "https://drafts.csswg.org/css-page-3/#at-ruledef-top-left",
-      "syntax": "@top-left { <declaration-list> };",
-      "descriptors": []
-    },
-    {
-      "name": "@top-left-corner",
-      "href": "https://drafts.csswg.org/css-page-3/#at-ruledef-top-left-corner",
-      "syntax": "@top-left-corner { <declaration-list> };",
-      "descriptors": []
-    },
-    {
-      "name": "@top-right",
-      "href": "https://drafts.csswg.org/css-page-3/#at-ruledef-top-right",
-      "syntax": "@top-right { <declaration-list> };",
-      "descriptors": []
-    },
-    {
-      "name": "@top-right-corner",
-      "href": "https://drafts.csswg.org/css-page-3/#at-ruledef-top-right-corner",
-      "syntax": "@top-right-corner { <declaration-list> };",
-      "descriptors": []
-    },
-    {
-      "name": "@view-transition",
-      "href": "https://drafts.csswg.org/css-view-transitions-2/#at-view-transition-rule",
-      "syntax": "@view-transition { <declaration-list> }",
-      "descriptors": [
-        {
-          "name": "navigation",
-          "href": "https://drafts.csswg.org/css-view-transitions-2/#descdef-view-transition-navigation",
-          "syntax": "auto | none",
-          "initial": "none"
-        },
-        {
-          "name": "types",
-          "href": "https://drafts.csswg.org/css-view-transitions-2/#descdef-view-transition-types",
-          "syntax": "none | <view-transition-type>+",
-          "initial": "none"
-        }
-      ]
-    },
-    {
-      "name": "@when",
-      "href": "https://drafts.csswg.org/css-conditional-5/#at-ruledef-when",
-      "syntax": "@when <boolean-condition> { <rule-list> }",
-      "descriptors": []
-    }
-  ],
   "functions": [
     {
-      "name": "-webkit-image-set()",
-      "href": "https://drafts.csswg.org/css-images-4/#funcdef--webkit-image-set"
+      "name": "-webkit-image-set()"
     },
     {
       "name": "abs()",
-      "href": "https://drafts.csswg.org/css-values-4/#funcdef-abs",
       "syntax": "abs( <calc-sum> )"
     },
     {
       "name": "acos()",
-      "href": "https://drafts.csswg.org/css-values-4/#funcdef-acos",
       "syntax": "acos( <calc-sum> )"
     },
     {
       "name": "alpha()",
-      "href": "https://drafts.csswg.org/css-color-5/#funcdef-alpha",
       "syntax": "alpha([from <color>] [ / [<alpha-value> | none] ]? )"
     },
     {
       "name": "anchor-size()",
-      "href": "https://drafts.csswg.org/css-anchor-position-1/#funcdef-anchor-size",
       "syntax": "anchor-size( [ <anchor-name> || <anchor-size> ]? , <length-percentage>? )"
     },
     {
       "name": "anchor()",
-      "href": "https://drafts.csswg.org/css-anchor-position-1/#funcdef-anchor",
       "syntax": "anchor( <anchor-name>? && <anchor-side>, <length-percentage>? )"
     },
     {
       "name": "asin()",
-      "href": "https://drafts.csswg.org/css-values-4/#funcdef-asin",
       "syntax": "asin( <calc-sum> )"
     },
     {
       "name": "atan()",
-      "href": "https://drafts.csswg.org/css-values-4/#funcdef-atan",
       "syntax": "atan( <calc-sum> )"
     },
     {
       "name": "atan2()",
-      "href": "https://drafts.csswg.org/css-values-4/#funcdef-atan2",
       "syntax": "atan2( <calc-sum>, <calc-sum> )"
     },
     {
       "name": "attr()",
-      "href": "https://drafts.csswg.org/css-values-5/#funcdef-attr",
       "syntax": "attr( <attr-name> <attr-type>? , <declaration-value>?)"
     },
     {
       "name": "blur()",
-      "href": "https://drafts.csswg.org/filter-effects-1/#funcdef-filter-blur",
-      "syntax": "blur( <length>? )",
-      "for": [
-        "filter"
-      ]
+      "syntax": "blur( <length>? )"
     },
     {
       "name": "brightness()",
-      "href": "https://drafts.csswg.org/filter-effects-1/#funcdef-filter-brightness",
-      "syntax": "brightness( [ <number> | <percentage> ]? )",
-      "for": [
-        "filter"
-      ]
+      "syntax": "brightness( [ <number> | <percentage> ]? )"
     },
     {
       "name": "calc-interpolate()",
-      "href": "https://drafts.csswg.org/css-values-5/#funcdef-calc-interpolate",
       "syntax": "calc-interpolate( [ <progress-source> && [ by <easing-function> ]? && <easing-function>? ] , <input-position>{1,2} : <calc-sum> , [ <easing-function>? , <input-position>{1,2} : <calc-sum> ]#? )"
     },
     {
       "name": "calc-mix()",
-      "href": "https://drafts.csswg.org/css-values-5/#funcdef-calc-mix",
       "syntax": "calc-mix( [ <calc-sum> <percentage [0,100]>? ]# )"
     },
     {
       "name": "calc-size()",
-      "href": "https://drafts.csswg.org/css-values-5/#funcdef-calc-size",
       "syntax": "calc-size( <calc-size-basis>, <calc-sum> )"
     },
     {
       "name": "calc()",
-      "href": "https://drafts.csswg.org/css-values-4/#funcdef-calc",
       "syntax": "calc( <calc-sum> )"
     },
     {
       "name": "circle()",
-      "href": "https://drafts.csswg.org/css-shapes-1/#funcdef-basic-shape-circle",
-      "syntax": "circle( <radial-size>? [ at <position> ]? )",
-      "for": [
-        "<basic-shape>"
-      ]
+      "syntax": "circle( <radial-size>? [ at <position> ]? )"
     },
     {
       "name": "clamp()",
-      "href": "https://drafts.csswg.org/css-values-4/#funcdef-clamp",
       "syntax": "clamp( [ <calc-sum> | none ], <calc-sum>, [ <calc-sum> | none ] )"
     },
     {
       "name": "color-interpolate()",
-      "href": "https://drafts.csswg.org/css-values-5/#funcdef-color-interpolate",
       "syntax": "color-interpolate( [ <progress-source> && [ by <easing-function> ]? && <easing-function>? && <color-interpolation-method>? ] , <input-position>{1,2} : <color>, [ [ <easing-function> || <color-interpolation-method> ]?, <input-position>{1,2} : <color> ]#? )"
     },
     {
       "name": "color-layers()",
-      "href": "https://drafts.csswg.org/css-color-6/#funcdef-color-layers",
       "syntax": "color-layers([ <blend-mode>, ]? <color># )"
     },
     {
       "name": "color-mix()",
-      "href": "https://drafts.csswg.org/css-color-5/#funcdef-color-mix",
       "syntax": "color-mix( <color-interpolation-method>? , [ <color> && <percentage [0,100]>? ]#)"
     },
     {
       "name": "color()",
-      "href": "https://drafts.csswg.org/css-color-5/#funcdef-color",
       "syntax": "color( [from <color>]? <colorspace-params> [ / [ <alpha-value> | none ] ]? )"
     },
     {
       "name": "conic-gradient()",
-      "href": "https://drafts.csswg.org/css-images-4/#funcdef-conic-gradient",
       "syntax": "conic-gradient( [ <conic-gradient-syntax> ] )"
     },
     {
       "name": "content()",
-      "href": "https://drafts.csswg.org/css-content-3/#funcdef-content",
       "syntax": "content( [ text | before | after | first-letter | marker ]? )"
     },
     {
       "name": "contrast-color()",
-      "href": "https://drafts.csswg.org/css-color-6/#funcdef-contrast-color",
       "syntax": "contrast-color( [ [ <color> && [ tbd-fg | tbd-bg ] && <target-contrast>? ] | [ <color> && [ tbd-fg | tbd-bg ] && <target-contrast>, <color># ] ] )"
     },
     {
       "name": "contrast()",
-      "href": "https://drafts.csswg.org/filter-effects-1/#funcdef-filter-contrast",
-      "syntax": "contrast( [ <number> | <percentage> ]? )",
-      "for": [
-        "filter"
-      ]
+      "syntax": "contrast( [ <number> | <percentage> ]? )"
     },
     {
       "name": "control-value()",
-      "href": "https://drafts.csswg.org/css-forms-1/#funcdef-control-value",
       "syntax": "control-value( <type>? )"
     },
     {
       "name": "cos()",
-      "href": "https://drafts.csswg.org/css-values-4/#funcdef-cos",
       "syntax": "cos( <calc-sum> )"
     },
     {
       "name": "counter()",
-      "href": "https://drafts.csswg.org/css-lists-3/#funcdef-counter",
       "syntax": "counter( <counter-name>, <counter-style>? )"
     },
     {
       "name": "counters()",
-      "href": "https://drafts.csswg.org/css-lists-3/#funcdef-counters",
       "syntax": "counters( <counter-name>, <string>, <counter-style>? )"
     },
     {
       "name": "cross-fade()",
-      "href": "https://drafts.csswg.org/css-images-4/#funcdef-cross-fade",
       "syntax": "cross-fade( <cf-image># )"
     },
     {
-      "name": "cross-origin()",
-      "href": "https://drafts.csswg.org/css-values-5/#funcdef-request-url-modifier-cross-origin",
-      "for": [
-        "<request-url-modifier>"
-      ]
+      "name": "cross-origin()"
     },
     {
       "name": "cubic-bezier()",
-      "href": "https://drafts.csswg.org/css-easing-2/#funcdef-cubic-bezier",
       "syntax": "cubic-bezier( [ <number [0,1]>, <number> ]#{2} )"
     },
     {
       "name": "device-cmyk()",
-      "href": "https://drafts.csswg.org/css-color-5/#funcdef-device-cmyk",
       "syntax": "<legacy-device-cmyk-syntax> | <modern-device-cmyk-syntax>"
     },
     {
       "name": "drop-shadow()",
-      "href": "https://drafts.csswg.org/filter-effects-1/#funcdef-filter-drop-shadow",
-      "syntax": "drop-shadow( [ <color>? && <length>{2,3} ] )",
-      "for": [
-        "filter"
-      ]
+      "syntax": "drop-shadow( [ <color>? && <length>{2,3} ] )"
     },
     {
       "name": "dynamic-range-limit-mix()",
-      "href": "https://drafts.csswg.org/css-color-hdr-1/#funcdef-dynamic-range-limit-mix",
       "syntax": "dynamic-range-limit-mix( [ <'dynamic-range-limit'> && <percentage [0,100]> ]#{2,} )"
     },
     {
       "name": "element()",
-      "href": "https://drafts.csswg.org/css-images-4/#funcdef-element",
       "syntax": "element( <id-selector> )"
     },
     {
       "name": "ellipse()",
-      "href": "https://drafts.csswg.org/css-shapes-1/#funcdef-basic-shape-ellipse",
-      "syntax": "ellipse( <radial-size>? [ at <position> ]? )",
-      "for": [
-        "<basic-shape>"
-      ]
+      "syntax": "ellipse( <radial-size>? [ at <position> ]? )"
     },
     {
       "name": "env()",
-      "href": "https://drafts.csswg.org/css-env-1/#funcdef-env",
       "syntax": "env( <custom-ident> <integer [0,∞]>*, <declaration-value>? )"
     },
     {
       "name": "exp()",
-      "href": "https://drafts.csswg.org/css-values-4/#funcdef-exp",
       "syntax": "exp( <calc-sum> )"
     },
     {
       "name": "fade()",
-      "href": "https://drafts.csswg.org/css-overflow-4/#funcdef-text-overflow-fade",
-      "syntax": "fade( [ <length-percentage> ] )",
-      "for": [
-        "text-overflow"
-      ]
+      "syntax": "fade( [ <length-percentage> ] )"
     },
     {
       "name": "filter()",
-      "href": "https://drafts.csswg.org/filter-effects-1/#funcdef-filter",
       "syntax": "filter( [ <image> | <string> ], <filter-value-list> )"
     },
     {
       "name": "first-valid()",
-      "href": "https://drafts.csswg.org/css-values-5/#funcdef-first-valid",
       "syntax": "first-valid( <declaration-value># )"
     },
     {
       "name": "fit-content()",
-      "href": "https://drafts.csswg.org/css-grid-2/#funcdef-grid-template-columns-fit-content",
-      "syntax": "fit-content( <length-percentage> )",
-      "for": [
-        "grid-template-columns",
-        "grid-template-rows"
-      ]
+      "syntax": "fit-content( <length-percentage> )"
     },
     {
       "name": "fit-content()",
-      "href": "https://drafts.csswg.org/css-sizing-3/#funcdef-width-fit-content",
-      "syntax": "fit-content(<length-percentage [0,∞]>)",
-      "for": [
-        "height",
-        "max-height",
-        "max-width",
-        "min-height",
-        "min-width",
-        "width"
-      ]
+      "syntax": "fit-content(<length-percentage [0,∞]>)"
     },
     {
       "name": "grayscale()",
-      "href": "https://drafts.csswg.org/filter-effects-1/#funcdef-filter-grayscale",
-      "syntax": "grayscale( [ <number> | <percentage> ]? )",
-      "for": [
-        "filter"
-      ]
+      "syntax": "grayscale( [ <number> | <percentage> ]? )"
     },
     {
       "name": "hdr-color()",
-      "href": "https://drafts.csswg.org/css-color-hdr-1/#funcdef-hdr-color",
       "syntax": "color-hdr([ <color> && <number [0,∞]>? ]#{2})"
     },
     {
       "name": "hsl()",
-      "href": "https://drafts.csswg.org/css-color-4/#funcdef-hsl",
       "syntax": "[ <legacy-hsl-syntax> | <modern-hsl-syntax> ]"
     },
     {
       "name": "hsla()",
-      "href": "https://drafts.csswg.org/css-color-4/#funcdef-hsla",
       "syntax": "[ <legacy-hsla-syntax> | <modern-hsla-syntax> ]"
     },
     {
       "name": "hue-rotate()",
-      "href": "https://drafts.csswg.org/filter-effects-1/#funcdef-filter-hue-rotate",
-      "syntax": "hue-rotate( [ <angle> | <zero> ]? )",
-      "for": [
-        "filter"
-      ]
+      "syntax": "hue-rotate( [ <angle> | <zero> ]? )"
     },
     {
       "name": "hwb()",
-      "href": "https://drafts.csswg.org/css-color-5/#funcdef-hwb",
       "syntax": "hwb([from <color>]? [<hue> | none] [<percentage> | <number> | none] [<percentage> | <number> | none] [ / [<alpha-value> | none] ]? )"
     },
     {
       "name": "hypot()",
-      "href": "https://drafts.csswg.org/css-values-4/#funcdef-hypot",
       "syntax": "hypot( <calc-sum># )"
     },
     {
       "name": "ictcp()",
-      "href": "https://drafts.csswg.org/css-color-hdr-1/#funcdef-ictcp",
       "syntax": "ictcp([from <color>]? [<percentage> | <number> | none] [<percentage> | <number> | none] [<percentage> | <number> | none] [ / [<alpha-value> | none] ]? )"
     },
     {
       "name": "ident()",
-      "href": "https://drafts.csswg.org/css-values-5/#funcdef-ident",
       "syntax": "ident( <ident-arg>+ )"
     },
     {
       "name": "if()",
-      "href": "https://drafts.csswg.org/css-values-5/#funcdef-if",
       "syntax": "if( [ <if-branch> ; ]* <if-branch> ;? )"
     },
     {
       "name": "image-set()",
-      "href": "https://drafts.csswg.org/css-images-4/#funcdef-image-set",
       "syntax": "image-set( <image-set-option># )"
     },
     {
       "name": "image()",
-      "href": "https://drafts.csswg.org/css-images-5/#funcdef-image",
       "syntax": "image( <image-tags>? [ <image-src>? , <color>? ]! )"
     },
     {
       "name": "inherit()",
-      "href": "https://drafts.csswg.org/css-values-5/#funcdef-inherit",
       "syntax": "inherit( <custom-property-name>, <declaration-value>? )"
     },
     {
       "name": "inset()",
-      "href": "https://drafts.csswg.org/css-shapes-1/#funcdef-basic-shape-inset",
-      "syntax": "inset( <length-percentage>{1,4} [ round <'border-radius'> ]? )",
-      "for": [
-        "<basic-shape>"
-      ]
+      "syntax": "inset( <length-percentage>{1,4} [ round <'border-radius'> ]? )"
     },
     {
-      "name": "integrity()",
-      "href": "https://drafts.csswg.org/css-values-5/#funcdef-request-url-modifier-integrity",
-      "for": [
-        "<request-url-modifier>"
-      ]
+      "name": "integrity()"
     },
     {
       "name": "interpolate()",
-      "href": "https://drafts.csswg.org/css-values-5/#funcdef-interpolate",
       "syntax": "interpolate( [ <progress-source> && [ by <easing-function> ]? && <easing-function>? ] , <input-position>{1,2} : <whole-value>, [ <easing-function>?, <input-position>{1,2} : <whole-value> ]#? ) | interpolate( <progress-source> && [ by <easing-function> ]? && <easing-function>? of <keyframes-name> )"
     },
     {
       "name": "invert()",
-      "href": "https://drafts.csswg.org/filter-effects-1/#funcdef-filter-invert",
-      "syntax": "invert( [ <number> | <percentage> ]? )",
-      "for": [
-        "filter"
-      ]
+      "syntax": "invert( [ <number> | <percentage> ]? )"
     },
     {
       "name": "jzazbz()",
-      "href": "https://drafts.csswg.org/css-color-hdr-1/#funcdef-jzazbz",
       "syntax": "jzazbz([from <color>]? [<percentage> | <number> | none] [<percentage> | <number> | none] [<percentage> | <number> | none] [ / [<alpha-value> | none] ]? )"
     },
     {
       "name": "jzczhz()",
-      "href": "https://drafts.csswg.org/css-color-hdr-1/#funcdef-jzczhz",
       "syntax": "jzczhz([from <color>]? [<percentage> | <number> | none] [<percentage> | <number> | none] [<hue> | none] [ / [<alpha-value> | none] ]? )"
     },
     {
       "name": "lab()",
-      "href": "https://drafts.csswg.org/css-color-5/#funcdef-lab",
       "syntax": "lab([from <color>]? [<percentage> | <number> | none] [<percentage> | <number> | none] [<percentage> | <number> | none] [ / [<alpha-value> | none] ]? )"
     },
     {
       "name": "lch()",
-      "href": "https://drafts.csswg.org/css-color-5/#funcdef-lch",
       "syntax": "lch([from <color>]? [<percentage> | <number> | none] [<percentage> | <number> | none] [<hue> | none] [ / [<alpha-value> | none] ]? )"
     },
     {
       "name": "leader()",
-      "href": "https://drafts.csswg.org/css-content-3/#funcdef-leader",
       "syntax": "leader( <leader-type> )"
     },
     {
       "name": "light-dark()",
-      "href": "https://drafts.csswg.org/css-color-5/#funcdef-light-dark",
       "syntax": "<light-dark-color> | <light-dark-image>"
     },
     {
       "name": "linear-gradient()",
-      "href": "https://drafts.csswg.org/css-images-3/#funcdef-linear-gradient",
       "syntax": "linear-gradient( [ <linear-gradient-syntax> ] )"
     },
     {
       "name": "linear()",
-      "href": "https://drafts.csswg.org/css-easing-2/#funcdef-linear",
       "syntax": "linear( [ <number> && <percentage>{0,2} ]# )"
     },
     {
       "name": "log()",
-      "href": "https://drafts.csswg.org/css-values-4/#funcdef-log",
       "syntax": "log( <calc-sum>, <calc-sum>? )"
     },
     {
       "name": "matrix()",
-      "href": "https://drafts.csswg.org/css-transforms-1/#funcdef-transform-matrix",
-      "syntax": "matrix( <number>#{6} )",
-      "for": [
-        "transform"
-      ]
+      "syntax": "matrix( <number>#{6} )"
     },
     {
       "name": "matrix3d()",
-      "href": "https://drafts.csswg.org/css-transforms-2/#funcdef-matrix3d",
       "syntax": "matrix3d( <number>#{16} )"
     },
     {
       "name": "max()",
-      "href": "https://drafts.csswg.org/css-values-4/#funcdef-max",
       "syntax": "max( <calc-sum># )"
     },
     {
       "name": "media()",
-      "href": "https://drafts.csswg.org/css-conditional-5/#funcdef-media",
       "syntax": "media( [ <mf-plain> | <mf-boolean> | <mf-range> ] )"
     },
     {
       "name": "min()",
-      "href": "https://drafts.csswg.org/css-values-4/#funcdef-min",
       "syntax": "min( <calc-sum># )"
     },
     {
       "name": "minmax()",
-      "href": "https://drafts.csswg.org/css-grid-2/#funcdef-grid-template-columns-minmax",
-      "syntax": "minmax(min, max)",
-      "for": [
-        "grid-template-columns",
-        "grid-template-rows"
-      ]
+      "syntax": "minmax(min, max)"
     },
     {
       "name": "mod()",
-      "href": "https://drafts.csswg.org/css-values-4/#funcdef-mod",
       "syntax": "mod( <calc-sum>, <calc-sum> )"
     },
     {
       "name": "oklab()",
-      "href": "https://drafts.csswg.org/css-color-5/#funcdef-oklab",
       "syntax": "oklab([from <color>]? [<percentage> | <number> | none] [<percentage> | <number> | none] [<percentage> | <number> | none] [ / [<alpha-value> | none] ]? )"
     },
     {
       "name": "oklch()",
-      "href": "https://drafts.csswg.org/css-color-5/#funcdef-oklch",
       "syntax": "oklch([from <color>]? [<percentage> | <number> | none] [<percentage> | <number> | none] [<hue> | none] [ / [<alpha-value> | none] ]? )"
     },
     {
       "name": "opacity()",
-      "href": "https://drafts.csswg.org/filter-effects-1/#funcdef-filter-opacity",
-      "syntax": "opacity( [ <number> | <percentage> ]? )",
-      "for": [
-        "filter"
-      ]
+      "syntax": "opacity( [ <number> | <percentage> ]? )"
     },
     {
       "name": "paint()",
-      "href": "https://drafts.css-houdini.org/css-paint-api-1/#funcdef-paint",
       "syntax": "paint( <ident>, <declaration-value>? )"
     },
     {
       "name": "palette-mix()",
-      "href": "https://drafts.csswg.org/css-fonts-4/#funcdef-palette-mix",
       "syntax": "palette-mix(<color-interpolation-method> , [ [normal | light | dark | <palette-identifier> | <palette-mix()> ] && <percentage [0,100]>? ]#{2})"
     },
     {
       "name": "param()",
-      "href": "https://drafts.csswg.org/css-link-params-1/#funcdef-param",
       "syntax": "param( <dashed-ident> , <declaration-value>? )"
     },
     {
       "name": "path()",
-      "href": "https://drafts.csswg.org/css-shapes-1/#funcdef-basic-shape-path",
-      "syntax": "path( <'fill-rule'>? , <string> )",
-      "for": [
-        "<basic-shape>"
-      ]
+      "syntax": "path( <'fill-rule'>? , <string> )"
     },
     {
       "name": "perspective()",
-      "href": "https://drafts.csswg.org/css-transforms-2/#funcdef-perspective",
       "syntax": "perspective( [ <length [0,∞]> | none ] )"
     },
     {
       "name": "pointer()",
-      "href": "https://drafts.csswg.org/pointer-animations-1/#funcdef-pointer",
       "syntax": "pointer( [ <pointer-source> || <pointer-axis> ]? )"
     },
     {
       "name": "polygon()",
-      "href": "https://drafts.csswg.org/css-shapes-1/#funcdef-basic-shape-polygon",
-      "syntax": "polygon( <'fill-rule'>? [ round <length> ]? , [<length-percentage> <length-percentage>]# )",
-      "for": [
-        "<basic-shape>"
-      ]
+      "syntax": "polygon( <'fill-rule'>? [ round <length> ]? , [<length-percentage> <length-percentage>]# )"
     },
     {
       "name": "pow()",
-      "href": "https://drafts.csswg.org/css-values-4/#funcdef-pow",
       "syntax": "pow( <calc-sum>, <calc-sum> )"
     },
     {
       "name": "progress()",
-      "href": "https://drafts.csswg.org/css-values-5/#funcdef-progress",
       "syntax": "progress(no-clamp? <calc-sum>, <calc-sum>, <calc-sum>)"
     },
     {
       "name": "radial-gradient()",
-      "href": "https://drafts.csswg.org/css-images-3/#funcdef-radial-gradient",
       "syntax": "radial-gradient( [ <radial-gradient-syntax> ] )"
     },
     {
       "name": "random-item()",
-      "href": "https://drafts.csswg.org/css-values-5/#funcdef-random-item",
       "syntax": "random-item( <random-key> , [ <declaration-value>? ]# )"
     },
     {
       "name": "random()",
-      "href": "https://drafts.csswg.org/css-values-5/#funcdef-random",
       "syntax": "random( <random-key>? , <calc-sum>, <calc-sum>, <calc-sum>? )"
     },
     {
       "name": "ray()",
-      "href": "https://drafts.csswg.org/motion-1/#funcdef-ray",
       "syntax": "ray( <angle> && <ray-size>? && contain? && [at <position>]? )"
     },
     {
       "name": "rect()",
-      "href": "https://drafts.csswg.org/css-shapes-1/#funcdef-basic-shape-rect",
-      "syntax": "rect( [ <length-percentage> | auto ]{4} [ round <'border-radius'> ]? )",
-      "for": [
-        "<basic-shape>"
-      ]
+      "syntax": "rect( [ <length-percentage> | auto ]{4} [ round <'border-radius'> ]? )"
     },
     {
       "name": "rect()",
-      "href": "https://drafts.csswg.org/css-masking-1/#funcdef-clip-rect",
-      "syntax": "rect( <top>, <right>, <bottom>, <left> )",
-      "for": [
-        "clip"
-      ]
+      "syntax": "rect( <top>, <right>, <bottom>, <left> )"
     },
     {
-      "name": "referrer-policy()",
-      "href": "https://drafts.csswg.org/css-values-5/#funcdef-request-url-modifier-referrer-policy",
-      "for": [
-        "<request-url-modifier>"
-      ]
+      "name": "referrer-policy()"
     },
     {
       "name": "rem()",
-      "href": "https://drafts.csswg.org/css-values-4/#funcdef-rem",
       "syntax": "rem( <calc-sum>, <calc-sum> )"
     },
     {
-      "name": "repeat()",
-      "href": "https://drafts.csswg.org/css-gaps-1/#funcdef-repeat-line-color-repeat",
-      "for": [
-        "<auto-repeat-line-color>",
-        "<auto-repeat-line-style>",
-        "<auto-repeat-line-width>",
-        "<repeat-line-color>",
-        "<repeat-line-style>",
-        "<repeat-line-width>"
-      ]
+      "name": "repeat()"
     },
     {
-      "name": "repeat()",
-      "href": "https://drafts.csswg.org/css-grid-2/#funcdef-track-repeat-repeat",
-      "for": [
-        "<auto-repeat>",
-        "<fixed-repeat>",
-        "<track-repeat>"
-      ]
+      "name": "repeat()"
     },
     {
       "name": "repeating-conic-gradient()",
-      "href": "https://drafts.csswg.org/css-images-4/#funcdef-repeating-conic-gradient",
       "syntax": "repeating-conic-gradient( [ <conic-gradient-syntax> ] )"
     },
     {
       "name": "repeating-linear-gradient()",
-      "href": "https://drafts.csswg.org/css-images-4/#funcdef-repeating-linear-gradient",
       "syntax": "repeating-linear-gradient( [ <linear-gradient-syntax> ] )"
     },
     {
       "name": "repeating-radial-gradient()",
-      "href": "https://drafts.csswg.org/css-images-4/#funcdef-repeating-radial-gradient",
       "syntax": "repeating-radial-gradient( [ <radial-gradient-syntax> ] )"
     },
     {
       "name": "rgb()",
-      "href": "https://drafts.csswg.org/css-color-4/#funcdef-rgb",
       "syntax": "[ <legacy-rgb-syntax> | <modern-rgb-syntax> ]"
     },
     {
       "name": "rgba()",
-      "href": "https://drafts.csswg.org/css-color-4/#funcdef-rgba",
       "syntax": "[ <legacy-rgba-syntax> | <modern-rgba-syntax> ]"
     },
     {
       "name": "rotate()",
-      "href": "https://drafts.csswg.org/css-transforms-1/#funcdef-transform-rotate",
-      "syntax": "rotate( [ <angle> | <zero> ] )",
-      "for": [
-        "transform"
-      ]
+      "syntax": "rotate( [ <angle> | <zero> ] )"
     },
     {
       "name": "rotate3d()",
-      "href": "https://drafts.csswg.org/css-transforms-2/#funcdef-rotate3d",
       "syntax": "rotate3d( <number> , <number> , <number> , [ <angle> | <zero> ] )"
     },
     {
       "name": "rotateX()",
-      "href": "https://drafts.csswg.org/css-transforms-2/#funcdef-rotatex",
       "syntax": "rotateX( [ <angle> | <zero> ] )"
     },
     {
       "name": "rotateY()",
-      "href": "https://drafts.csswg.org/css-transforms-2/#funcdef-rotatey",
       "syntax": "rotateY( [ <angle> | <zero> ] )"
     },
     {
       "name": "rotateZ()",
-      "href": "https://drafts.csswg.org/css-transforms-2/#funcdef-rotatez",
       "syntax": "rotateZ( [ <angle> | <zero> ] )"
     },
     {
       "name": "round()",
-      "href": "https://drafts.csswg.org/css-values-4/#funcdef-round",
       "syntax": "round( <rounding-strategy>?, <calc-sum>, <calc-sum>? )"
     },
     {
       "name": "running()",
-      "href": "https://drafts.csswg.org/css-gcpm-3/#funcdef-running",
       "syntax": "running( <custom-ident> )"
     },
     {
       "name": "saturate()",
-      "href": "https://drafts.csswg.org/filter-effects-1/#funcdef-filter-saturate",
-      "syntax": "saturate( [ <number> | <percentage> ]? )",
-      "for": [
-        "filter"
-      ]
+      "syntax": "saturate( [ <number> | <percentage> ]? )"
     },
     {
       "name": "scale()",
-      "href": "https://drafts.csswg.org/css-transforms-2/#funcdef-scale",
       "syntax": "scale( [ <number> | <percentage> ]#{1,2} )"
     },
     {
       "name": "scale()",
-      "href": "https://drafts.csswg.org/css-transforms-1/#funcdef-transform-scale",
-      "syntax": "scale( <number> , <number>? )",
-      "for": [
-        "transform"
-      ]
+      "syntax": "scale( <number> , <number>? )"
     },
     {
       "name": "scale3d()",
-      "href": "https://drafts.csswg.org/css-transforms-2/#funcdef-scale3d",
       "syntax": "scale3d( [ <number> | <percentage> ]#{3} )"
     },
     {
       "name": "scaleX()",
-      "href": "https://drafts.csswg.org/css-transforms-2/#funcdef-scalex",
       "syntax": "scaleX( [ <number> | <percentage> ] )"
     },
     {
       "name": "scaleX()",
-      "href": "https://drafts.csswg.org/css-transforms-1/#funcdef-transform-scalex",
-      "syntax": "scaleX( <number> )",
-      "for": [
-        "transform"
-      ]
+      "syntax": "scaleX( <number> )"
     },
     {
       "name": "scaleY()",
-      "href": "https://drafts.csswg.org/css-transforms-2/#funcdef-scaley",
       "syntax": "scaleY( [ <number> | <percentage> ] )"
     },
     {
       "name": "scaleY()",
-      "href": "https://drafts.csswg.org/css-transforms-1/#funcdef-transform-scaley",
-      "syntax": "scaleY( <number> )",
-      "for": [
-        "transform"
-      ]
+      "syntax": "scaleY( <number> )"
     },
     {
       "name": "scaleZ()",
-      "href": "https://drafts.csswg.org/css-transforms-2/#funcdef-scalez",
       "syntax": "scaleZ( [ <number> | <percentage> ] )"
     },
     {
       "name": "scroll()",
-      "href": "https://drafts.csswg.org/scroll-animations-1/#funcdef-scroll",
       "syntax": "scroll( [ <scroller> || <axis> ]? )"
     },
     {
       "name": "sepia()",
-      "href": "https://drafts.csswg.org/filter-effects-1/#funcdef-filter-sepia",
-      "syntax": "sepia( [ <number> | <percentage> ]? )",
-      "for": [
-        "filter"
-      ]
+      "syntax": "sepia( [ <number> | <percentage> ]? )"
     },
     {
       "name": "shape()",
-      "href": "https://drafts.csswg.org/css-shapes-1/#funcdef-basic-shape-shape",
-      "syntax": "shape( <'fill-rule'>? from <position> , <shape-command># )",
-      "for": [
-        "<basic-shape>"
-      ]
+      "syntax": "shape( <'fill-rule'>? from <position> , <shape-command># )"
     },
     {
-      "name": "sibling-count()",
-      "href": "https://drafts.csswg.org/css-values-5/#funcdef-sibling-count"
+      "name": "sibling-count()"
     },
     {
-      "name": "sibling-index()",
-      "href": "https://drafts.csswg.org/css-values-5/#funcdef-sibling-index"
+      "name": "sibling-index()"
     },
     {
       "name": "sign()",
-      "href": "https://drafts.csswg.org/css-values-4/#funcdef-sign",
       "syntax": "sign( <calc-sum> )"
     },
     {
       "name": "sin()",
-      "href": "https://drafts.csswg.org/css-values-4/#funcdef-sin",
       "syntax": "sin( <calc-sum> )"
     },
     {
       "name": "skew()",
-      "href": "https://drafts.csswg.org/css-transforms-1/#funcdef-transform-skew",
-      "syntax": "skew( [ <angle> | <zero> ] , [ <angle> | <zero> ]? )",
-      "for": [
-        "transform"
-      ]
+      "syntax": "skew( [ <angle> | <zero> ] , [ <angle> | <zero> ]? )"
     },
     {
       "name": "skewX()",
-      "href": "https://drafts.csswg.org/css-transforms-1/#funcdef-transform-skewx",
-      "syntax": "skewX( [ <angle> | <zero> ] )",
-      "for": [
-        "transform"
-      ]
+      "syntax": "skewX( [ <angle> | <zero> ] )"
     },
     {
       "name": "skewY()",
-      "href": "https://drafts.csswg.org/css-transforms-1/#funcdef-transform-skewy",
-      "syntax": "skewY( [ <angle> | <zero> ] )",
-      "for": [
-        "transform"
-      ]
+      "syntax": "skewY( [ <angle> | <zero> ] )"
     },
     {
       "name": "snap-block()",
-      "href": "https://drafts.csswg.org/css-page-floats-3/#funcdef-float-snap-block",
-      "syntax": "snap-block( <length> , [ start | end | near ]? )",
-      "for": [
-        "float"
-      ]
+      "syntax": "snap-block( <length> , [ start | end | near ]? )"
     },
     {
       "name": "snap-inline()",
-      "href": "https://drafts.csswg.org/css-page-floats-3/#funcdef-float-snap-inline",
-      "syntax": "snap-inline( <length> , [ left | right | near ]? )",
-      "for": [
-        "float"
-      ]
+      "syntax": "snap-inline( <length> , [ left | right | near ]? )"
     },
     {
       "name": "sqrt()",
-      "href": "https://drafts.csswg.org/css-values-4/#funcdef-sqrt",
       "syntax": "sqrt( <calc-sum> )"
     },
     {
       "name": "src()",
-      "href": "https://drafts.csswg.org/css-values-4/#funcdef-src",
       "syntax": "src( <string> <url-modifier>* )"
     },
     {
       "name": "steps()",
-      "href": "https://drafts.csswg.org/css-easing-2/#funcdef-steps",
       "syntax": "steps( <integer>, <step-position>?)"
     },
     {
       "name": "string()",
-      "href": "https://drafts.csswg.org/css-content-3/#funcdef-string",
       "syntax": "string( <custom-ident> , [ first | start | last | first-except ]? )"
     },
     {
       "name": "stripes()",
-      "href": "https://drafts.csswg.org/css-images-4/#funcdef-stripes",
       "syntax": "stripes( <color-stripe># )"
     },
     {
       "name": "superellipse()",
-      "href": "https://drafts.csswg.org/css-borders-4/#funcdef-superellipse",
       "syntax": "superellipse(<number> | infinity | -infinity)"
     },
     {
       "name": "supports()",
-      "href": "https://drafts.csswg.org/css-conditional-5/#funcdef-supports",
       "syntax": "supports( <declaration> )"
     },
     {
       "name": "symbols()",
-      "href": "https://drafts.csswg.org/css-counter-styles-3/#funcdef-symbols",
       "syntax": "symbols( <symbols-type>? [ <string> | <image> ]+ )"
     },
     {
       "name": "tan()",
-      "href": "https://drafts.csswg.org/css-values-4/#funcdef-tan",
       "syntax": "tan( <calc-sum> )"
     },
     {
       "name": "target-counter()",
-      "href": "https://drafts.csswg.org/css-content-3/#funcdef-target-counter",
       "syntax": "target-counter( [ <string> | <url> ] , <custom-ident> , <counter-style>? )"
     },
     {
       "name": "target-counters()",
-      "href": "https://drafts.csswg.org/css-content-3/#funcdef-target-counters",
       "syntax": "target-counters( [ <string> | <url> ] , <custom-ident> , <string> , <counter-style>? )"
     },
     {
       "name": "target-text()",
-      "href": "https://drafts.csswg.org/css-content-3/#target-text-function",
       "syntax": "target-text( [ <string> | <url> ] , [ content | before | after | first-letter ]? )"
     },
     {
       "name": "toggle()",
-      "href": "https://drafts.csswg.org/css-values-5/#funcdef-toggle",
       "syntax": "toggle( <whole-value># )"
     },
     {
       "name": "transform-interpolate()",
-      "href": "https://drafts.csswg.org/css-values-5/#funcdef-transform-interpolate",
       "syntax": "transform-interpolate( [ <progress-source> && [ by <easing-function> ]? && <easing-function>? ], <input-position>{1,2} : <transform-list>, [ <easing-function>?, <input-position>{1,2} : <transform-list> ]#? )"
     },
     {
       "name": "transform-mix()",
-      "href": "https://drafts.csswg.org/css-values-5/#funcdef-transform-mix",
       "syntax": "transform-mix( [ <transform-list> && <percentage [0,100]> ]# )"
     },
     {
       "name": "translate()",
-      "href": "https://drafts.csswg.org/css-transforms-1/#funcdef-transform-translate",
-      "syntax": "translate( <length-percentage> , <length-percentage>? )",
-      "for": [
-        "transform"
-      ]
+      "syntax": "translate( <length-percentage> , <length-percentage>? )"
     },
     {
       "name": "translate3d()",
-      "href": "https://drafts.csswg.org/css-transforms-2/#funcdef-translate3d",
       "syntax": "translate3d( <length-percentage> , <length-percentage> , <length> )"
     },
     {
       "name": "translateX()",
-      "href": "https://drafts.csswg.org/css-transforms-1/#funcdef-transform-translatex",
-      "syntax": "translateX( <length-percentage> )",
-      "for": [
-        "transform"
-      ]
+      "syntax": "translateX( <length-percentage> )"
     },
     {
       "name": "translateY()",
-      "href": "https://drafts.csswg.org/css-transforms-1/#funcdef-transform-translatey",
-      "syntax": "translateY( <length-percentage> )",
-      "for": [
-        "transform"
-      ]
+      "syntax": "translateY( <length-percentage> )"
     },
     {
       "name": "translateZ()",
-      "href": "https://drafts.csswg.org/css-transforms-2/#funcdef-translatez",
       "syntax": "translateZ( <length> )"
     },
     {
       "name": "type()",
-      "href": "https://drafts.csswg.org/css-mixins-1/#funcdef-function-type",
-      "syntax": "type( <syntax> )",
-      "for": [
-        "@function"
-      ]
+      "syntax": "type( <syntax> )"
     },
     {
       "name": "type()",
-      "href": "https://drafts.csswg.org/css-values-5/#funcdef-attr-type",
-      "syntax": "type( <syntax> )",
-      "for": [
-        "attr()"
-      ]
+      "syntax": "type( <syntax> )"
     },
     {
       "name": "type()",
-      "href": "https://drafts.csswg.org/css-images-4/#funcdef-image-set-type",
-      "syntax": "type( <string> )",
-      "for": [
-        "image-set()"
-      ]
+      "syntax": "type( <string> )"
     },
     {
       "name": "url-pattern()",
-      "href": "https://drafts.csswg.org/css-navigation-1/#funcdef-url-pattern",
       "syntax": "url-pattern( <string> )"
     },
     {
       "name": "url()",
-      "href": "https://drafts.csswg.org/css-values-4/#funcdef-url",
       "syntax": "url( <string> <url-modifier>* ) | <url-token>"
     },
     {
       "name": "var()",
-      "href": "https://drafts.csswg.org/css-variables-2/#funcdef-var",
       "syntax": "var( <custom-property-name> , <declaration-value>? )"
     },
     {
       "name": "view()",
-      "href": "https://drafts.csswg.org/scroll-animations-1/#funcdef-view",
       "syntax": "view( [ <axis> || <'view-timeline-inset'> ]? )"
     },
     {
-      "name": "wcag2()",
-      "href": "https://drafts.csswg.org/css-color-6/#funcdef-contrast-color-wcag2",
-      "for": [
-        "contrast-color()"
-      ]
+      "name": "wcag2()"
     },
     {
       "name": "xywh()",
-      "href": "https://drafts.csswg.org/css-shapes-1/#funcdef-basic-shape-xywh",
-      "syntax": "xywh( <length-percentage>{2} <length-percentage [0,∞]>{2} [ round <'border-radius'> ]? )",
-      "for": [
-        "<basic-shape>"
-      ]
+      "syntax": "xywh( <length-percentage>{2} <length-percentage [0,∞]>{2} [ round <'border-radius'> ]? )"
     }
   ],
   "selectors": [
-    {
-      "name": "::after",
-      "href": "https://drafts.csswg.org/css-pseudo-4/#selectordef-after",
-      "syntax": "::after"
-    },
-    {
-      "name": "::backdrop",
-      "href": "https://drafts.csswg.org/css-position-4/#selectordef-backdrop",
-      "syntax": "::backdrop"
-    },
-    {
-      "name": "::before",
-      "href": "https://drafts.csswg.org/css-pseudo-4/#selectordef-before",
-      "syntax": "::before"
-    },
-    {
-      "name": "::checkmark",
-      "href": "https://drafts.csswg.org/css-forms-1/#selectordef-checkmark",
-      "syntax": "::checkmark"
-    },
-    {
-      "name": "::clear-icon",
-      "href": "https://drafts.csswg.org/css-forms-1/#selectordef-clear-icon",
-      "syntax": "::clear-icon"
-    },
-    {
-      "name": "::color-swatch",
-      "href": "https://drafts.csswg.org/css-forms-1/#selectordef-color-swatch",
-      "syntax": "::color-swatch"
-    },
-    {
-      "name": "::column",
-      "href": "https://drafts.csswg.org/css-multicol-2/#selectordef-column",
-      "syntax": "::column"
-    },
-    {
-      "name": "::cue",
-      "href": "https://w3c.github.io/webvtt/#selectordef-cue",
-      "syntax": "::cue"
-    },
-    {
-      "name": "::cue-region",
-      "href": "https://w3c.github.io/webvtt/#selectordef-cue-region",
-      "syntax": "::cue-region"
-    },
-    {
-      "name": "::cue-region()",
-      "href": "https://w3c.github.io/webvtt/#selectordef-cue-region-selector",
-      "syntax": "::cue-region(selector)"
-    },
-    {
-      "name": "::cue()",
-      "href": "https://w3c.github.io/webvtt/#selectordef-cue-selector",
-      "syntax": "::cue(selector)"
-    },
-    {
-      "name": "::details-content",
-      "href": "https://drafts.csswg.org/css-pseudo-4/#selectordef-details-content",
-      "syntax": "::details-content"
-    },
-    {
-      "name": "::field-component",
-      "href": "https://drafts.csswg.org/css-forms-1/#selectordef-field-component",
-      "syntax": "::field-component"
-    },
-    {
-      "name": "::field-separator",
-      "href": "https://drafts.csswg.org/css-forms-1/#selectordef-field-separator",
-      "syntax": "::field-separator"
-    },
-    {
-      "name": "::field-text",
-      "href": "https://drafts.csswg.org/css-forms-1/#selectordef-field-text",
-      "syntax": "::field-text"
-    },
-    {
-      "name": "::file-selector-button",
-      "href": "https://drafts.csswg.org/css-forms-1/#selectordef-file-selector-button",
-      "syntax": "::file-selector-button"
-    },
-    {
-      "name": "::first-letter",
-      "href": "https://drafts.csswg.org/css-pseudo-4/#selectordef-first-letter",
-      "syntax": "::first-letter"
-    },
-    {
-      "name": "::first-line",
-      "href": "https://drafts.csswg.org/css-pseudo-4/#selectordef-first-line",
-      "syntax": "::first-line"
-    },
-    {
-      "name": "::grammar-error",
-      "href": "https://drafts.csswg.org/css-pseudo-4/#selectordef-grammar-error",
-      "syntax": "::grammar-error"
-    },
-    {
-      "name": "::highlight()",
-      "href": "https://drafts.csswg.org/css-pseudo-4/#selectordef-highlight-custom-ident",
-      "syntax": "::highlight(<custom-ident>)"
-    },
-    {
-      "name": "::marker",
-      "href": "https://drafts.csswg.org/css-pseudo-4/#selectordef-marker",
-      "syntax": "::marker"
-    },
-    {
-      "name": "::nth-fragment()",
-      "href": "https://drafts.csswg.org/css-overflow-5/#selectordef-nth-fragment"
-    },
-    {
-      "name": "::part()",
-      "href": "https://drafts.csswg.org/css-shadow-1/#selectordef-part",
-      "syntax": "::part( <ident>+ )"
-    },
-    {
-      "name": "::picker-icon",
-      "href": "https://drafts.csswg.org/css-forms-1/#selectordef-picker-icon",
-      "syntax": "::picker-icon"
-    },
-    {
-      "name": "::picker()",
-      "href": "https://drafts.csswg.org/css-forms-1/#selectordef-picker",
-      "syntax": "::picker( <form-control-identifier>+ )"
-    },
-    {
-      "name": "::placeholder",
-      "href": "https://drafts.csswg.org/css-forms-1/#selectordef-placeholder",
-      "syntax": "::placeholder"
-    },
-    {
-      "name": "::reveal-icon",
-      "href": "https://drafts.csswg.org/css-forms-1/#selectordef-reveal-icon",
-      "syntax": "::reveal-icon"
-    },
-    {
-      "name": "::scroll-button()",
-      "href": "https://drafts.csswg.org/css-overflow-5/#selectordef-scroll-button---scroll-button-direction",
-      "syntax": "::scroll-button( '*' | <scroll-button-direction> )"
-    },
-    {
-      "name": "::scroll-marker",
-      "href": "https://drafts.csswg.org/css-overflow-5/#selectordef-scroll-marker",
-      "syntax": "::scroll-marker"
-    },
-    {
-      "name": "::scroll-marker-group",
-      "href": "https://drafts.csswg.org/css-overflow-5/#selectordef-scroll-marker-group",
-      "syntax": "::scroll-marker-group"
-    },
-    {
-      "name": "::search-text",
-      "href": "https://drafts.csswg.org/css-pseudo-4/#selectordef-search-text",
-      "syntax": "::search-text"
-    },
-    {
-      "name": "::selection",
-      "href": "https://drafts.csswg.org/css-pseudo-4/#selectordef-selection",
-      "syntax": "::selection"
-    },
-    {
-      "name": "::slider-fill",
-      "href": "https://drafts.csswg.org/css-forms-1/#selectordef-slider-fill",
-      "syntax": "::slider-fill"
-    },
-    {
-      "name": "::slider-thumb",
-      "href": "https://drafts.csswg.org/css-forms-1/#selectordef-slider-thumb",
-      "syntax": "::slider-thumb"
-    },
-    {
-      "name": "::slider-track",
-      "href": "https://drafts.csswg.org/css-forms-1/#selectordef-slider-track",
-      "syntax": "::slider-track"
-    },
-    {
-      "name": "::slotted()",
-      "href": "https://drafts.csswg.org/css-shadow-1/#selectordef-slotted"
-    },
-    {
-      "name": "::spelling-error",
-      "href": "https://drafts.csswg.org/css-pseudo-4/#selectordef-spelling-error",
-      "syntax": "::spelling-error"
-    },
-    {
-      "name": "::step-control",
-      "href": "https://drafts.csswg.org/css-forms-1/#selectordef-step-control",
-      "syntax": "::step-control"
-    },
-    {
-      "name": "::step-down",
-      "href": "https://drafts.csswg.org/css-forms-1/#selectordef-step-down",
-      "syntax": "::step-down"
-    },
-    {
-      "name": "::step-up",
-      "href": "https://drafts.csswg.org/css-forms-1/#selectordef-step-up",
-      "syntax": "::step-up"
-    },
-    {
-      "name": "::target-text",
-      "href": "https://drafts.csswg.org/css-pseudo-4/#selectordef-target-text",
-      "syntax": "::target-text"
-    },
-    {
-      "name": "::view-transition",
-      "href": "https://drafts.csswg.org/css-view-transitions-2/#selectordef-view-transition",
-      "syntax": "::view-transition"
-    },
-    {
-      "name": "::view-transition-group-children()",
-      "href": "https://drafts.csswg.org/css-view-transitions-2/#selectordef-view-transition-group-children"
-    },
-    {
-      "name": "::view-transition-group()",
-      "href": "https://drafts.csswg.org/css-view-transitions-2/#selectordef-view-transition-group"
-    },
-    {
-      "name": "::view-transition-image-pair()",
-      "href": "https://drafts.csswg.org/css-view-transitions-2/#selectordef-view-transition-image-pair"
-    },
-    {
-      "name": "::view-transition-new()",
-      "href": "https://drafts.csswg.org/css-view-transitions-2/#selectordef-view-transition-new"
-    },
-    {
-      "name": "::view-transition-old()",
-      "href": "https://drafts.csswg.org/css-view-transitions-2/#selectordef-view-transition-old"
-    },
-    {
-      "name": ":active",
-      "href": "https://drafts.csswg.org/selectors-4/#active-pseudo",
-      "syntax": ":active"
-    },
-    {
-      "name": ":active-view-transition",
-      "href": "https://drafts.csswg.org/css-view-transitions-2/#active-view-transition-pseudo",
-      "syntax": ":active-view-transition"
-    },
-    {
-      "name": ":active-view-transition-type()",
-      "href": "https://drafts.csswg.org/css-view-transitions-2/#active-view-transition-type-pseudo"
-    },
-    {
-      "name": ":after",
-      "href": "https://drafts.csswg.org/css2/#selectordef-after",
-      "syntax": ":after"
-    },
-    {
-      "name": ":animated-image",
-      "href": "https://drafts.csswg.org/css-image-animation-1/#selectordef-animated-image",
-      "syntax": ":animated-image"
-    },
-    {
-      "name": ":any-link",
-      "href": "https://drafts.csswg.org/selectors-4/#any-link-pseudo",
-      "syntax": ":any-link"
-    },
-    {
-      "name": ":autofill",
-      "href": "https://drafts.csswg.org/selectors-4/#selectordef-autofill",
-      "syntax": ":autofill"
-    },
-    {
-      "name": ":before",
-      "href": "https://drafts.csswg.org/css2/#selectordef-before",
-      "syntax": ":before"
-    },
-    {
-      "name": ":blank",
-      "href": "https://drafts.csswg.org/selectors-5/#blank-pseudo",
-      "syntax": ":blank"
-    },
-    {
-      "name": ":buffering",
-      "href": "https://drafts.csswg.org/selectors-4/#selectordef-buffering",
-      "syntax": ":buffering"
-    },
-    {
-      "name": ":checked",
-      "href": "https://drafts.csswg.org/selectors-4/#checked-pseudo",
-      "syntax": ":checked"
-    },
-    {
-      "name": ":current",
-      "href": "https://drafts.csswg.org/selectors-5/#current-pseudo",
-      "syntax": ":current"
-    },
-    {
-      "name": ":current()",
-      "href": "https://drafts.csswg.org/selectors-5/#selectordef-current"
-    },
-    {
-      "name": ":default",
-      "href": "https://drafts.csswg.org/selectors-4/#default-pseudo",
-      "syntax": ":default"
-    },
-    {
-      "name": ":defined",
-      "href": "https://drafts.csswg.org/selectors-4/#defined-pseudo",
-      "syntax": ":defined"
-    },
-    {
-      "name": ":dir()",
-      "href": "https://drafts.csswg.org/selectors-4/#dir-pseudo"
-    },
-    {
-      "name": ":disabled",
-      "href": "https://drafts.csswg.org/selectors-4/#disabled-pseudo",
-      "syntax": ":disabled"
-    },
-    {
-      "name": ":empty",
-      "href": "https://drafts.csswg.org/selectors-4/#empty-pseudo",
-      "syntax": ":empty"
-    },
-    {
-      "name": ":enabled",
-      "href": "https://drafts.csswg.org/selectors-4/#enabled-pseudo",
-      "syntax": ":enabled"
-    },
-    {
-      "name": ":first",
-      "href": "https://drafts.csswg.org/css2/#selectordef-first",
-      "syntax": ":first"
-    },
-    {
-      "name": ":first-child",
-      "href": "https://drafts.csswg.org/selectors-4/#first-child-pseudo",
-      "syntax": ":first-child"
-    },
-    {
-      "name": ":first-letter",
-      "href": "https://drafts.csswg.org/css2/#selectordef-first-letter",
-      "syntax": ":first-letter"
-    },
-    {
-      "name": ":first-line",
-      "href": "https://drafts.csswg.org/css2/#selectordef-first-line",
-      "syntax": ":first-line"
-    },
-    {
-      "name": ":first-of-page",
-      "href": "https://drafts.csswg.org/css-gcpm-4/#selectordef-first-of-page",
-      "syntax": ":first-of-page"
-    },
-    {
-      "name": ":first-of-type",
-      "href": "https://drafts.csswg.org/selectors-4/#first-of-type-pseudo",
-      "syntax": ":first-of-type"
-    },
-    {
-      "name": ":focus",
-      "href": "https://drafts.csswg.org/selectors-4/#focus-pseudo",
-      "syntax": ":focus"
-    },
-    {
-      "name": ":focus-visible",
-      "href": "https://drafts.csswg.org/selectors-4/#focus-visible-pseudo",
-      "syntax": ":focus-visible"
-    },
-    {
-      "name": ":focus-within",
-      "href": "https://drafts.csswg.org/selectors-4/#focus-within-pseudo",
-      "syntax": ":focus-within"
-    },
-    {
-      "name": ":fullscreen",
-      "href": "https://drafts.csswg.org/selectors-4/#selectordef-fullscreen",
-      "syntax": ":fullscreen"
-    },
-    {
-      "name": ":future",
-      "href": "https://drafts.csswg.org/selectors-5/#future-pseudo",
-      "syntax": ":future"
-    },
-    {
-      "name": ":has-slotted",
-      "href": "https://drafts.csswg.org/css-shadow-1/#selectordef-has-slotted",
-      "syntax": ":has-slotted"
-    },
-    {
-      "name": ":has()",
-      "href": "https://drafts.csswg.org/selectors-4/#has-pseudo"
-    },
-    {
-      "name": ":heading",
-      "href": "https://drafts.csswg.org/selectors-5/#heading-pseudo",
-      "syntax": ":heading"
-    },
-    {
-      "name": ":heading()",
-      "href": "https://drafts.csswg.org/selectors-5/#heading-functional-pseudo",
-      "syntax": ":heading( <level># )"
-    },
-    {
-      "name": ":high-value",
-      "href": "https://drafts.csswg.org/css-forms-1/#selectordef-high-value",
-      "syntax": ":high-value"
-    },
-    {
-      "name": ":host",
-      "href": "https://drafts.csswg.org/css-shadow-1/#selectordef-host",
-      "syntax": ":host"
-    },
-    {
-      "name": ":host-context()",
-      "href": "https://drafts.csswg.org/css-shadow-1/#selectordef-host-context"
-    },
-    {
-      "name": ":host()",
-      "href": "https://drafts.csswg.org/css-shadow-1/#selectordef-host-function"
-    },
-    {
-      "name": ":hover",
-      "href": "https://drafts.csswg.org/selectors-4/#hover-pseudo",
-      "syntax": ":hover"
-    },
-    {
-      "name": ":in-range",
-      "href": "https://drafts.csswg.org/selectors-4/#in-range-pseudo",
-      "syntax": ":in-range"
-    },
-    {
-      "name": ":indeterminate",
-      "href": "https://drafts.csswg.org/selectors-4/#indeterminate-pseudo",
-      "syntax": ":indeterminate"
-    },
-    {
-      "name": ":interest-source",
-      "href": "https://drafts.csswg.org/selectors-5/#selectordef-interest-source",
-      "syntax": ":interest-source"
-    },
-    {
-      "name": ":interest-target",
-      "href": "https://drafts.csswg.org/selectors-5/#selectordef-interest-target",
-      "syntax": ":interest-target"
-    },
-    {
-      "name": ":invalid",
-      "href": "https://drafts.csswg.org/selectors-4/#invalid-pseudo",
-      "syntax": ":invalid"
-    },
-    {
-      "name": ":is()",
-      "href": "https://drafts.csswg.org/selectors-4/#matches-pseudo"
-    },
-    {
-      "name": ":lang()",
-      "href": "https://drafts.csswg.org/selectors-4/#lang-pseudo"
-    },
-    {
-      "name": ":last-child",
-      "href": "https://drafts.csswg.org/selectors-4/#last-child-pseudo",
-      "syntax": ":last-child"
-    },
-    {
-      "name": ":last-of-page",
-      "href": "https://drafts.csswg.org/css-gcpm-4/#selectordef-last-of-page",
-      "syntax": ":last-of-page"
-    },
-    {
-      "name": ":last-of-type",
-      "href": "https://drafts.csswg.org/selectors-4/#last-of-type-pseudo",
-      "syntax": ":last-of-type"
-    },
-    {
-      "name": ":left",
-      "href": "https://drafts.csswg.org/css2/#selectordef-left",
-      "syntax": ":left"
-    },
-    {
-      "name": ":link",
-      "href": "https://drafts.csswg.org/selectors-4/#link-pseudo",
-      "syntax": ":link"
-    },
-    {
-      "name": ":link-to()",
-      "href": "https://drafts.csswg.org/css-navigation-1/#link-to-pseudo"
-    },
-    {
-      "name": ":local-link",
-      "href": "https://drafts.csswg.org/selectors-5/#local-link-pseudo",
-      "syntax": ":local-link"
-    },
-    {
-      "name": ":low-value",
-      "href": "https://drafts.csswg.org/css-forms-1/#selectordef-low-value",
-      "syntax": ":low-value"
-    },
-    {
-      "name": ":matches()",
-      "href": "https://drafts.csswg.org/selectors-4/#selectordef-matches"
-    },
-    {
-      "name": ":modal",
-      "href": "https://drafts.csswg.org/selectors-4/#selectordef-modal",
-      "syntax": ":modal"
-    },
-    {
-      "name": ":muted",
-      "href": "https://drafts.csswg.org/selectors-4/#selectordef-muted",
-      "syntax": ":muted"
-    },
-    {
-      "name": ":nav-source",
-      "href": "https://drafts.csswg.org/css-navigation-1/#nav-source-pseudo",
-      "syntax": ":nav-source"
-    },
-    {
-      "name": ":not()",
-      "href": "https://drafts.csswg.org/selectors-4/#negation-pseudo"
-    },
-    {
-      "name": ":nth-child()",
-      "href": "https://drafts.csswg.org/selectors-4/#nth-child-pseudo",
-      "syntax": ":nth-child(An+B [of S]? )"
-    },
-    {
-      "name": ":nth-col()",
-      "href": "https://drafts.csswg.org/selectors-5/#nth-col-pseudo",
-      "syntax": ":nth-col(An+B)"
-    },
-    {
-      "name": ":nth-last-child()",
-      "href": "https://drafts.csswg.org/selectors-4/#nth-last-child-pseudo",
-      "syntax": ":nth-last-child(An+B [of S]? )"
-    },
-    {
-      "name": ":nth-last-col()",
-      "href": "https://drafts.csswg.org/selectors-5/#nth-last-col-pseudo",
-      "syntax": ":nth-last-col(An+B)"
-    },
-    {
-      "name": ":nth-last-of-type()",
-      "href": "https://drafts.csswg.org/selectors-4/#nth-last-of-type-pseudo",
-      "syntax": ":nth-last-of-type(An+B)"
-    },
-    {
-      "name": ":nth-of-page()",
-      "href": "https://drafts.csswg.org/css-gcpm-4/#selectordef-nth-of-page-n",
-      "syntax": ":nth-of-page(n)"
-    },
-    {
-      "name": ":nth-of-type()",
-      "href": "https://drafts.csswg.org/selectors-4/#nth-of-type-pseudo",
-      "syntax": ":nth-of-type(An+B)"
-    },
-    {
-      "name": ":nth()",
-      "href": "https://drafts.csswg.org/css-gcpm-3/#selectordef-nth",
-      "syntax": ":nth( <a-n-plus-b> [of <custom-ident>]? )"
-    },
-    {
-      "name": ":only-child",
-      "href": "https://drafts.csswg.org/selectors-4/#only-child-pseudo",
-      "syntax": ":only-child"
-    },
-    {
-      "name": ":only-of-type",
-      "href": "https://drafts.csswg.org/selectors-4/#only-of-type-pseudo",
-      "syntax": ":only-of-type"
-    },
-    {
-      "name": ":open",
-      "href": "https://drafts.csswg.org/selectors-4/#selectordef-open",
-      "syntax": ":open"
-    },
-    {
-      "name": ":optimal-value",
-      "href": "https://drafts.csswg.org/css-forms-1/#selectordef-optimal-value",
-      "syntax": ":optimal-value"
-    },
-    {
-      "name": ":optional",
-      "href": "https://drafts.csswg.org/selectors-4/#optional-pseudo",
-      "syntax": ":optional"
-    },
-    {
-      "name": ":out-of-range",
-      "href": "https://drafts.csswg.org/selectors-4/#out-of-range-pseudo",
-      "syntax": ":out-of-range"
-    },
-    {
-      "name": ":past",
-      "href": "https://drafts.csswg.org/selectors-5/#past-pseudo",
-      "syntax": ":past"
-    },
-    {
-      "name": ":paused",
-      "href": "https://drafts.csswg.org/selectors-4/#selectordef-paused",
-      "syntax": ":paused"
-    },
-    {
-      "name": ":picture-in-picture",
-      "href": "https://drafts.csswg.org/selectors-4/#selectordef-picture-in-picture",
-      "syntax": ":picture-in-picture"
-    },
-    {
-      "name": ":placeholder-shown",
-      "href": "https://drafts.csswg.org/selectors-4/#placeholder-shown-pseudo",
-      "syntax": ":placeholder-shown"
-    },
-    {
-      "name": ":playing",
-      "href": "https://drafts.csswg.org/selectors-4/#selectordef-playing",
-      "syntax": ":playing"
-    },
-    {
-      "name": ":popover-open",
-      "href": "https://drafts.csswg.org/selectors-4/#selectordef-popover-open",
-      "syntax": ":popover-open"
-    },
-    {
-      "name": ":read-only",
-      "href": "https://drafts.csswg.org/selectors-4/#read-only-pseudo",
-      "syntax": ":read-only"
-    },
-    {
-      "name": ":read-write",
-      "href": "https://drafts.csswg.org/selectors-4/#read-write-pseudo",
-      "syntax": ":read-write"
-    },
-    {
-      "name": ":required",
-      "href": "https://drafts.csswg.org/selectors-4/#required-pseudo",
-      "syntax": ":required"
-    },
-    {
-      "name": ":right",
-      "href": "https://drafts.csswg.org/css2/#selectordef-right",
-      "syntax": ":right"
-    },
-    {
-      "name": ":root",
-      "href": "https://drafts.csswg.org/selectors-4/#root-pseudo",
-      "syntax": ":root"
-    },
-    {
-      "name": ":scope",
-      "href": "https://drafts.csswg.org/selectors-4/#scope-pseudo",
-      "syntax": ":scope"
-    },
-    {
-      "name": ":seeking",
-      "href": "https://drafts.csswg.org/selectors-4/#selectordef-seeking",
-      "syntax": ":seeking"
-    },
-    {
-      "name": ":snapped",
-      "href": "https://drafts.csswg.org/css-scroll-snap-2/#selectordef-snapped",
-      "syntax": ":snapped"
-    },
-    {
-      "name": ":snapped-block",
-      "href": "https://drafts.csswg.org/css-scroll-snap-2/#selectordef-snapped-block",
-      "syntax": ":snapped-block"
-    },
-    {
-      "name": ":snapped-inline",
-      "href": "https://drafts.csswg.org/css-scroll-snap-2/#selectordef-snapped-inline",
-      "syntax": ":snapped-inline"
-    },
-    {
-      "name": ":snapped-x",
-      "href": "https://drafts.csswg.org/css-scroll-snap-2/#selectordef-snapped-x",
-      "syntax": ":snapped-x"
-    },
-    {
-      "name": ":snapped-y",
-      "href": "https://drafts.csswg.org/css-scroll-snap-2/#selectordef-snapped-y",
-      "syntax": ":snapped-y"
-    },
-    {
-      "name": ":stalled",
-      "href": "https://drafts.csswg.org/selectors-4/#selectordef-stalled",
-      "syntax": ":stalled"
-    },
-    {
-      "name": ":start-of-page",
-      "href": "https://drafts.csswg.org/css-gcpm-4/#selectordef-start-of-page",
-      "syntax": ":start-of-page"
-    },
-    {
-      "name": ":state()",
-      "href": "https://drafts.csswg.org/selectors-5/#state-pseudo",
-      "syntax": ":state( <ident> )"
-    },
-    {
-      "name": ":target",
-      "href": "https://drafts.csswg.org/selectors-4/#target-pseudo",
-      "syntax": ":target"
-    },
-    {
-      "name": ":target-after",
-      "href": "https://drafts.csswg.org/css-overflow-5/#selectordef-target-after",
-      "syntax": ":target-after"
-    },
-    {
-      "name": ":target-before",
-      "href": "https://drafts.csswg.org/css-overflow-5/#selectordef-target-before",
-      "syntax": ":target-before"
-    },
-    {
-      "name": ":target-current",
-      "href": "https://drafts.csswg.org/css-overflow-5/#selectordef-target-current",
-      "syntax": ":target-current"
-    },
-    {
-      "name": ":unchecked",
-      "href": "https://drafts.csswg.org/selectors-4/#unchecked-pseudo",
-      "syntax": ":unchecked"
-    },
-    {
-      "name": ":user-invalid",
-      "href": "https://drafts.csswg.org/selectors-4/#user-invalid-pseudo",
-      "syntax": ":user-invalid"
-    },
-    {
-      "name": ":user-valid",
-      "href": "https://drafts.csswg.org/selectors-4/#user-valid-pseudo",
-      "syntax": ":user-valid"
-    },
-    {
-      "name": ":valid",
-      "href": "https://drafts.csswg.org/selectors-4/#valid-pseudo",
-      "syntax": ":valid"
-    },
-    {
-      "name": ":visited",
-      "href": "https://drafts.csswg.org/selectors-4/#visited-pseudo",
-      "syntax": ":visited"
-    },
-    {
-      "name": ":volume-locked",
-      "href": "https://drafts.csswg.org/selectors-4/#selectordef-volume-locked",
-      "syntax": ":volume-locked"
-    },
-    {
-      "name": ":where()",
-      "href": "https://drafts.csswg.org/selectors-4/#where-pseudo"
-    },
-    {
-      "name": ":xr-overlay",
-      "href": "https://immersive-web.github.io/dom-overlays/#selectordef-xr-overlay",
-      "syntax": ":xr-overlay"
-    },
-    {
-      "name": "&",
-      "href": "https://drafts.csswg.org/css-nesting-1/#selectordef-",
-      "syntax": "'&'"
-    },
-    {
-      "name": "+",
-      "href": "https://drafts.csswg.org/selectors-4/#selectordef-adjacent",
-      "syntax": "'+'"
-    },
-    {
-      "name": ">",
-      "href": "https://drafts.csswg.org/selectors-4/#selectordef-child",
-      "syntax": "'>'"
-    },
-    {
-      "name": "||",
-      "href": "https://drafts.csswg.org/selectors-5/#selectordef-column",
-      "syntax": "'|' '|'"
-    },
-    {
-      "name": "~",
-      "href": "https://drafts.csswg.org/selectors-4/#selectordef-sibling",
-      "syntax": "'~'"
-    }
+    "::after",
+    "::backdrop",
+    "::before",
+    "::checkmark",
+    "::clear-icon",
+    "::color-swatch",
+    "::column",
+    "::cue",
+    "::cue-region",
+    "::cue-region()",
+    "::cue()",
+    "::details-content",
+    "::field-component",
+    "::field-separator",
+    "::field-text",
+    "::file-selector-button",
+    "::first-letter",
+    "::first-line",
+    "::grammar-error",
+    "::highlight()",
+    "::marker",
+    "::nth-fragment()",
+    "::part()",
+    "::picker-icon",
+    "::picker()",
+    "::placeholder",
+    "::reveal-icon",
+    "::scroll-button()",
+    "::scroll-marker",
+    "::scroll-marker-group",
+    "::search-text",
+    "::selection",
+    "::slider-fill",
+    "::slider-thumb",
+    "::slider-track",
+    "::slotted()",
+    "::spelling-error",
+    "::step-control",
+    "::step-down",
+    "::step-up",
+    "::target-text",
+    "::view-transition",
+    "::view-transition-group-children()",
+    "::view-transition-group()",
+    "::view-transition-image-pair()",
+    "::view-transition-new()",
+    "::view-transition-old()",
+    ":active",
+    ":active-view-transition",
+    ":active-view-transition-type()",
+    ":after",
+    ":animated-image",
+    ":any-link",
+    ":autofill",
+    ":before",
+    ":blank",
+    ":buffering",
+    ":checked",
+    ":current",
+    ":current()",
+    ":default",
+    ":defined",
+    ":dir()",
+    ":disabled",
+    ":empty",
+    ":enabled",
+    ":first",
+    ":first-child",
+    ":first-letter",
+    ":first-line",
+    ":first-of-page",
+    ":first-of-type",
+    ":focus",
+    ":focus-visible",
+    ":focus-within",
+    ":fullscreen",
+    ":future",
+    ":has-slotted",
+    ":has()",
+    ":heading",
+    ":heading()",
+    ":high-value",
+    ":host",
+    ":host-context()",
+    ":host()",
+    ":hover",
+    ":in-range",
+    ":indeterminate",
+    ":interest-source",
+    ":interest-target",
+    ":invalid",
+    ":is()",
+    ":lang()",
+    ":last-child",
+    ":last-of-page",
+    ":last-of-type",
+    ":left",
+    ":link",
+    ":link-to()",
+    ":local-link",
+    ":low-value",
+    ":matches()",
+    ":modal",
+    ":muted",
+    ":nav-source",
+    ":not()",
+    ":nth-child()",
+    ":nth-col()",
+    ":nth-last-child()",
+    ":nth-last-col()",
+    ":nth-last-of-type()",
+    ":nth-of-page()",
+    ":nth-of-type()",
+    ":nth()",
+    ":only-child",
+    ":only-of-type",
+    ":open",
+    ":optimal-value",
+    ":optional",
+    ":out-of-range",
+    ":past",
+    ":paused",
+    ":picture-in-picture",
+    ":placeholder-shown",
+    ":playing",
+    ":popover-open",
+    ":read-only",
+    ":read-write",
+    ":required",
+    ":right",
+    ":root",
+    ":scope",
+    ":seeking",
+    ":snapped",
+    ":snapped-block",
+    ":snapped-inline",
+    ":snapped-x",
+    ":snapped-y",
+    ":stalled",
+    ":start-of-page",
+    ":state()",
+    ":target",
+    ":target-after",
+    ":target-before",
+    ":target-current",
+    ":unchecked",
+    ":user-invalid",
+    ":user-valid",
+    ":valid",
+    ":visited",
+    ":volume-locked",
+    ":where()",
+    ":xr-overlay",
+    "&",
+    "+",
+    ">",
+    "||",
+    "~"
   ],
   "types": [
     {
-      "name": "(-token",
-      "href": "https://drafts.csswg.org/css-syntax-3/#tokendef-open-paren"
+      "name": "(-token"
     },
     {
-      "name": ")-token",
-      "href": "https://drafts.csswg.org/css-syntax-3/#tokendef-close-paren"
+      "name": ")-token"
     },
     {
-      "name": "[-token",
-      "href": "https://drafts.csswg.org/css-syntax-3/#tokendef-open-square"
+      "name": "[-token"
     },
     {
-      "name": "]-token",
-      "href": "https://drafts.csswg.org/css-syntax-3/#tokendef-close-square"
+      "name": "]-token"
     },
     {
-      "name": "{-token",
-      "href": "https://drafts.csswg.org/css-syntax-3/#tokendef-open-curly"
+      "name": "{-token"
     },
     {
-      "name": "}-token",
-      "href": "https://drafts.csswg.org/css-syntax-3/#tokendef-close-curly"
+      "name": "}-token"
     },
     {
       "name": "a-n-plus-b",
-      "href": "https://drafts.csswg.org/css-syntax-3/#anb-production",
       "syntax": "odd | even | <integer> | <n-dimension> | '+'? n | -n | <ndashdigit-dimension> | '+'? <ndashdigit-ident> | <dashndashdigit-ident> | <n-dimension> <signed-integer> | '+'? n <signed-integer> | -n <signed-integer> | <ndash-dimension> <signless-integer> | '+'? n- <signless-integer> | -n- <signless-integer> | <n-dimension> ['+' | '-'] <signless-integer> | '+'? n ['+' | '-'] <signless-integer> | -n ['+' | '-'] <signless-integer>"
     },
     {
       "name": "absolute-size",
-      "href": "https://drafts.csswg.org/css-fonts-4/#typedef-absolute-size",
       "syntax": "[ xx-small | x-small | small | medium | large | x-large | xx-large | xxx-large ]"
     },
     {
-      "name": "age",
-      "href": "https://drafts.csswg.org/css-speech-1/#typedef-voice-family-age",
-      "for": [
-        "voice-family"
-      ]
+      "name": "age"
     },
     {
       "name": "alpha-value",
-      "href": "https://drafts.csswg.org/css-color-4/#typedef-color-alpha-value",
-      "syntax": "<number> | <percentage>",
-      "for": [
-        "<color>"
-      ]
+      "syntax": "<number> | <percentage>"
     },
     {
       "name": "anchor-name",
-      "href": "https://drafts.csswg.org/css-anchor-position-1/#typedef-anchor-name",
       "syntax": "<dashed-ident>"
     },
     {
       "name": "anchor-side",
-      "href": "https://drafts.csswg.org/css-anchor-position-1/#typedef-anchor-side",
       "syntax": "inside | outside | top | left | right | bottom | start | end | self-start | self-end | <percentage> | center"
     },
     {
       "name": "anchor-size",
-      "href": "https://drafts.csswg.org/css-anchor-position-1/#typedef-anchor-size",
       "syntax": "width | height | block | inline | self-block | self-inline"
     },
     {
       "name": "anchored-in-parens",
-      "href": "https://drafts.csswg.org/css-anchor-position-2/#typedef-anchored-in-parens",
       "syntax": "( <anchored-query> ) | ( <anchored-feature> ) | <general-enclosed>"
     },
     {
       "name": "anchored-query",
-      "href": "https://drafts.csswg.org/css-anchor-position-2/#typedef-anchored-query",
       "syntax": "not <anchored-in-parens> | <anchored-in-parens> [ [ and <anchored-in-parens> ]* | [ or <anchored-in-parens> ]* ] | <anchored-feature>"
     },
     {
-      "name": "angle",
-      "href": "https://drafts.csswg.org/css-values-4/#angle-value"
+      "name": "angle"
     },
     {
       "name": "angle-percentage",
-      "href": "https://drafts.csswg.org/css-values-4/#typedef-angle-percentage",
       "syntax": "[ <angle> | <percentage> ]"
     },
     {
       "name": "angular-color-hint",
-      "href": "https://drafts.csswg.org/css-images-4/#typedef-angular-color-hint",
       "syntax": "<angle-percentage> | <zero>"
     },
     {
       "name": "angular-color-stop",
-      "href": "https://drafts.csswg.org/css-images-4/#typedef-angular-color-stop",
       "syntax": "<color> <color-stop-angle>?"
     },
     {
       "name": "angular-color-stop-list",
-      "href": "https://drafts.csswg.org/css-images-4/#typedef-angular-color-stop-list",
       "syntax": "<angular-color-stop> , [ <angular-color-hint>? , <angular-color-stop> ]#?"
     },
     {
       "name": "animateable-feature",
-      "href": "https://drafts.csswg.org/css-will-change-1/#typedef-animateable-feature",
       "syntax": "scroll-position | contents | <custom-ident>"
     },
     {
-      "name": "animation-action",
-      "href": "https://drafts.csswg.org/animation-triggers-1/#typedef-animation-action"
+      "name": "animation-action"
     },
     {
-      "name": "any-value",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-any-value"
+      "name": "any-value"
     },
     {
       "name": "arc-command",
-      "href": "https://drafts.csswg.org/css-shapes-1/#typedef-shape-arc-command",
-      "syntax": "arc <command-end-point> [ [ of <length-percentage>{1,2} ] && <arc-sweep>? && <arc-size>? && [rotate <angle>]? ]",
-      "for": [
-        "shape()"
-      ]
+      "syntax": "arc <command-end-point> [ [ of <length-percentage>{1,2} ] && <arc-sweep>? && <arc-size>? && [rotate <angle>]? ]"
     },
     {
       "name": "arc-size",
-      "href": "https://drafts.csswg.org/css-shapes-1/#typedef-shape-arc-size",
-      "syntax": "large | small",
-      "for": [
-        "shape()"
-      ]
+      "syntax": "large | small"
     },
     {
       "name": "arc-sweep",
-      "href": "https://drafts.csswg.org/css-shapes-1/#typedef-shape-arc-sweep",
-      "syntax": "cw | ccw",
-      "for": [
-        "shape()"
-      ]
+      "syntax": "cw | ccw"
     },
     {
-      "name": "at-keyword-token",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-at-keyword-token"
+      "name": "at-keyword-token"
     },
     {
-      "name": "at-rule-list",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-at-rule-list"
+      "name": "at-rule-list"
     },
     {
       "name": "attachment",
-      "href": "https://drafts.csswg.org/css-backgrounds-4/#typedef-attachment",
       "syntax": "scroll | fixed | local"
     },
     {
       "name": "attr-args",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-attr-args",
       "syntax": "attr( <declaration-value>, <declaration-value>? )"
     },
     {
       "name": "attr-matcher",
-      "href": "https://drafts.csswg.org/selectors-4/#typedef-attr-matcher",
       "syntax": "[ '~' | '|' | '^' | '$' | '*' ]? '='"
     },
     {
       "name": "attr-modifier",
-      "href": "https://drafts.csswg.org/selectors-4/#typedef-attr-modifier",
       "syntax": "i | s"
     },
     {
       "name": "attr-name",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-attr-name",
       "syntax": "[ <ident-token>? '|' ]? <ident-token>"
     },
     {
       "name": "attr-type",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-attr-type",
       "syntax": "type( <syntax> ) | raw-string | number | <attr-unit>"
     },
     {
       "name": "attr-unit",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-attr-unit",
       "syntax": "<custom-ident>"
     },
     {
       "name": "attribute-selector",
-      "href": "https://drafts.csswg.org/selectors-4/#typedef-attribute-selector",
       "syntax": "'[' <wq-name> ']' | '[' <wq-name> <attr-matcher> [ <string-token> | <ident-token> ] <attr-modifier>? ']'"
     },
     {
       "name": "auto-line-color-list",
-      "href": "https://drafts.csswg.org/css-gaps-1/#typedef-auto-line-color-list",
       "syntax": "<line-color-or-repeat>#? , <auto-repeat-line-color> , <line-color-or-repeat>#?"
     },
     {
       "name": "auto-line-style-list",
-      "href": "https://drafts.csswg.org/css-gaps-1/#typedef-auto-line-style-list",
       "syntax": "<line-style-or-repeat>#? , <auto-repeat-line-style> , <line-style-or-repeat>#?"
     },
     {
       "name": "auto-line-width-list",
-      "href": "https://drafts.csswg.org/css-gaps-1/#typedef-auto-line-width-list",
       "syntax": "<line-width-or-repeat>#? , <auto-repeat-line-width> , <line-width-or-repeat>#?"
     },
     {
       "name": "auto-repeat",
-      "href": "https://drafts.csswg.org/css-grid-3/#typedef-auto-repeat",
       "syntax": "repeat( [ auto-fill | auto-fit ] , [ <line-names>? <track-size> ]+ <line-names>? )"
     },
     {
       "name": "auto-repeat-line-color",
-      "href": "https://drafts.csswg.org/css-gaps-1/#typedef-auto-repeat-line-color",
       "syntax": "repeat( auto , [ <color> ]# )"
     },
     {
       "name": "auto-repeat-line-style",
-      "href": "https://drafts.csswg.org/css-gaps-1/#typedef-auto-repeat-line-style",
       "syntax": "repeat( auto , [ <line-style> ]# )"
     },
     {
       "name": "auto-repeat-line-width",
-      "href": "https://drafts.csswg.org/css-gaps-1/#typedef-auto-repeat-line-width",
       "syntax": "repeat( auto , [ <line-width> ]# )"
     },
     {
       "name": "auto-track-list",
-      "href": "https://drafts.csswg.org/css-grid-2/#typedef-auto-track-list",
       "syntax": "[ <line-names>? [ <fixed-size> | <fixed-repeat> ] ]* <line-names>? <auto-repeat> [ <line-names>? [ <fixed-size> | <fixed-repeat> ] ]* <line-names>?"
     },
     {
       "name": "autospace",
-      "href": "https://drafts.csswg.org/css-text-4/#typedef-autospace",
       "syntax": "no-autospace | [ ideograph-alpha || ideograph-numeric || punctuation ] || [ insert | replace ]"
     },
     {
       "name": "axis",
-      "href": "https://drafts.csswg.org/scroll-animations-1/#typedef-axis",
       "syntax": "block | inline | x | y"
     },
     {
-      "name": "bad-string-token",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-bad-string-token"
+      "name": "bad-string-token"
     },
     {
-      "name": "bad-url-token",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-bad-url-token"
+      "name": "bad-url-token"
     },
     {
       "name": "base-descriptor",
-      "href": "https://drafts.csswg.org/css-navigation-1/#typedef-base-descriptor",
       "syntax": "base-url : stylesheet | document | <url>"
     },
     {
       "name": "baseline-metric",
-      "href": "https://drafts.csswg.org/css-inline-3/#typedef-baseline-metric",
       "syntax": "text-bottom | alphabetic | ideographic | middle | central | mathematical | hanging | text-top"
     },
     {
       "name": "baseline-position",
-      "href": "https://drafts.csswg.org/css-align-3/#typedef-baseline-position",
       "syntax": "[ first | last ]? && baseline"
     },
     {
       "name": "basic-shape",
-      "href": "https://drafts.csswg.org/css-shapes-1/#typedef-basic-shape",
       "syntax": "<basic-shape-rect> | <circle()> | <ellipse()> | <polygon()> | <path()> | <shape()>"
     },
     {
       "name": "basic-shape-rect",
-      "href": "https://drafts.csswg.org/css-shapes-1/#typedef-basic-shape-rect",
       "syntax": "<inset()> | <rect()> | <xywh()>"
     },
     {
       "name": "bg-clip",
-      "href": "https://drafts.csswg.org/css-backgrounds-4/#typedef-bg-clip",
       "syntax": "<visual-box> | [ border-area || text ]"
     },
     {
       "name": "bg-image",
-      "href": "https://drafts.csswg.org/css-backgrounds-4/#typedef-bg-image",
       "syntax": "<image> | none"
     },
     {
       "name": "bg-layer",
-      "href": "https://drafts.csswg.org/css-backgrounds-4/#typedef-bg-layer",
       "syntax": "<bg-image> || <bg-position> [ / <bg-size> ]? || <repeat-style> || <attachment> || <bg-clip> || <visual-box>"
     },
     {
       "name": "bg-position",
-      "href": "https://drafts.csswg.org/css-backgrounds-4/#typedef-bg-position",
       "syntax": "<position> | <position-three>"
     },
     {
       "name": "bg-size",
-      "href": "https://drafts.csswg.org/css-backgrounds-4/#typedef-bg-size",
       "syntax": "[ <length-percentage [0,∞]> | auto ]{1,2} | cover | contain"
     },
     {
       "name": "blend-mode",
-      "href": "https://drafts.csswg.org/compositing-2/#ltblendmodegt",
       "syntax": "normal | darken | multiply | color-burn | lighten | screen | color-dodge | overlay | soft-light | hard-light | difference | exclusion | hue | saturation | color | luminosity"
     },
     {
-      "name": "block-contents",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-block-contents"
+      "name": "block-contents"
     },
     {
-      "name": "boolean-condition",
-      "href": "https://drafts.csswg.org/css-conditional-5/#typedef-boolean-condition"
+      "name": "boolean-condition"
     },
     {
       "name": "boolean-expr",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-boolean-expr",
       "syntax": "not <boolean-expr-group> | <boolean-expr-group> [ [ and <boolean-expr-group> ]* | [ or <boolean-expr-group> ]* ]"
     },
     {
       "name": "border-radius",
-      "href": "https://drafts.csswg.org/css-borders-4/#typedef-border-radius",
       "syntax": "<slash-separated-border-radius-syntax> | <legacy-border-radius-syntax>"
     },
     {
-      "name": "border-style",
-      "href": "https://drafts.csswg.org/css2/#value-def-border-style"
+      "name": "border-style"
     },
     {
-      "name": "border-width",
-      "href": "https://drafts.csswg.org/css2/#value-def-border-width"
+      "name": "border-width"
     },
     {
-      "name": "bottom",
-      "href": "https://drafts.csswg.org/css2/#value-def-bottom"
+      "name": "bottom"
     },
     {
-      "name": "box",
-      "href": "https://drafts.csswg.org/css-box-4/#typedef-box"
+      "name": "box"
     },
     {
       "name": "calc-keyword",
-      "href": "https://drafts.csswg.org/css-values-4/#typedef-calc-keyword",
       "syntax": "e | pi | infinity | -infinity | NaN"
     },
     {
       "name": "calc-product",
-      "href": "https://drafts.csswg.org/css-values-4/#typedef-calc-product",
       "syntax": "<calc-value> [ [ '*' | / ] <calc-value> ]*"
     },
     {
       "name": "calc-size-basis",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-calc-size-basis",
       "syntax": "[ <size-keyword> | <calc-sum> | <calc-size()> | any ]"
     },
     {
       "name": "calc-sum",
-      "href": "https://drafts.csswg.org/css-values-4/#typedef-calc-sum",
       "syntax": "<calc-product> [ [ '+' | '-' ] <calc-product> ]*"
     },
     {
       "name": "calc-value",
-      "href": "https://drafts.csswg.org/css-values-4/#typedef-calc-value",
       "syntax": "<number> | <dimension> | <percentage> | <calc-keyword> | ( <calc-sum> )"
     },
     {
-      "name": "CDC-token",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-cdc-token"
+      "name": "CDC-token"
     },
     {
-      "name": "CDO-token",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-cdo-token"
+      "name": "CDO-token"
     },
     {
       "name": "cf-image",
-      "href": "https://drafts.csswg.org/css-images-4/#typedef-cf-image",
       "syntax": "[ <image> | <color> ] && <percentage [0,100]>?"
     },
     {
       "name": "class-selector",
-      "href": "https://drafts.csswg.org/selectors-4/#typedef-class-selector",
       "syntax": "'.' <ident-token>"
     },
     {
       "name": "clip-source",
-      "href": "https://drafts.csswg.org/css-masking-1/#typedef-clip-source",
       "syntax": "<url>"
     },
     {
       "name": "cmyk-component",
-      "href": "https://drafts.csswg.org/css-color-5/#typedef-cmyk-component",
       "syntax": "<number> | <percentage> | none"
     },
     {
-      "name": "colon-token",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-colon-token"
+      "name": "colon-token"
     },
     {
       "name": "color",
-      "href": "https://drafts.csswg.org/css-color-5/#typedef-color",
       "syntax": "<color-base> | currentColor | <system-color> | <contrast-color()> | <device-cmyk()> | <light-dark-color>"
     },
     {
       "name": "color-base",
-      "href": "https://drafts.csswg.org/css-color-5/#typedef-color-base",
       "syntax": "<hex-color> | <color-function> | <named-color> | <color-mix()> | transparent"
     },
     {
       "name": "color-font-tech",
-      "href": "https://drafts.csswg.org/css-fonts-5/#color-font-tech-values",
       "syntax": "[color-COLRv0 | color-COLRv1 | color-SVG | color-sbix | color-CBDT ]"
     },
     {
       "name": "color-function",
-      "href": "https://drafts.csswg.org/css-color-hdr-1/#typedef-color-function",
       "syntax": "<rgb()> | <rgba()> | <hsl()> | <hsla()> | <hwb()> | <lab()> | <lch()> | <oklab()> | <oklch()> | <ictcp()> | <jzazbz()> | <jzczhz()> | <alpha()> | <color()> | <hdr-color()>"
     },
     {
       "name": "color-interpolation-method",
-      "href": "https://drafts.csswg.org/css-color-5/#color-interpolation-method",
       "syntax": "in [ <rectangular-color-space> | <polar-color-space> <hue-interpolation-method>? | <custom-color-space> ]"
     },
     {
       "name": "color-space",
-      "href": "https://drafts.csswg.org/css-color-5/#typedef-color-space",
       "syntax": "<rectangular-color-space> | <polar-color-space> | <custom-color-space>"
     },
     {
       "name": "color-stop",
-      "href": "https://drafts.csswg.org/css-images-4/#typedef-color-stop",
       "syntax": "<color-stop-length> | <color-stop-angle>"
     },
     {
       "name": "color-stop-angle",
-      "href": "https://drafts.csswg.org/css-images-4/#typedef-color-stop-angle",
       "syntax": "[ <angle-percentage> | <zero> ]{1,2}"
     },
     {
       "name": "color-stop-length",
-      "href": "https://drafts.csswg.org/css-images-4/#typedef-color-stop-length",
       "syntax": "<length-percentage>{1,2}"
     },
     {
       "name": "color-stop-list",
-      "href": "https://drafts.csswg.org/css-images-4/#typedef-color-stop-list",
       "syntax": "<linear-color-stop> , [ <linear-color-hint>? , <linear-color-stop> ]#?"
     },
     {
       "name": "color-stripe",
-      "href": "https://drafts.csswg.org/css-images-4/#typedef-color-stripe",
       "syntax": "<color> && [ <length-percentage> | <flex> ]?"
     },
     {
       "name": "colorspace-params",
-      "href": "https://drafts.csswg.org/css-color-5/#typedef-colorspace-params",
       "syntax": "[<custom-params> | <predefined-rgb-params> | <xyz-params>]"
     },
     {
       "name": "combinator",
-      "href": "https://drafts.csswg.org/selectors-5/#typedef-combinator",
       "syntax": "'>' | '+' | '~' | [ '|' '|' ] | [ / <wq-name> / ]"
     },
     {
-      "name": "comma-token",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-comma-token"
+      "name": "comma-token"
     },
     {
       "name": "command-end-point",
-      "href": "https://drafts.csswg.org/css-shapes-1/#typedef-shape-command-end-point",
-      "syntax": "[ to <position> | by <coordinate-pair> ]",
-      "for": [
-        "shape()"
-      ]
+      "syntax": "[ to <position> | by <coordinate-pair> ]"
     },
     {
       "name": "common-lig-values",
-      "href": "https://drafts.csswg.org/css-fonts-4/#common-lig-values",
       "syntax": "[ common-ligatures | no-common-ligatures ]"
     },
     {
       "name": "compat-auto",
-      "href": "https://drafts.csswg.org/css-ui-4/#typedef-appearance-compat-auto",
-      "syntax": "searchfield | textarea | checkbox | radio | menulist | listbox | meter | progress-bar | button",
-      "for": [
-        "appearance"
-      ]
+      "syntax": "searchfield | textarea | checkbox | radio | menulist | listbox | meter | progress-bar | button"
     },
     {
       "name": "compat-special",
-      "href": "https://drafts.csswg.org/css-ui-4/#typedef-appearance-compat-special",
-      "syntax": "textfield | menulist-button",
-      "for": [
-        "appearance"
-      ]
+      "syntax": "textfield | menulist-button"
     },
     {
       "name": "complex-real-selector",
-      "href": "https://drafts.csswg.org/selectors-4/#typedef-complex-real-selector",
       "syntax": "<compound-selector> [ <combinator>? <compound-selector> ]*"
     },
     {
       "name": "complex-real-selector-list",
-      "href": "https://drafts.csswg.org/selectors-4/#typedef-complex-real-selector-list",
       "syntax": "<complex-real-selector>#"
     },
     {
       "name": "complex-selector",
-      "href": "https://drafts.csswg.org/selectors-4/#typedef-complex-selector",
       "syntax": "<complex-selector-unit> [ <combinator>? <complex-selector-unit> ]*"
     },
     {
       "name": "complex-selector-list",
-      "href": "https://drafts.csswg.org/selectors-4/#typedef-complex-selector-list",
       "syntax": "<complex-selector>#"
     },
     {
       "name": "complex-selector-unit",
-      "href": "https://drafts.csswg.org/selectors-4/#typedef-complex-selector-unit",
       "syntax": "[ <compound-selector>? <pseudo-compound-selector>* ]!"
     },
     {
       "name": "composite-mode",
-      "href": "https://drafts.csswg.org/compositing-2/#compositemode",
       "syntax": "clear | copy | source-over | destination-over | source-in | destination-in | source-out | destination-out | source-atop | destination-atop | xor | lighter | plus-darker | plus-lighter"
     },
     {
       "name": "compositing-operator",
-      "href": "https://drafts.csswg.org/css-masking-1/#typedef-compositing-operator",
       "syntax": "add | subtract | intersect | exclude"
     },
     {
       "name": "compound-selector",
-      "href": "https://drafts.csswg.org/selectors-4/#typedef-compound-selector",
       "syntax": "[ <type-selector>? <subclass-selector>* ]!"
     },
     {
       "name": "compound-selector-list",
-      "href": "https://drafts.csswg.org/selectors-4/#typedef-compound-selector-list",
       "syntax": "<compound-selector>#"
     },
     {
       "name": "conic-gradient-syntax",
-      "href": "https://drafts.csswg.org/css-images-4/#typedef-conic-gradient-syntax",
       "syntax": "[ [ [ from [ <angle> | <zero> ] ]? [ at <position> ]? ] || <color-interpolation-method> ]? , <angular-color-stop-list>"
     },
     {
       "name": "container-condition",
-      "href": "https://drafts.csswg.org/css-conditional-5/#typedef-container-condition",
       "syntax": "[ <container-name>? <container-query>? ]!"
     },
     {
       "name": "container-name",
-      "href": "https://drafts.csswg.org/css-conditional-5/#typedef-container-name",
       "syntax": "<custom-ident>"
     },
     {
       "name": "container-query",
-      "href": "https://drafts.csswg.org/css-conditional-5/#typedef-container-query",
       "syntax": "not <query-in-parens> | <query-in-parens> [ [ and <query-in-parens> ]* | [ or <query-in-parens> ]* ]"
     },
     {
       "name": "content-distribution",
-      "href": "https://drafts.csswg.org/css-align-3/#typedef-content-distribution",
       "syntax": "space-between | space-around | space-evenly | stretch"
     },
     {
       "name": "content-level",
-      "href": "https://drafts.csswg.org/css-gcpm-4/#typedef-content-level",
       "syntax": "element | content | text | <attr()> | <counter>"
     },
     {
       "name": "content-list",
-      "href": "https://drafts.csswg.org/css-gcpm-3/#content-list",
       "syntax": "[ <string> | <counter()> | <counters()> | <content()> | <attr()> ]+"
     },
     {
       "name": "content-list",
-      "href": "https://drafts.csswg.org/css-content-3/#typedef-content-content-list",
-      "syntax": "[ <string> | <image> | <attr()> | contents | <quote> | <leader()> | <target> | <string()> | <content()> | <counter> ]+",
-      "for": [
-        "content"
-      ]
+      "syntax": "[ <string> | <image> | <attr()> | contents | <quote> | <leader()> | <target> | <string()> | <content()> | <counter> ]+"
     },
     {
       "name": "content-position",
-      "href": "https://drafts.csswg.org/css-align-3/#typedef-content-position",
       "syntax": "center | start | end | flex-start | flex-end"
     },
     {
       "name": "content-replacement",
-      "href": "https://drafts.csswg.org/css-content-3/#typedef-content-content-replacement",
-      "syntax": "<image>",
-      "for": [
-        "content"
-      ]
+      "syntax": "<image>"
     },
     {
       "name": "contextual-alt-values",
-      "href": "https://drafts.csswg.org/css-fonts-4/#contextual-alt-values",
       "syntax": "[ contextual | no-contextual ]"
     },
     {
       "name": "control-point",
-      "href": "https://drafts.csswg.org/css-shapes-1/#typedef-shape-control-point",
-      "syntax": "[ <position> | <relative-control-point> ]",
-      "for": [
-        "shape()"
-      ]
+      "syntax": "[ <position> | <relative-control-point> ]"
     },
     {
       "name": "coord-box",
-      "href": "https://drafts.csswg.org/css-box-4/#typedef-coord-box",
       "syntax": "<paint-box> | view-box"
     },
     {
       "name": "coordinate-pair",
-      "href": "https://drafts.csswg.org/css-shapes-1/#typedef-shape-coordinate-pair",
-      "syntax": "<length-percentage>{2}",
-      "for": [
-        "shape()"
-      ]
+      "syntax": "<length-percentage>{2}"
     },
     {
       "name": "corner-shape-value",
-      "href": "https://drafts.csswg.org/css-borders-4/#typedef-corner-shape-value",
       "syntax": "round | scoop | bevel | notch | square | squircle | <superellipse()>"
     },
     {
       "name": "counter",
-      "href": "https://drafts.csswg.org/css-lists-3/#typedef-counter",
       "syntax": "<counter()> | <counters()>"
     },
     {
       "name": "counter-name",
-      "href": "https://drafts.csswg.org/css-lists-3/#typedef-counter-name",
       "syntax": "<custom-ident>"
     },
     {
       "name": "counter-style",
-      "href": "https://drafts.csswg.org/css-counter-styles-3/#typedef-counter-style",
       "syntax": "<counter-style-name> | <symbols()>"
     },
     {
       "name": "counter-style-name",
-      "href": "https://drafts.csswg.org/css-counter-styles-3/#typedef-counter-style-name",
       "syntax": "<custom-ident>"
     },
     {
       "name": "cross-origin-modifier",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-request-url-modifier-cross-origin-modifier",
-      "syntax": "cross-origin(anonymous | use-credentials)",
-      "for": [
-        "<request-url-modifier>"
-      ]
+      "syntax": "cross-origin(anonymous | use-credentials)"
     },
     {
       "name": "css-type",
-      "href": "https://drafts.csswg.org/css-mixins-1/#typedef-css-type",
       "syntax": "<syntax-component> | <type()>"
     },
     {
       "name": "cubic-bezier-easing-function",
-      "href": "https://drafts.csswg.org/css-easing-2/#typedef-cubic-bezier-easing-function",
       "syntax": "ease | ease-in | ease-out | ease-in-out | <cubic-bezier()>"
     },
     {
       "name": "cursor-image",
-      "href": "https://drafts.csswg.org/css-ui-4/#typedef-cursor-cursor-image",
-      "syntax": "[ <url> | <url-set> ] <number>{2}?",
-      "for": [
-        "cursor"
-      ]
+      "syntax": "[ <url> | <url-set> ] <number>{2}?"
     },
     {
       "name": "cursor-predefined",
-      "href": "https://drafts.csswg.org/css-ui-4/#typedef-cursor-predefined",
       "syntax": "auto | default | none | context-menu | help | pointer | progress | wait | cell | crosshair | text | vertical-text | alias | copy | move | no-drop | not-allowed | grab | grabbing | e-resize | n-resize | ne-resize | nw-resize | s-resize | se-resize | sw-resize | w-resize | ew-resize | ns-resize | nesw-resize | nwse-resize | col-resize | row-resize | all-scroll | zoom-in | zoom-out"
     },
     {
       "name": "curve-command",
-      "href": "https://drafts.csswg.org/css-shapes-1/#typedef-shape-curve-command",
-      "syntax": "curve [ [ to <position> with <control-point> [ / <control-point> ]? ] | [ by <coordinate-pair> with <relative-control-point> [ / <relative-control-point> ]? ] ]",
-      "for": [
-        "shape()"
-      ]
+      "syntax": "curve [ [ to <position> with <control-point> [ / <control-point> ]? ] | [ by <coordinate-pair> with <relative-control-point> [ / <relative-control-point> ]? ] ]"
     },
     {
       "name": "custom-arg",
-      "href": "https://drafts.csswg.org/css-extensions-1/#typedef-custom-arg",
       "syntax": "'$' <ident-token>"
     },
     {
       "name": "custom-color-space",
-      "href": "https://drafts.csswg.org/css-color-5/#typedef-custom-color-space",
       "syntax": "<dashed-ident>"
     },
     {
-      "name": "custom-ident",
-      "href": "https://drafts.csswg.org/css-values-4/#identifier-value"
+      "name": "custom-ident"
     },
     {
       "name": "custom-params",
-      "href": "https://drafts.csswg.org/css-color-5/#typedef-custom-params",
       "syntax": "<dashed-ident> [ <number> | <percentage> | none ]+"
     },
     {
-      "name": "custom-property-name",
-      "href": "https://drafts.csswg.org/css-variables-2/#typedef-custom-property-name"
+      "name": "custom-property-name"
     },
     {
       "name": "custom-selector",
-      "href": "https://drafts.csswg.org/css-extensions-1/#typedef-custom-selector",
       "syntax": "<custom-arg>? : <extension-name> [ ( <custom-arg>+#? ) ]?"
     },
     {
       "name": "dasharray",
-      "href": "https://w3c.github.io/svgwg/svg2-draft/painting.html#DataTypeDasharray",
       "syntax": "[ [ <length-percentage> | <number> ]+ ]#"
     },
     {
-      "name": "dashed-function",
-      "href": "https://drafts.csswg.org/css-mixins-1/#typedef-dashed-function"
+      "name": "dashed-function"
     },
     {
-      "name": "dashed-ident",
-      "href": "https://drafts.csswg.org/css-values-4/#typedef-dashed-ident"
+      "name": "dashed-ident"
     },
     {
       "name": "dashndashdigit-ident",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-dashndashdigit-ident",
       "syntax": "<ident-token>"
     },
     {
-      "name": "decibel",
-      "href": "https://drafts.csswg.org/css-speech-1/#typedef-voice-volume-decibel",
-      "for": [
-        "voice-volume"
-      ]
+      "name": "decibel"
     },
     {
-      "name": "declaration",
-      "href": "https://drafts.csswg.org/css-conditional-5/#typedef-declaration"
+      "name": "declaration"
     },
     {
-      "name": "declaration-list",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-declaration-list"
+      "name": "declaration-list"
     },
     {
-      "name": "declaration-rule-list",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-declaration-rule-list"
+      "name": "declaration-rule-list"
     },
     {
-      "name": "declaration-value",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-declaration-value"
+      "name": "declaration-value"
     },
     {
       "name": "default-value",
-      "href": "https://drafts.csswg.org/css-mixins-1/#typedef-default-value",
       "syntax": "<declaration-value>"
     },
     {
-      "name": "delim-token",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-delim-token"
+      "name": "delim-token"
     },
     {
       "name": "deprecated-color",
-      "href": "https://drafts.csswg.org/css-color-4/#typedef-deprecated-color",
       "syntax": "ActiveBorder | ActiveCaption | AppWorkspace | Background | ButtonHighlight | ButtonShadow | CaptionText | InactiveBorder | InactiveCaption | InactiveCaptionText | InfoBackground | InfoText | Menu | MenuText | Scrollbar | ThreeDDarkShadow | ThreeDFace | ThreeDHighlight | ThreeDLightShadow | ThreeDShadow | Window | WindowFrame | WindowText"
     },
     {
-      "name": "dimension",
-      "href": "https://drafts.csswg.org/css-values-4/#typedef-dimension"
+      "name": "dimension"
     },
     {
-      "name": "dimension-token",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-dimension-token"
+      "name": "dimension-token"
     },
     {
       "name": "discretionary-lig-values",
-      "href": "https://drafts.csswg.org/css-fonts-4/#discretionary-lig-values",
       "syntax": "[ discretionary-ligatures | no-discretionary-ligatures ]"
     },
     {
       "name": "display-box",
-      "href": "https://drafts.csswg.org/css-display-4/#typedef-display-box",
       "syntax": "contents | none"
     },
     {
       "name": "display-inside",
-      "href": "https://drafts.csswg.org/css-display-4/#typedef-display-inside",
       "syntax": "flow | flow-root | table | flex | grid | ruby"
     },
     {
       "name": "display-internal",
-      "href": "https://drafts.csswg.org/css-display-4/#typedef-display-internal",
       "syntax": "table-row-group | table-header-group | table-footer-group | table-row | table-cell | table-column-group | table-column | table-caption | ruby-base | ruby-text | ruby-base-container | ruby-text-container"
     },
     {
       "name": "display-legacy",
-      "href": "https://drafts.csswg.org/css-display-4/#typedef-display-legacy",
       "syntax": "inline-block | inline-table | inline-flex | inline-grid"
     },
     {
       "name": "display-listitem",
-      "href": "https://drafts.csswg.org/css-display-4/#typedef-display-listitem",
       "syntax": "<display-outside>? && [ flow | flow-root ]? && list-item"
     },
     {
       "name": "display-outside",
-      "href": "https://drafts.csswg.org/css-display-4/#typedef-display-outside",
       "syntax": "block | inline | run-in"
     },
     {
       "name": "easing-function",
-      "href": "https://drafts.csswg.org/css-easing-2/#typedef-easing-function",
       "syntax": "<linear-easing-function> | <cubic-bezier-easing-function> | <step-easing-function>"
     },
     {
       "name": "east-asian-variant-values",
-      "href": "https://drafts.csswg.org/css-fonts-4/#east-asian-variant-values",
       "syntax": "[ jis78 | jis83 | jis90 | jis04 | simplified | traditional ]"
     },
     {
       "name": "east-asian-width-values",
-      "href": "https://drafts.csswg.org/css-fonts-4/#east-asian-width-values",
       "syntax": "[ full-width | proportional-width ]"
     },
     {
       "name": "env-args",
-      "href": "https://drafts.csswg.org/css-env-1/#typedef-env-args",
       "syntax": "env( <declaration-value>, <declaration-value>? )"
     },
     {
-      "name": "eof-token",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-eof-token"
+      "name": "eof-token"
     },
     {
       "name": "event-trigger-event",
-      "href": "https://drafts.csswg.org/animation-triggers-1/#typedef-event-trigger-event",
       "syntax": "activate | interest | click | touch | dblclick | keypress(<string>) | ..."
     },
     {
       "name": "explicit-track-list",
-      "href": "https://drafts.csswg.org/css-grid-2/#typedef-explicit-track-list",
       "syntax": "[ <line-names>? <track-size> ]+ <line-names>?"
     },
     {
-      "name": "extension-name",
-      "href": "https://drafts.csswg.org/css-extensions-1/#typedef-extension-name"
+      "name": "extension-name"
     },
     {
-      "name": "family-name",
-      "href": "https://drafts.csswg.org/css2/#value-def-family-name"
+      "name": "family-name"
     },
     {
       "name": "feature-tag-value",
-      "href": "https://drafts.csswg.org/css-fonts-4/#feature-tag-value",
-      "syntax": "<opentype-tag> [ <integer [0,∞]> | on | off ]?",
-      "for": [
-        "font-feature-settings"
-      ]
+      "syntax": "<opentype-tag> [ <integer [0,∞]> | on | off ]?"
     },
     {
       "name": "filter-function",
-      "href": "https://drafts.csswg.org/filter-effects-1/#typedef-filter-function",
       "syntax": "<blur()> | <brightness()> | <contrast()> | <drop-shadow()> | <grayscale()> | <hue-rotate()> | <invert()> | <opacity()> | <sepia()> | <saturate()>"
     },
     {
       "name": "filter-value-list",
-      "href": "https://drafts.csswg.org/filter-effects-1/#typedef-filter-value-list",
       "syntax": "[ <filter-function> | <url> ]+"
     },
     {
       "name": "final-bg-layer",
-      "href": "https://drafts.csswg.org/css-backgrounds-4/#typedef-final-bg-layer",
       "syntax": "<bg-image> || <bg-position> [ / <bg-size> ]? || <repeat-style> || <attachment> || <bg-clip> || <visual-box> || <'background-color'>"
     },
     {
       "name": "fixed-breadth",
-      "href": "https://drafts.csswg.org/css-grid-2/#typedef-fixed-breadth",
       "syntax": "<length-percentage [0,∞]>"
     },
     {
       "name": "fixed-repeat",
-      "href": "https://drafts.csswg.org/css-grid-2/#typedef-fixed-repeat",
       "syntax": "repeat( [ <integer [1,∞]> ] , [ <line-names>? <fixed-size> ]+ <line-names>? )"
     },
     {
       "name": "fixed-size",
-      "href": "https://drafts.csswg.org/css-grid-2/#typedef-fixed-size",
       "syntax": "<fixed-breadth> | minmax( <fixed-breadth> , <track-breadth> ) | minmax( <inflexible-breadth> , <fixed-breadth> )"
     },
     {
-      "name": "flex",
-      "href": "https://drafts.csswg.org/css-grid-2/#typedef-flex"
+      "name": "flex"
     },
     {
       "name": "font-family-name",
-      "href": "https://drafts.csswg.org/css-fonts-4/#font-family-name-value",
       "syntax": "<string> | <custom-ident>+"
     },
     {
       "name": "font-feature-index",
-      "href": "https://drafts.csswg.org/css-fonts-4/#font-feature-index-value",
       "syntax": "<integer>"
     },
     {
       "name": "font-feature-value-name",
-      "href": "https://drafts.csswg.org/css-fonts-4/#font-feature-value-name-value",
       "syntax": "<ident>"
     },
     {
-      "name": "font-feature-value-type",
-      "href": "https://drafts.csswg.org/css-fonts-4/#typedef-font-feature-values-font-feature-value-type",
-      "for": [
-        "@font-feature-values"
-      ]
+      "name": "font-feature-value-type"
     },
     {
       "name": "font-features-tech",
-      "href": "https://drafts.csswg.org/css-fonts-5/#font-features-tech-values",
       "syntax": "[features-opentype | features-aat | features-graphite]"
     },
     {
       "name": "font-format",
-      "href": "https://drafts.csswg.org/css-fonts-5/#font-format-values",
       "syntax": "[<string> | collection | embedded-opentype | opentype | svg | truetype | woff | woff2 ]"
     },
     {
       "name": "font-src",
-      "href": "https://drafts.csswg.org/css-fonts-4/#typedef-font-src",
       "syntax": "<url> [ format( <font-format> ) ]? [ tech( <font-tech># ) ]? | local( <font-family-name> )"
     },
     {
-      "name": "font-src-list",
-      "href": "https://drafts.csswg.org/css-fonts-4/#typedef-font-src-list"
+      "name": "font-src-list"
     },
     {
       "name": "font-tech",
-      "href": "https://drafts.csswg.org/css-fonts-5/#font-tech-values",
       "syntax": "[<font-features-tech> | <color-font-tech> | variations | palettes | incremental ]"
     },
     {
       "name": "font-variant-css2",
-      "href": "https://drafts.csswg.org/css-fonts-4/#font-variant-css21-values",
       "syntax": "normal | small-caps"
     },
     {
       "name": "font-weight-absolute",
-      "href": "https://drafts.csswg.org/css-fonts-4/#font-weight-absolute-values",
       "syntax": "[ normal | bold | <number [1,1000]> ]"
     },
     {
       "name": "font-width-css3",
-      "href": "https://drafts.csswg.org/css-fonts-4/#font-width-css3-values",
       "syntax": "normal | ultra-condensed | extra-condensed | condensed | semi-condensed | semi-expanded | expanded | extra-expanded | ultra-expanded"
     },
     {
-      "name": "forgiving-selector-list",
-      "href": "https://drafts.csswg.org/selectors-4/#typedef-forgiving-selector-list"
+      "name": "forgiving-selector-list"
     },
     {
       "name": "form-control-identifier",
-      "href": "https://drafts.csswg.org/css-forms-1/#typedef-picker-form-control-identifier",
-      "syntax": "select",
-      "for": [
-        "::picker()"
-      ]
+      "syntax": "select"
     },
     {
-      "name": "frequency",
-      "href": "https://drafts.csswg.org/css-values-4/#frequency-value"
+      "name": "frequency"
     },
     {
       "name": "frequency-percentage",
-      "href": "https://drafts.csswg.org/css-values-4/#typedef-frequency-percentage",
       "syntax": "[ <frequency> | <percentage> ]"
     },
     {
       "name": "function-parameter",
-      "href": "https://drafts.csswg.org/css-mixins-1/#typedef-function-parameter",
       "syntax": "<custom-property-name> <css-type>? [ : <default-value> ]?"
     },
     {
-      "name": "function-token",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-function-token"
+      "name": "function-token"
     },
     {
       "name": "gap-auto-repeat-rule",
-      "href": "https://drafts.csswg.org/css-gaps-1/#typedef-gap-auto-repeat-rule",
       "syntax": "repeat( auto , <gap-rule># )"
     },
     {
       "name": "gap-auto-rule-list",
-      "href": "https://drafts.csswg.org/css-gaps-1/#typedef-gap-auto-rule-list",
       "syntax": "<gap-rule-or-repeat>#? , <gap-auto-repeat-rule> , <gap-rule-or-repeat>#?"
     },
     {
       "name": "gap-repeat-rule",
-      "href": "https://drafts.csswg.org/css-gaps-1/#typedef-gap-repeat-rule",
       "syntax": "repeat( <integer [1,∞]> , <gap-rule># )"
     },
     {
       "name": "gap-rule",
-      "href": "https://drafts.csswg.org/css-gaps-1/#typedef-gap-rule",
       "syntax": "<line-width> || <line-style> || <color>"
     },
     {
       "name": "gap-rule-list",
-      "href": "https://drafts.csswg.org/css-gaps-1/#typedef-gap-rule-list",
       "syntax": "<gap-rule-or-repeat>#"
     },
     {
       "name": "gap-rule-or-repeat",
-      "href": "https://drafts.csswg.org/css-gaps-1/#typedef-gap-rule-or-repeat",
       "syntax": "<gap-rule> | <gap-repeat-rule>"
     },
     {
-      "name": "gender",
-      "href": "https://drafts.csswg.org/css-speech-1/#typedef-voice-family-gender",
-      "for": [
-        "voice-family"
-      ]
+      "name": "gender"
     },
     {
       "name": "general-enclosed",
-      "href": "https://drafts.csswg.org/mediaqueries-5/#typedef-general-enclosed",
       "syntax": "[ <function-token> <any-value>? ) ] | [ ( <any-value>? ) ]"
     },
     {
-      "name": "generic-family",
-      "href": "https://drafts.csswg.org/css2/#value-def-generic-family"
+      "name": "generic-family"
     },
     {
       "name": "generic-font-complete",
-      "href": "https://drafts.csswg.org/css-fonts-4/#typedef-generic-font-complete",
       "syntax": "serif | sans-serif | system-ui | cursive | fantasy | math | monospace"
     },
     {
       "name": "generic-font-family",
-      "href": "https://drafts.csswg.org/css-fonts-4/#typedef-generic-font-family",
       "syntax": "<generic-font-script-specific>| <generic-font-complete> | <generic-font-incomplete>"
     },
     {
       "name": "generic-font-incomplete",
-      "href": "https://drafts.csswg.org/css-fonts-4/#typedef-generic-font-incomplete",
       "syntax": "ui-serif | ui-sans-serif | ui-monospace | ui-rounded"
     },
     {
       "name": "generic-font-script-specific",
-      "href": "https://drafts.csswg.org/css-fonts-4/#typedef-generic-font-script-specific",
       "syntax": "generic(fangsong) | generic(kai) | generic(khmer-mul) | generic(nastaliq)"
     },
     {
       "name": "generic-voice",
-      "href": "https://drafts.csswg.org/css-speech-1/#typedef-generic-voice",
       "syntax": "<age>? <gender> <integer [1,∞]>?"
     },
     {
       "name": "geometry-box",
-      "href": "https://drafts.csswg.org/css-masking-1/#typedef-geometry-box",
       "syntax": "<shape-box> | fill-box | stroke-box | view-box"
     },
     {
       "name": "gradient",
-      "href": "https://drafts.csswg.org/css-images-4/#typedef-gradient",
       "syntax": "[ <linear-gradient()> | <repeating-linear-gradient()> | <radial-gradient()> | <repeating-radial-gradient()> | <conic-gradient()> | <repeating-conic-gradient()> ]"
     },
     {
       "name": "grid-line",
-      "href": "https://drafts.csswg.org/css-grid-2/#typedef-grid-row-start-grid-line",
-      "syntax": "auto | <custom-ident> | [ [ <integer [-∞,-1]> | <integer [1,∞]> ] && <custom-ident>? ] | [ span && [ <integer [1,∞]> || <custom-ident> ] ]",
-      "for": [
-        "grid-column-end",
-        "grid-column-start",
-        "grid-row-end",
-        "grid-row-start"
-      ]
+      "syntax": "auto | <custom-ident> | [ [ <integer [-∞,-1]> | <integer [1,∞]> ] && <custom-ident>? ] | [ span && [ <integer [1,∞]> || <custom-ident> ] ]"
     },
     {
-      "name": "hash-token",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-hash-token"
+      "name": "hash-token"
     },
     {
-      "name": "hex-color",
-      "href": "https://drafts.csswg.org/css-color-4/#typedef-hex-color"
+      "name": "hex-color"
     },
     {
       "name": "historical-lig-values",
-      "href": "https://drafts.csswg.org/css-fonts-4/#historical-lig-values",
       "syntax": "[ historical-ligatures | no-historical-ligatures ]"
     },
     {
       "name": "horizontal-line-command",
-      "href": "https://drafts.csswg.org/css-shapes-1/#typedef-shape-horizontal-line-command",
-      "syntax": "hline [ to [ <length-percentage> | left | center | right | x-start | x-end ] | by <length-percentage> ]",
-      "for": [
-        "shape()"
-      ]
+      "syntax": "hline [ to [ <length-percentage> | left | center | right | x-start | x-end ] | by <length-percentage> ]"
     },
     {
       "name": "hue",
-      "href": "https://drafts.csswg.org/css-color-4/#typedef-hue",
       "syntax": "<number> | <angle>"
     },
     {
       "name": "hue-interpolation-method",
-      "href": "https://drafts.csswg.org/css-color-5/#typedef-hue-interpolation-method",
       "syntax": "[ shorter | longer | increasing | decreasing ] hue"
     },
     {
-      "name": "id",
-      "href": "https://drafts.csswg.org/css-ui-4/#typedef-id"
+      "name": "id"
     },
     {
       "name": "id-selector",
-      "href": "https://drafts.csswg.org/selectors-4/#typedef-id-selector",
       "syntax": "<hash-token>"
     },
     {
-      "name": "ident",
-      "href": "https://drafts.csswg.org/css-values-4/#typedef-ident"
+      "name": "ident"
     },
     {
       "name": "ident-arg",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-ident-arg",
       "syntax": "<string> | <integer> | <ident>"
     },
     {
-      "name": "ident-token",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-ident-token"
+      "name": "ident-token"
     },
     {
-      "name": "identifier",
-      "href": "https://drafts.csswg.org/css2/#value-def-identifier"
+      "name": "identifier"
     },
     {
       "name": "if-args",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-if-args",
       "syntax": "if( [ <if-args-branch> ; ]* <if-args-branch> ;? )"
     },
     {
       "name": "if-args-branch",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-if-args-branch",
       "syntax": "<declaration-value> : <declaration-value>?"
     },
     {
       "name": "if-branch",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-if-branch",
       "syntax": "<if-condition> : <declaration-value>?"
     },
     {
       "name": "if-condition",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-if-condition",
       "syntax": "<boolean-expr[ <if-test> ]> | else"
     },
     {
       "name": "if-test",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-if-test",
       "syntax": "supports( [ <ident> : <declaration-value> ] | <supports-condition> ) | media( <media-feature> | <media-condition> ) | style( <style-query> )"
     },
     {
       "name": "image",
-      "href": "https://drafts.csswg.org/css-images-4/#typedef-image",
       "syntax": "<url> | <image()> | <image-set()> | <cross-fade()> | <element()> | <gradient>"
     },
     {
       "name": "image-1D",
-      "href": "https://drafts.csswg.org/css-images-4/#typedef-image-1d",
       "syntax": "<stripes()>"
     },
     {
       "name": "image-set-option",
-      "href": "https://drafts.csswg.org/css-images-4/#typedef-image-set-option",
       "syntax": "[ <image> | <string> ] [ <resolution> || type(<string>) ]?"
     },
     {
       "name": "image-src",
-      "href": "https://drafts.csswg.org/css-images-5/#typedef-image-src",
       "syntax": "[ <url> | <string> ]"
     },
     {
       "name": "image-tags",
-      "href": "https://drafts.csswg.org/css-images-5/#typedef-image-tags",
       "syntax": "[ ltr | rtl ]"
     },
     {
       "name": "import-conditions",
-      "href": "https://drafts.csswg.org/css-cascade-5/#typedef-import-conditions",
       "syntax": "[ supports( [ <supports-condition> | <declaration> ] ) ]? <media-query-list>?"
     },
     {
       "name": "inflexible-breadth",
-      "href": "https://drafts.csswg.org/css-grid-2/#typedef-inflexible-breadth",
       "syntax": "<length-percentage [0,∞]> | min-content | max-content | auto"
     },
     {
       "name": "inherit-args",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-inherit-args",
       "syntax": "inherit( <declaration-value>, <declaration-value>? )"
     },
     {
       "name": "init-descriptor",
-      "href": "https://drafts.csswg.org/css-navigation-1/#typedef-init-descriptor",
       "syntax": "<init-descriptor-name> : <string>"
     },
     {
       "name": "init-descriptor-name",
-      "href": "https://drafts.csswg.org/css-navigation-1/#typedef-init-descriptor-name",
       "syntax": "protocol | hostname | port | pathname | search | hash"
     },
     {
       "name": "input-position",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-calc-interpolate-input-position",
-      "syntax": "<percentage> | <number> | <dimension>",
-      "for": [
-        "calc-interpolate()",
-        "calc-interpolate()",
-        "color-interpolate()",
-        "color-interpolate()",
-        "interpolate()",
-        "interpolate()",
-        "transform-interpolate()",
-        "transform-interpolate()"
-      ]
+      "syntax": "<percentage> | <number> | <dimension>"
     },
     {
       "name": "inset-value",
-      "href": "https://drafts.csswg.org/css-gaps-1/#typedef-inset-value",
       "syntax": "<length-percentage> | overlap-join"
     },
     {
       "name": "integer",
-      "href": "https://drafts.csswg.org/css-values-4/#integer-value",
       "syntax": "<number-token>"
     },
     {
       "name": "integrity-modifier",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-request-url-modifier-integrity-modifier",
-      "syntax": "integrity(<string>)",
-      "for": [
-        "<request-url-modifier>"
-      ]
+      "syntax": "integrity(<string>)"
     },
     {
       "name": "isolation-mode",
-      "href": "https://drafts.csswg.org/compositing-2/#isolated-propid",
       "syntax": "auto | isolate"
     },
     {
       "name": "keyframe-block",
-      "href": "https://drafts.csswg.org/css-animations-1/#typedef-keyframe-block",
       "syntax": "<keyframe-selector># { <declaration-list> }"
     },
     {
       "name": "keyframe-selector",
-      "href": "https://drafts.csswg.org/css-animations-1/#typedef-keyframe-selector",
       "syntax": "from | to | <percentage [0,100]>"
     },
     {
       "name": "keyframes-name",
-      "href": "https://drafts.csswg.org/css-animations-1/#typedef-keyframes-name",
       "syntax": "<custom-ident> | <string>"
     },
     {
       "name": "layer-name",
-      "href": "https://drafts.csswg.org/css-cascade-5/#typedef-layer-name",
       "syntax": "<ident> [ '.' <ident> ]*"
     },
     {
       "name": "layout-box",
-      "href": "https://drafts.csswg.org/css-box-4/#typedef-layout-box",
       "syntax": "<visual-box> | margin-box"
     },
     {
       "name": "leader-type",
-      "href": "https://drafts.csswg.org/css-content-3/#typedef-leader-type",
       "syntax": "dotted | solid | space | <string>"
     },
     {
-      "name": "left",
-      "href": "https://drafts.csswg.org/css2/#value-def-left"
+      "name": "left"
     },
     {
       "name": "legacy-border-radius-syntax",
-      "href": "https://drafts.csswg.org/css-borders-4/#typedef-legacy-border-radius-syntax",
       "syntax": "<length-percentage [0,∞]>{1,2}"
     },
     {
       "name": "legacy-device-cmyk-syntax",
-      "href": "https://drafts.csswg.org/css-color-5/#typedef-legacy-device-cmyk-syntax",
       "syntax": "device-cmyk( <number>#{4} )"
     },
     {
       "name": "legacy-hsl-syntax",
-      "href": "https://drafts.csswg.org/css-color-4/#typedef-legacy-hsl-syntax",
       "syntax": "hsl( <hue>, <percentage>, <percentage>, <alpha-value>? )"
     },
     {
       "name": "legacy-hsla-syntax",
-      "href": "https://drafts.csswg.org/css-color-4/#typedef-legacy-hsla-syntax",
       "syntax": "hsla( <hue>, <percentage>, <percentage>, <alpha-value>? )"
     },
     {
       "name": "legacy-pseudo-element-selector",
-      "href": "https://drafts.csswg.org/selectors-4/#typedef-legacy-pseudo-element-selector",
       "syntax": ": [before | after | first-line | first-letter]"
     },
     {
       "name": "legacy-rgb-syntax",
-      "href": "https://drafts.csswg.org/css-color-4/#typedef-legacy-rgb-syntax",
       "syntax": "rgb( <percentage>#{3} , <alpha-value>? ) | rgb( <number>#{3} , <alpha-value>? )"
     },
     {
       "name": "legacy-rgba-syntax",
-      "href": "https://drafts.csswg.org/css-color-4/#typedef-legacy-rgba-syntax",
       "syntax": "rgba( <percentage>#{3} , <alpha-value>? ) | rgba( <number>#{3} , <alpha-value>? )"
     },
     {
-      "name": "length",
-      "href": "https://drafts.csswg.org/css-values-4/#length-value"
+      "name": "length"
     },
     {
       "name": "length-percentage",
-      "href": "https://drafts.csswg.org/css-values-4/#typedef-length-percentage",
       "syntax": "[ <length> | <percentage> ]"
     },
     {
-      "name": "level",
-      "href": "https://drafts.csswg.org/selectors-5/#typedef-level"
+      "name": "level"
     },
     {
       "name": "light-dark-color",
-      "href": "https://drafts.csswg.org/css-color-5/#typedef-light-dark-color",
       "syntax": "light-dark(<color>, <color>)"
     },
     {
       "name": "light-dark-image",
-      "href": "https://drafts.csswg.org/css-color-5/#typedef-light-dark-image",
       "syntax": "light-dark( [ <image> | none ] , [ <image> | none ] )"
     },
     {
       "name": "line-color-list",
-      "href": "https://drafts.csswg.org/css-gaps-1/#typedef-line-color-list",
       "syntax": "<line-color-or-repeat>#"
     },
     {
       "name": "line-color-or-repeat",
-      "href": "https://drafts.csswg.org/css-gaps-1/#typedef-line-color-or-repeat",
       "syntax": "[ <color> | <repeat-line-color> ]"
     },
     {
       "name": "line-command",
-      "href": "https://drafts.csswg.org/css-shapes-1/#typedef-shape-line-command",
-      "syntax": "line <command-end-point>",
-      "for": [
-        "shape()"
-      ]
+      "syntax": "line <command-end-point>"
     },
     {
       "name": "line-name-list",
-      "href": "https://drafts.csswg.org/css-grid-2/#typedef-line-name-list",
       "syntax": "[ <line-names> | <name-repeat> ]+"
     },
     {
       "name": "line-names",
-      "href": "https://drafts.csswg.org/css-grid-2/#typedef-line-names",
       "syntax": "'[' <custom-ident>* ']'"
     },
     {
       "name": "line-style",
-      "href": "https://drafts.csswg.org/css-borders-4/#typedef-line-style",
       "syntax": "none | hidden | dotted | dashed | solid | double | groove | ridge | inset | outset"
     },
     {
       "name": "line-style-list",
-      "href": "https://drafts.csswg.org/css-gaps-1/#typedef-line-style-list",
       "syntax": "<line-style-or-repeat>#"
     },
     {
       "name": "line-style-or-repeat",
-      "href": "https://drafts.csswg.org/css-gaps-1/#typedef-line-style-or-repeat",
       "syntax": "[ <line-style> | <repeat-line-style> ]"
     },
     {
       "name": "line-width",
-      "href": "https://drafts.csswg.org/css-borders-4/#typedef-line-width",
       "syntax": "<length [0,∞]> | hairline | thin | medium | thick"
     },
     {
       "name": "line-width-list",
-      "href": "https://drafts.csswg.org/css-gaps-1/#typedef-line-width-list",
       "syntax": "<line-width-or-repeat>#"
     },
     {
       "name": "line-width-or-repeat",
-      "href": "https://drafts.csswg.org/css-gaps-1/#typedef-line-width-or-repeat",
       "syntax": "[ <line-width> | <repeat-line-width> ]"
     },
     {
       "name": "linear-color-hint",
-      "href": "https://drafts.csswg.org/css-images-4/#typedef-linear-color-hint",
       "syntax": "<length-percentage>"
     },
     {
       "name": "linear-color-stop",
-      "href": "https://drafts.csswg.org/css-images-4/#typedef-linear-color-stop",
       "syntax": "<color> <color-stop-length>?"
     },
     {
       "name": "linear-easing-function",
-      "href": "https://drafts.csswg.org/css-easing-2/#typedef-linear-easing-function",
       "syntax": "linear | <linear()>"
     },
     {
       "name": "linear-gradient-syntax",
-      "href": "https://drafts.csswg.org/css-images-4/#typedef-linear-gradient-syntax",
       "syntax": "[ [ <angle> | <zero> | to <side-or-corner> ] || <color-interpolation-method> ]? , <color-stop-list>"
     },
     {
-      "name": "margin-width",
-      "href": "https://drafts.csswg.org/css2/#value-def-margin-width"
+      "name": "margin-width"
     },
     {
       "name": "marker-ref",
-      "href": "https://w3c.github.io/svgwg/svg2-draft/painting.html#DataTypeMarkerRef",
       "syntax": "<url>"
     },
     {
       "name": "mask-layer",
-      "href": "https://drafts.csswg.org/css-masking-1/#typedef-mask-layer",
       "syntax": "<mask-reference> || <position> [ / <bg-size> ]? || <repeat-style> || <geometry-box> || [ <geometry-box> | no-clip ] || <compositing-operator> || <masking-mode>"
     },
     {
       "name": "mask-reference",
-      "href": "https://drafts.csswg.org/css-masking-1/#typedef-mask-reference",
       "syntax": "none | <image> | <mask-source>"
     },
     {
       "name": "mask-source",
-      "href": "https://drafts.csswg.org/css-masking-1/#typedef-mask-source",
       "syntax": "<url>"
     },
     {
       "name": "masking-mode",
-      "href": "https://drafts.csswg.org/css-masking-1/#typedef-masking-mode",
       "syntax": "alpha | luminance | match-source"
     },
     {
       "name": "media-and",
-      "href": "https://drafts.csswg.org/mediaqueries-5/#typedef-media-and",
       "syntax": "and <media-in-parens>"
     },
     {
       "name": "media-condition",
-      "href": "https://drafts.csswg.org/mediaqueries-5/#typedef-media-condition",
       "syntax": "<media-not> | <media-in-parens> [ <media-and>* | <media-or>* ]"
     },
     {
       "name": "media-condition-without-or",
-      "href": "https://drafts.csswg.org/mediaqueries-5/#typedef-media-condition-without-or",
       "syntax": "<media-not> | <media-in-parens> <media-and>*"
     },
     {
       "name": "media-feature",
-      "href": "https://drafts.csswg.org/mediaqueries-5/#typedef-media-feature",
       "syntax": "[ <mf-plain> | <mf-boolean> | <mf-range> ]"
     },
     {
       "name": "media-import-condition",
-      "href": "https://drafts.csswg.org/css-cascade-6/#typedef-media-import-condition",
       "syntax": "<media-query-list>"
     },
     {
       "name": "media-in-parens",
-      "href": "https://drafts.csswg.org/mediaqueries-5/#typedef-media-in-parens",
       "syntax": "( <media-condition> ) | ( <media-feature> ) | <general-enclosed>"
     },
     {
       "name": "media-not",
-      "href": "https://drafts.csswg.org/mediaqueries-5/#typedef-media-not",
       "syntax": "not <media-in-parens>"
     },
     {
       "name": "media-or",
-      "href": "https://drafts.csswg.org/mediaqueries-5/#typedef-media-or",
       "syntax": "or <media-in-parens>"
     },
     {
       "name": "media-query",
-      "href": "https://drafts.csswg.org/mediaqueries-5/#typedef-media-query",
       "syntax": "<media-condition> | [ not | only ]? <media-type> [ and <media-condition-without-or> ]?"
     },
     {
-      "name": "media-query-list",
-      "href": "https://drafts.csswg.org/mediaqueries-5/#typedef-media-query-list"
+      "name": "media-query-list"
     },
     {
       "name": "media-type",
-      "href": "https://drafts.csswg.org/mediaqueries-5/#typedef-media-type",
       "syntax": "<ident>"
     },
     {
       "name": "mf-boolean",
-      "href": "https://drafts.csswg.org/mediaqueries-5/#typedef-mf-boolean",
       "syntax": "<mf-name>"
     },
     {
       "name": "mf-comparison",
-      "href": "https://drafts.csswg.org/mediaqueries-5/#typedef-mf-comparison",
       "syntax": "<mf-lt> | <mf-gt> | <mf-eq>"
     },
     {
       "name": "mf-eq",
-      "href": "https://drafts.csswg.org/mediaqueries-5/#typedef-mf-eq",
       "syntax": "'='"
     },
     {
       "name": "mf-gt",
-      "href": "https://drafts.csswg.org/mediaqueries-5/#typedef-mf-gt",
       "syntax": "'>' '='?"
     },
     {
       "name": "mf-lt",
-      "href": "https://drafts.csswg.org/mediaqueries-5/#typedef-mf-lt",
       "syntax": "'<' '='?"
     },
     {
       "name": "mf-name",
-      "href": "https://drafts.csswg.org/mediaqueries-5/#typedef-mf-name",
       "syntax": "<ident>"
     },
     {
       "name": "mf-plain",
-      "href": "https://drafts.csswg.org/mediaqueries-5/#typedef-mf-plain",
       "syntax": "<mf-name> : <mf-value>"
     },
     {
       "name": "mf-range",
-      "href": "https://drafts.csswg.org/mediaqueries-5/#typedef-mf-range",
       "syntax": "<mf-name> <mf-comparison> <mf-value> | <mf-value> <mf-comparison> <mf-name> | <mf-value> <mf-lt> <mf-name> <mf-lt> <mf-value> | <mf-value> <mf-gt> <mf-name> <mf-gt> <mf-value>"
     },
     {
       "name": "mf-value",
-      "href": "https://drafts.csswg.org/mediaqueries-5/#typedef-mf-value",
       "syntax": "<number> | <dimension> | <ident> | <ratio>"
     },
     {
       "name": "modern-device-cmyk-syntax",
-      "href": "https://drafts.csswg.org/css-color-5/#typedef-modern-device-cmyk-syntax",
       "syntax": "device-cmyk( <cmyk-component>{4} [ / [ <alpha-value> | none ] ]? )"
     },
     {
       "name": "modern-hsl-syntax",
-      "href": "https://drafts.csswg.org/css-color-5/#typedef-modern-hsl-syntax",
       "syntax": "hsl([from <color>]? [<hue> | none] [<percentage> | <number> | none] [<percentage> | <number> | none] [ / [<alpha-value> | none] ]? )"
     },
     {
       "name": "modern-hsla-syntax",
-      "href": "https://drafts.csswg.org/css-color-5/#typedef-modern-hsla-syntax",
       "syntax": "hsla([from <color>]? [<hue> | none] [<percentage> | <number> | none] [<percentage> | <number> | none] [ / [<alpha-value> | none] ]? )"
     },
     {
       "name": "modern-rgb-syntax",
-      "href": "https://drafts.csswg.org/css-color-5/#typedef-modern-rgb-syntax",
       "syntax": "rgb( [ from <color> ]? [ <number> | <percentage> | none]{3} [ / [<alpha-value> | none] ]? )"
     },
     {
       "name": "modern-rgba-syntax",
-      "href": "https://drafts.csswg.org/css-color-5/#typedef-modern-rgba-syntax",
       "syntax": "rgba( [ from <color> ]? [ <number> | <percentage> | none]{3} [ / [<alpha-value> | none] ]? )"
     },
     {
       "name": "move-command",
-      "href": "https://drafts.csswg.org/css-shapes-1/#typedef-shape-move-command",
-      "syntax": "move <command-end-point>",
-      "for": [
-        "shape()"
-      ]
+      "syntax": "move <command-end-point>"
     },
     {
       "name": "mq-boolean",
-      "href": "https://drafts.csswg.org/mediaqueries-4/#typedef-mq-boolean",
       "syntax": "<integer [0,1]>"
     },
     {
       "name": "n-dimension",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-n-dimension",
       "syntax": "<dimension-token>"
     },
     {
       "name": "name-repeat",
-      "href": "https://drafts.csswg.org/css-grid-2/#typedef-name-repeat",
       "syntax": "repeat( [ <integer [1,∞]> | auto-fill ], <line-names>+)"
     },
     {
       "name": "named-color",
-      "href": "https://drafts.csswg.org/css-color-4/#typedef-named-color",
       "syntax": "aliceblue | antiquewhite | aqua | aquamarine | azure | beige | bisque | black | blanchedalmond | blue | blueviolet | brown | burlywood | cadetblue | chartreuse | chocolate | coral | cornflowerblue | cornsilk | crimson | cyan | darkblue | darkcyan | darkgoldenrod | darkgray | darkgreen | darkgrey | darkkhaki | darkmagenta | darkolivegreen | darkorange | darkorchid | darkred | darksalmon | darkseagreen | darkslateblue | darkslategray | darkslategrey | darkturquoise | darkviolet | deeppink | deepskyblue | dimgray | dimgrey | dodgerblue | firebrick | floralwhite | forestgreen | fuchsia | gainsboro | ghostwhite | gold | goldenrod | gray | green | greenyellow | grey | honeydew | hotpink | indianred | indigo | ivory | khaki | lavender | lavenderblush | lawngreen | lemonchiffon | lightblue | lightcoral | lightcyan | lightgoldenrodyellow | lightgray | lightgreen | lightgrey | lightpink | lightsalmon | lightseagreen | lightskyblue | lightslategray | lightslategrey | lightsteelblue | lightyellow | lime | limegreen | linen | magenta | maroon | mediumaquamarine | mediumblue | mediumorchid | mediumpurple | mediumseagreen | mediumslateblue | mediumspringgreen | mediumturquoise | mediumvioletred | midnightblue | mintcream | mistyrose | moccasin | navajowhite | navy | oldlace | olive | olivedrab | orange | orangered | orchid | palegoldenrod | palegreen | paleturquoise | palevioletred | papayawhip | peachpuff | peru | pink | plum | powderblue | purple | rebeccapurple | red | rosybrown | royalblue | saddlebrown | salmon | sandybrown | seagreen | seashell | sienna | silver | skyblue | slateblue | slategray | slategrey | snow | springgreen | steelblue | tan | teal | thistle | tomato | turquoise | violet | wheat | white | whitesmoke | yellow | yellowgreen | transparent"
     },
     {
       "name": "namespace-prefix",
-      "href": "https://drafts.csswg.org/css-namespaces-3/#typedef-namespace-prefix",
       "syntax": "<ident>"
     },
     {
       "name": "navigation-condition",
-      "href": "https://drafts.csswg.org/css-navigation-1/#typedef-navigation-condition",
       "syntax": "not <navigation-in-parens> | <navigation-in-parens> [ and <navigation-in-parens> ]* | <navigation-in-parens> [ or <navigation-in-parens> ]*"
     },
     {
       "name": "navigation-in-parens",
-      "href": "https://drafts.csswg.org/css-navigation-1/#typedef-navigation-in-parens",
       "syntax": "( <navigation-condition> ) | ( <navigation-test> ) | <general-enclosed>"
     },
     {
       "name": "navigation-location-between-test",
-      "href": "https://drafts.csswg.org/css-navigation-1/#typedef-navigation-location-between-test",
       "syntax": "between : <route-location> and <route-location>"
     },
     {
       "name": "navigation-location-test",
-      "href": "https://drafts.csswg.org/css-navigation-1/#typedef-navigation-location-test",
       "syntax": "<navigation-relation> : <route-location>"
     },
     {
       "name": "navigation-phase-keyword",
-      "href": "https://drafts.csswg.org/css-navigation-1/#typedef-navigation-phase-keyword",
       "syntax": "loading | ready | committed"
     },
     {
       "name": "navigation-phase-test",
-      "href": "https://drafts.csswg.org/css-navigation-1/#typedef-navigation-phase-test",
       "syntax": "phase : <navigation-phase-keyword>"
     },
     {
       "name": "navigation-relation",
-      "href": "https://drafts.csswg.org/css-navigation-1/#typedef-navigation-relation",
       "syntax": "at | with | from | to"
     },
     {
       "name": "navigation-test",
-      "href": "https://drafts.csswg.org/css-navigation-1/#typedef-navigation-test",
       "syntax": "<navigation-location-test> | <navigation-location-between-test> | <navigation-type-test> | <navigation-phase-test>"
     },
     {
       "name": "navigation-type-keyword",
-      "href": "https://drafts.csswg.org/css-navigation-1/#typedef-navigation-type-keyword",
       "syntax": "traverse | back | forward | reload"
     },
     {
       "name": "navigation-type-test",
-      "href": "https://drafts.csswg.org/css-navigation-1/#typedef-navigation-type-test",
       "syntax": "history : <navigation-type-keyword>"
     },
     {
       "name": "ndash-dimension",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-ndash-dimension",
       "syntax": "<dimension-token>"
     },
     {
       "name": "ndashdigit-dimension",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-ndashdigit-dimension",
       "syntax": "<dimension-token>"
     },
     {
       "name": "ndashdigit-ident",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-ndashdigit-ident",
       "syntax": "<ident-token>"
     },
     {
       "name": "ns-prefix",
-      "href": "https://drafts.csswg.org/selectors-4/#typedef-ns-prefix",
       "syntax": "[ <ident-token> | '*' ]? '|'"
     },
     {
-      "name": "number",
-      "href": "https://drafts.csswg.org/css-values-4/#number-value"
+      "name": "number"
     },
     {
       "name": "number-optional-number",
-      "href": "https://drafts.csswg.org/filter-effects-1/#typedef-number-optional-number",
       "syntax": "<number> <number>?"
     },
     {
-      "name": "number-token",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-number-token"
+      "name": "number-token"
     },
     {
       "name": "numeric-figure-values",
-      "href": "https://drafts.csswg.org/css-fonts-4/#numeric-figure-values",
       "syntax": "[ lining-nums | oldstyle-nums ]"
     },
     {
       "name": "numeric-fraction-values",
-      "href": "https://drafts.csswg.org/css-fonts-4/#numeric-fraction-values",
       "syntax": "[ diagonal-fractions | stacked-fractions ]"
     },
     {
       "name": "numeric-spacing-values",
-      "href": "https://drafts.csswg.org/css-fonts-4/#numeric-spacing-values",
       "syntax": "[ proportional-nums | tabular-nums ]"
     },
     {
       "name": "offset-path",
-      "href": "https://drafts.csswg.org/motion-1/#typedef-offset-path",
       "syntax": "<ray()> | <url> | <basic-shape>"
     },
     {
       "name": "opacity-value",
-      "href": "https://drafts.csswg.org/css-color-4/#typedef-opacity-opacity-value",
-      "syntax": "<number> | <percentage>",
-      "for": [
-        "opacity"
-      ]
+      "syntax": "<number> | <percentage>"
     },
     {
       "name": "opentype-tag",
-      "href": "https://drafts.csswg.org/css-fonts-4/#typedef-opentype-tag",
       "syntax": "<string>"
     },
     {
       "name": "outline-line-style",
-      "href": "https://drafts.csswg.org/css-ui-4/#typedef-outline-line-style",
       "syntax": "none | auto | dotted | dashed | solid | double | groove | ridge | inset | outset"
     },
     {
       "name": "overflow-position",
-      "href": "https://drafts.csswg.org/css-align-3/#typedef-overflow-position",
       "syntax": "unsafe | safe"
     },
     {
-      "name": "padding-width",
-      "href": "https://drafts.csswg.org/css2/#value-def-padding-width"
+      "name": "padding-width"
     },
     {
       "name": "page-selector",
-      "href": "https://drafts.csswg.org/css-page-3/#typedef-page-selector",
       "syntax": "[ <ident-token>? <pseudo-page>* ]!"
     },
     {
       "name": "page-selector-list",
-      "href": "https://drafts.csswg.org/css-page-3/#typedef-page-selector-list",
       "syntax": "<page-selector>#"
     },
     {
       "name": "page-size",
-      "href": "https://drafts.csswg.org/css-page-3/#typedef-page-size-page-size",
-      "syntax": "A5 | A4 | A3 | B5 | B4 | JIS-B5 | JIS-B4 | letter | legal | ledger",
-      "for": [
-        "size"
-      ]
+      "syntax": "A5 | A4 | A3 | B5 | B4 | JIS-B5 | JIS-B4 | letter | legal | ledger"
     },
     {
       "name": "paint",
-      "href": "https://drafts.csswg.org/fill-stroke-3/#typedef-paint",
       "syntax": "none | <image> | <svg-paint>"
     },
     {
       "name": "paint-box",
-      "href": "https://drafts.csswg.org/css-box-4/#typedef-paint-box",
       "syntax": "<visual-box> | fill-box | stroke-box"
     },
     {
       "name": "palette-identifier",
-      "href": "https://drafts.csswg.org/css-fonts-4/#typedef-font-palette-palette-identifier",
-      "syntax": "<dashed-ident>",
-      "for": [
-        "font-palette"
-      ]
+      "syntax": "<dashed-ident>"
     },
     {
       "name": "pattern-descriptor",
-      "href": "https://drafts.csswg.org/css-navigation-1/#typedef-pattern-descriptor",
       "syntax": "pattern : <url-pattern()>"
     },
     {
-      "name": "percentage",
-      "href": "https://drafts.csswg.org/css-values-4/#percentage-value"
+      "name": "percentage"
     },
     {
-      "name": "percentage-token",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-percentage-token"
+      "name": "percentage-token"
     },
     {
       "name": "pointer-axis",
-      "href": "https://drafts.csswg.org/pointer-animations-1/#typedef-axis",
       "syntax": "block | inline | x | y"
     },
     {
       "name": "pointer-source",
-      "href": "https://drafts.csswg.org/pointer-animations-1/#typedef-source",
       "syntax": "root | nearest | self"
     },
     {
       "name": "points",
-      "href": "https://w3c.github.io/svgwg/svg2-draft/shapes.html#DataTypePoints",
       "syntax": "[ <number>+ ]#"
     },
     {
       "name": "polar-color-space",
-      "href": "https://drafts.csswg.org/css-color-5/#typedef-polar-color-space",
       "syntax": "hsl | hwb | lch | oklch"
     },
     {
       "name": "position",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-position",
       "syntax": "<position-one> | <position-two> | <position-four>"
     },
     {
       "name": "position-area",
-      "href": "https://drafts.csswg.org/css-anchor-position-1/#typedef-position-area",
       "syntax": "[ [ left | center | right | span-left | span-right | x-start | x-end | span-x-start | span-x-end | self-x-start | self-x-end | span-self-x-start | span-self-x-end | span-all ] || [ top | center | bottom | span-top | span-bottom | y-start | y-end | span-y-start | span-y-end | self-y-start | self-y-end | span-self-y-start | span-self-y-end | span-all ] | [ block-start | center | block-end | span-block-start | span-block-end | span-all ] || [ inline-start | center | inline-end | span-inline-start | span-inline-end | span-all ] | [ self-block-start | center | self-block-end | span-self-block-start | span-self-block-end | span-all ] || [ self-inline-start | center | self-inline-end | span-self-inline-start | span-self-inline-end | span-all ] | [ start | center | end | span-start | span-end | span-all ]{1,2} | [ self-start | center | self-end | span-self-start | span-self-end | span-all ]{1,2} ]"
     },
     {
       "name": "position-area-query",
-      "href": "https://drafts.csswg.org/css-anchor-position-2/#typedef-position-area-query",
       "syntax": "[ [ left | center | right | span-left | span-right | x-start | x-end | span-x-start | span-x-end | self-x-start | self-x-end | span-self-x-start | span-self-x-end | span-all | any ] || [ top | center | bottom | span-top | span-bottom | y-start | y-end | span-y-start | span-y-end | self-y-start | self-y-end | span-self-y-start | span-self-y-end | span-all | any ] | [ block-start | center | block-end | span-block-start | span-block-end | span-all | any ] || [ inline-start | center | inline-end | span-inline-start | span-inline-end | span-all | any ] | [ self-block-start | center | self-block-end | span-self-block-start | span-self-block-end | span-all | any ] || [ self-inline-start | center | self-inline-end | span-self-inline-start | span-self-inline-end | span-all | any ] | [ start | center | end | span-start | span-end | span-all | any ]{1,2} | [ self-start | center | self-end | span-self-start | span-self-end | span-all | any ]{1,2} ]"
     },
     {
       "name": "position-four",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-position-four",
       "syntax": "[ [ [ left | right | x-start | x-end ] <length-percentage> ] && [ [ top | bottom | y-start | y-end ] <length-percentage> ] | [ [ block-start | block-end ] <length-percentage> ] && [ [ inline-start | inline-end ] <length-percentage> ] | [ [ start | end ] <length-percentage> ]{2} ]"
     },
     {
       "name": "position-one",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-position-one",
       "syntax": "[ left | center | right | top | bottom | x-start | x-end | y-start | y-end | block-start | block-end | inline-start | inline-end | <length-percentage> ]"
     },
     {
       "name": "position-three",
-      "href": "https://drafts.csswg.org/css-backgrounds-4/#typedef-position-three",
       "syntax": "[ [ left | center | right ] && [ [ top | bottom ] <length-percentage> ] | [ [ left | right ] <length-percentage> ] && [ top | center | bottom ] ]"
     },
     {
       "name": "position-two",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-position-two",
       "syntax": "[ [ left | center | right | x-start | x-end ] && [ top | center | bottom | y-start | y-end ] | [ left | center | right | x-start | x-end | <length-percentage> ] [ top | center | bottom | y-start | y-end | <length-percentage> ] | [ block-start | center | block-end ] && [ inline-start | center | inline-end ] | [ start | center | end ]{2} ]"
     },
     {
       "name": "predefined-rgb",
-      "href": "https://drafts.csswg.org/css-color-hdr-1/#typedef-predefined-rgb",
       "syntax": "srgb | srgb-linear | display-p3 | display-p3-linear | a98-rgb | prophoto-rgb | rec2020 | rec2100-pq | rec2100-hlg | rec2100-linear"
     },
     {
       "name": "predefined-rgb-params",
-      "href": "https://drafts.csswg.org/css-color-5/#typedef-predefined-rgb-params",
       "syntax": "<predefined-rgb> [ <number> | <percentage> | none ]{3}"
     },
     {
       "name": "progress-source",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-progress-source",
       "syntax": "<percentage> | <number> | <dimension> | <'animation-timeline'>"
     },
     {
       "name": "pseudo-class-selector",
-      "href": "https://drafts.csswg.org/selectors-4/#typedef-pseudo-class-selector",
       "syntax": ": <ident-token> | : <function-token> <any-value> )"
     },
     {
       "name": "pseudo-compound-selector",
-      "href": "https://drafts.csswg.org/selectors-4/#typedef-pseudo-compound-selector",
       "syntax": "<pseudo-element-selector> <pseudo-class-selector>*"
     },
     {
       "name": "pseudo-element-selector",
-      "href": "https://drafts.csswg.org/selectors-4/#typedef-pseudo-element-selector",
       "syntax": ": <pseudo-class-selector> | <legacy-pseudo-element-selector>"
     },
     {
       "name": "pseudo-page",
-      "href": "https://drafts.csswg.org/css-page-3/#typedef-pseudo-page",
       "syntax": ": [ left | right | first | blank ]"
     },
     {
       "name": "pt-class-selector",
-      "href": "https://drafts.csswg.org/css-view-transitions-2/#typedef-pt-class-selector",
       "syntax": "['.' <custom-ident>]+"
     },
     {
       "name": "pt-name-and-class-selector",
-      "href": "https://drafts.csswg.org/css-view-transitions-2/#typedef-pt-name-and-class-selector",
       "syntax": "<pt-name-selector> <pt-class-selector>? | <pt-class-selector>"
     },
     {
       "name": "pt-name-selector",
-      "href": "https://drafts.csswg.org/css-view-transitions-2/#typedef-pt-name-selector",
       "syntax": "'*' | <custom-ident>"
     },
     {
-      "name": "qualified-rule-list",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-qualified-rule-list"
+      "name": "qualified-rule-list"
     },
     {
       "name": "query-in-parens",
-      "href": "https://drafts.csswg.org/css-conditional-5/#typedef-query-in-parens",
       "syntax": "( <container-query> ) | ( <size-feature> ) | style( <style-query> ) | scroll-state( <scroll-state-query> ) | <general-enclosed>"
     },
     {
-      "name": "quirky-color",
-      "href": "https://drafts.csswg.org/css-color-4/#typedef-quirky-color"
+      "name": "quirky-color"
     },
     {
-      "name": "quirky-length",
-      "href": "https://drafts.csswg.org/css-values-4/#typedef-quirky-length"
+      "name": "quirky-length"
     },
     {
       "name": "quote",
-      "href": "https://drafts.csswg.org/css-content-3/#typedef-quote",
       "syntax": "open-quote | close-quote | no-open-quote | no-close-quote"
     },
     {
       "name": "radial-extent",
-      "href": "https://drafts.csswg.org/css-images-3/#typedef-radial-extent",
       "syntax": "closest-corner | closest-side | farthest-corner | farthest-side"
     },
     {
       "name": "radial-gradient-syntax",
-      "href": "https://drafts.csswg.org/css-images-4/#typedef-radial-gradient-syntax",
       "syntax": "[ [ [ <radial-shape> || <radial-size> ]? [ at <position> ]? ] || <color-interpolation-method>]? , <color-stop-list>"
     },
     {
       "name": "radial-shape",
-      "href": "https://drafts.csswg.org/css-images-3/#typedef-radial-shape",
       "syntax": "circle | ellipse"
     },
     {
       "name": "radial-size",
-      "href": "https://drafts.csswg.org/css-images-3/#typedef-radial-size",
       "syntax": "<radial-extent> | <length [0,∞]> | <length-percentage [0,∞]>{2}"
     },
     {
       "name": "random-cache-key",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-random-cache-key",
       "syntax": "<dashed-ident> || element-scoped || [ property-scoped | property-index-scoped | <random-ua-ident> ]"
     },
     {
       "name": "random-item-args",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-random-item-args",
       "syntax": "random-item( <declaration-value>, [ <declaration-value>? ]# )"
     },
     {
       "name": "random-key",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-random-key",
       "syntax": "auto | <random-cache-key> | fixed <number [0,1]>"
     },
     {
       "name": "random-ua-ident",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-random-ua-ident",
       "syntax": "<custom-ident>"
     },
     {
       "name": "ratio",
-      "href": "https://drafts.csswg.org/css-values-4/#ratio-value",
       "syntax": "<number [0,∞]> [ / <number [0,∞]> ]?"
     },
     {
       "name": "ray-size",
-      "href": "https://drafts.csswg.org/motion-1/#typedef-ray-size",
       "syntax": "<radial-extent> | sides"
     },
     {
       "name": "rectangular-color-space",
-      "href": "https://drafts.csswg.org/css-color-5/#typedef-rectangular-color-space",
       "syntax": "srgb | srgb-linear | display-p3 | display-p3-linear | a98-rgb | prophoto-rgb | rec2020 | lab | oklab | <xyz-space>"
     },
     {
       "name": "referrer-policy-modifier",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-request-url-modifier-referrer-policy-modifier",
-      "syntax": "referrer-policy(no-referrer | no-referrer-when-downgrade | same-origin | origin | strict-origin | origin-when-cross-origin | strict-origin-when-cross-origin | unsafe-url)",
-      "for": [
-        "<request-url-modifier>"
-      ]
+      "syntax": "referrer-policy(no-referrer | no-referrer-when-downgrade | same-origin | origin | strict-origin | origin-when-cross-origin | strict-origin-when-cross-origin | unsafe-url)"
     },
     {
       "name": "relative-control-point",
-      "href": "https://drafts.csswg.org/css-shapes-1/#typedef-shape-relative-control-point",
-      "syntax": "<coordinate-pair> [ from [ start | end | origin ] ]?",
-      "for": [
-        "shape()"
-      ]
+      "syntax": "<coordinate-pair> [ from [ start | end | origin ] ]?"
     },
     {
       "name": "relative-real-selector",
-      "href": "https://drafts.csswg.org/selectors-4/#typedef-relative-real-selector",
       "syntax": "<combinator>? <complex-real-selector>"
     },
     {
       "name": "relative-real-selector-list",
-      "href": "https://drafts.csswg.org/selectors-4/#typedef-relative-real-selector-list",
       "syntax": "<relative-real-selector>#"
     },
     {
       "name": "relative-selector",
-      "href": "https://drafts.csswg.org/selectors-4/#typedef-relative-selector",
       "syntax": "<combinator>? <complex-selector>"
     },
     {
       "name": "relative-selector-list",
-      "href": "https://drafts.csswg.org/selectors-4/#typedef-relative-selector-list",
       "syntax": "<relative-selector>#"
     },
     {
       "name": "relative-size",
-      "href": "https://drafts.csswg.org/css-fonts-4/#typedef-relative-size",
       "syntax": "[ larger | smaller ]"
     },
     {
       "name": "repeat-line-color",
-      "href": "https://drafts.csswg.org/css-gaps-1/#typedef-repeat-line-color",
       "syntax": "repeat( [ <integer [1,∞]> ] , [ <color> ]# )"
     },
     {
       "name": "repeat-line-style",
-      "href": "https://drafts.csswg.org/css-gaps-1/#typedef-repeat-line-style",
       "syntax": "repeat( [ <integer [1,∞]> ] , [ <line-style> ]# )"
     },
     {
       "name": "repeat-line-width",
-      "href": "https://drafts.csswg.org/css-gaps-1/#typedef-repeat-line-width",
       "syntax": "repeat( [ <integer [1,∞]> ] , [ <line-width> ]# )"
     },
     {
       "name": "repeat-style",
-      "href": "https://drafts.csswg.org/css-backgrounds-4/#typedef-repeat-style",
       "syntax": "repeat-x | repeat-y | repeat-block | repeat-inline | <repetition>{1,2}"
     },
     {
       "name": "repetition",
-      "href": "https://drafts.csswg.org/css-backgrounds-4/#typedef-repetition",
       "syntax": "repeat | space | round | no-repeat"
     },
     {
       "name": "request-url-modifier",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-request-url-modifier",
       "syntax": "<cross-origin-modifier> | <integrity-modifier> | <referrer-policy-modifier>"
     },
     {
-      "name": "resolution",
-      "href": "https://drafts.csswg.org/css-values-4/#resolution-value"
+      "name": "resolution"
     },
     {
       "name": "reversed-counter-name",
-      "href": "https://drafts.csswg.org/css-lists-3/#typedef-reversed-counter-name",
       "syntax": "reversed( <counter-name> )"
     },
     {
-      "name": "right",
-      "href": "https://drafts.csswg.org/css2/#value-def-right"
+      "name": "right"
     },
     {
       "name": "rounding-strategy",
-      "href": "https://drafts.csswg.org/css-values-4/#typedef-rounding-strategy",
       "syntax": "nearest | up | down | to-zero | line-width"
     },
     {
       "name": "route-descriptor",
-      "href": "https://drafts.csswg.org/css-navigation-1/#typedef-route-descriptor",
       "syntax": "<pattern-descriptor> | <init-descriptor> | <base-descriptor>"
     },
     {
       "name": "route-location",
-      "href": "https://drafts.csswg.org/css-navigation-1/#typedef-route-location",
       "syntax": "<url> | [ <route-name> | <url-pattern()> ]"
     },
     {
       "name": "route-name",
-      "href": "https://drafts.csswg.org/css-navigation-1/#typedef-route-name",
       "syntax": "<dashed-ident>"
     },
     {
       "name": "route-rule",
-      "href": "https://drafts.csswg.org/css-navigation-1/#typedef-route-rule",
       "syntax": "@route <dashed-ident> { <declaration-list> }"
     },
     {
-      "name": "rule-list",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-rule-list"
+      "name": "rule-list"
     },
     {
-      "name": "safe-printable-inset",
-      "href": "https://drafts.csswg.org/css-page-3/#typedef-safe-printable-inset"
+      "name": "safe-printable-inset"
     },
     {
       "name": "scope-boundaries",
-      "href": "https://drafts.csswg.org/css-cascade-6/#typedef-scope-boundaries",
       "syntax": "[ [ ( <scope-start> ) ]? [ to ( <scope-end> ) ]? ]!"
     },
     {
       "name": "scope-end",
-      "href": "https://drafts.csswg.org/css-cascade-6/#typedef-scope-end",
       "syntax": "<selector-list>"
     },
     {
       "name": "scope-start",
-      "href": "https://drafts.csswg.org/css-cascade-6/#typedef-scope-start",
       "syntax": "<selector-list>"
     },
     {
       "name": "scroll-button-direction",
-      "href": "https://drafts.csswg.org/css-overflow-5/#typedef-scroll-button-direction",
       "syntax": "up | down | left | right | block-start | block-end | inline-start | inline-end | prev | next"
     },
     {
-      "name": "scroll-state-feature",
-      "href": "https://drafts.csswg.org/css-conditional-5/#typedef-scroll-state-feature"
+      "name": "scroll-state-feature"
     },
     {
       "name": "scroll-state-in-parens",
-      "href": "https://drafts.csswg.org/css-conditional-5/#typedef-scroll-state-in-parens",
       "syntax": "( <scroll-state-query> ) | ( <scroll-state-feature> ) | <general-enclosed>"
     },
     {
       "name": "scroll-state-query",
-      "href": "https://drafts.csswg.org/css-conditional-5/#typedef-scroll-state-query",
       "syntax": "not <scroll-state-in-parens> | <scroll-state-in-parens> [ [ and <scroll-state-in-parens> ]* | [ or <scroll-state-in-parens> ]* ] | <scroll-state-feature>"
     },
     {
       "name": "scroller",
-      "href": "https://drafts.csswg.org/scroll-animations-1/#typedef-scroller",
       "syntax": "root | nearest | self"
     },
     {
-      "name": "segment-options",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-calc-interpolate-segment-options",
-      "for": [
-        "calc-interpolate()",
-        "color-interpolate()",
-        "interpolate()",
-        "transform-interpolate()"
-      ]
+      "name": "segment-options"
     },
     {
       "name": "selector-list",
-      "href": "https://drafts.csswg.org/selectors-4/#typedef-selector-list",
       "syntax": "<complex-selector-list>"
     },
     {
       "name": "self-position",
-      "href": "https://drafts.csswg.org/css-align-3/#typedef-self-position",
       "syntax": "center | start | end | self-start | self-end | flex-start | flex-end"
     },
     {
-      "name": "semicolon-token",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-semicolon-token"
+      "name": "semicolon-token"
     },
     {
-      "name": "semitones",
-      "href": "https://drafts.csswg.org/css-speech-1/#typedef-voice-pitch-semitones",
-      "for": [
-        "voice-pitch"
-      ]
+      "name": "semitones"
     },
     {
       "name": "shadow",
-      "href": "https://drafts.csswg.org/css-backgrounds-3/#typedef-shadow",
       "syntax": "<color>? && [ <length>{2} [ <length [0,∞]> <length>? ]? ] && inset?"
     },
     {
       "name": "shape",
-      "href": "https://drafts.csswg.org/css2/#value-def-shape",
       "syntax": "rect(<top>, <right>, <bottom>, <left>)"
     },
     {
       "name": "shape-box",
-      "href": "https://drafts.csswg.org/css-shapes-1/#typedef-shape-box",
       "syntax": "<visual-box> | margin-box | half-border-box"
     },
     {
       "name": "shape-command",
-      "href": "https://drafts.csswg.org/css-shapes-1/#typedef-shape-command",
       "syntax": "<move-command> | <line-command> | close | <horizontal-line-command> | <vertical-line-command> | <curve-command> | <smooth-command> | <arc-command>"
     },
     {
       "name": "side-or-corner",
-      "href": "https://drafts.csswg.org/css-images-4/#typedef-side-or-corner",
       "syntax": "[left | right] || [top | bottom]"
     },
     {
       "name": "signed-integer",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-signed-integer",
       "syntax": "<number-token>"
     },
     {
       "name": "signless-integer",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-signless-integer",
       "syntax": "<number-token>"
     },
     {
       "name": "simple-selector",
-      "href": "https://drafts.csswg.org/selectors-4/#typedef-simple-selector",
       "syntax": "<type-selector> | <subclass-selector>"
     },
     {
       "name": "simple-selector-list",
-      "href": "https://drafts.csswg.org/selectors-4/#typedef-simple-selector-list",
       "syntax": "<simple-selector>#"
     },
     {
       "name": "single-animation",
-      "href": "https://drafts.csswg.org/css-animations-2/#typedef-single-animation",
       "syntax": "<'animation-duration'> || <easing-function> || <'animation-delay-start'> || <single-animation-iteration-count> || <single-animation-direction> || <single-animation-fill-mode> || <single-animation-play-state> || [ none | <keyframes-name> ] || <single-animation-timeline>"
     },
     {
       "name": "single-animation-composition",
-      "href": "https://drafts.csswg.org/css-animations-2/#typedef-single-animation-composition",
       "syntax": "replace | add | accumulate"
     },
     {
       "name": "single-animation-direction",
-      "href": "https://drafts.csswg.org/css-animations-1/#typedef-single-animation-direction",
       "syntax": "normal | reverse | alternate | alternate-reverse"
     },
     {
       "name": "single-animation-fill-mode",
-      "href": "https://drafts.csswg.org/css-animations-1/#typedef-single-animation-fill-mode",
       "syntax": "none | forwards | backwards | both"
     },
     {
       "name": "single-animation-iteration-count",
-      "href": "https://drafts.csswg.org/css-animations-1/#typedef-single-animation-iteration-count",
       "syntax": "infinite | <number [0,∞]>"
     },
     {
       "name": "single-animation-play-state",
-      "href": "https://drafts.csswg.org/css-animations-1/#typedef-single-animation-play-state",
       "syntax": "running | paused"
     },
     {
       "name": "single-animation-timeline",
-      "href": "https://drafts.csswg.org/css-animations-2/#typedef-single-animation-timeline",
       "syntax": "auto | none | <dashed-ident> | <scroll()> | <view()>"
     },
     {
       "name": "single-transition",
-      "href": "https://drafts.csswg.org/css-transitions-2/#single-transition",
       "syntax": "[ none | <single-transition-property> ] || <time> || <easing-function> || <time> || <transition-behavior-value>"
     },
     {
       "name": "single-transition-property",
-      "href": "https://drafts.csswg.org/css-transitions-1/#single-transition-property",
       "syntax": "all | <custom-ident>"
     },
     {
-      "name": "size-feature",
-      "href": "https://drafts.csswg.org/css-conditional-5/#typedef-size-feature"
+      "name": "size-feature"
     },
     {
-      "name": "size-keyword",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-calc-size-size-keyword",
-      "for": [
-        "calc-size()"
-      ]
+      "name": "size-keyword"
     },
     {
       "name": "slash-separated-border-radius-syntax",
-      "href": "https://drafts.csswg.org/css-borders-4/#typedef-slash-separated-border-radius-syntax",
       "syntax": "<length-percentage [0,∞]> [ / <length-percentage [0,∞]> ]?"
     },
     {
       "name": "smooth-command",
-      "href": "https://drafts.csswg.org/css-shapes-1/#typedef-shape-smooth-command",
-      "syntax": "smooth [ [ to <position> [ with <control-point> ]? ] | [ by <coordinate-pair> [ with <relative-control-point> ]? ] ]",
-      "for": [
-        "shape()"
-      ]
+      "syntax": "smooth [ [ to <position> [ with <control-point> ]? ] | [ by <coordinate-pair> [ with <relative-control-point> ]? ] ]"
     },
     {
       "name": "source-size",
-      "href": "https://html.spec.whatwg.org/multipage/images.html#source-size",
       "syntax": "<media-condition> <source-size-value> | auto"
     },
     {
       "name": "source-size-list",
-      "href": "https://html.spec.whatwg.org/multipage/images.html#source-size-list",
       "syntax": "<source-size>#? , <source-size-value>"
     },
     {
       "name": "source-size-value",
-      "href": "https://html.spec.whatwg.org/multipage/images.html#source-size-value",
       "syntax": "<length> | auto"
     },
     {
       "name": "spacing-trim",
-      "href": "https://drafts.csswg.org/css-text-4/#typedef-spacing-trim",
       "syntax": "space-all | normal | space-first | trim-start | trim-both | trim-all"
     },
     {
       "name": "spread-shadow",
-      "href": "https://drafts.csswg.org/css-borders-4/#typedef-spread-shadow",
       "syntax": "<'box-shadow-color'>? && [ [ none | <length>{2} ] [ <'box-shadow-blur'> <'box-shadow-spread'>? ]? ] && <'box-shadow-position'>?"
     },
     {
       "name": "step-easing-function",
-      "href": "https://drafts.csswg.org/css-easing-2/#typedef-step-easing-function",
       "syntax": "step-start | step-end | <steps()>"
     },
     {
       "name": "step-position",
-      "href": "https://drafts.csswg.org/css-easing-2/#typedef-step-position",
       "syntax": "jump-start | jump-end | jump-none | jump-both | start | end"
     },
     {
-      "name": "string",
-      "href": "https://drafts.csswg.org/css-values-4/#string-value"
+      "name": "string"
     },
     {
-      "name": "string-token",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-string-token"
+      "name": "string-token"
     },
     {
       "name": "style-feature",
-      "href": "https://drafts.csswg.org/css-conditional-5/#typedef-style-feature",
       "syntax": "<style-feature-plain> | <style-feature-boolean> | <style-range>"
     },
     {
       "name": "style-feature-boolean",
-      "href": "https://drafts.csswg.org/css-conditional-5/#typedef-style-feature-boolean",
       "syntax": "<style-feature-name>"
     },
     {
-      "name": "style-feature-name",
-      "href": "https://drafts.csswg.org/css-conditional-5/#typedef-style-feature-name"
+      "name": "style-feature-name"
     },
     {
       "name": "style-feature-plain",
-      "href": "https://drafts.csswg.org/css-conditional-5/#typedef-style-feature-plain",
       "syntax": "<style-feature-name> : <style-feature-value>"
     },
     {
-      "name": "style-feature-value",
-      "href": "https://drafts.csswg.org/css-conditional-5/#typedef-style-feature-value"
+      "name": "style-feature-value"
     },
     {
       "name": "style-in-parens",
-      "href": "https://drafts.csswg.org/css-conditional-5/#typedef-style-in-parens",
       "syntax": "( <style-query> ) | ( <style-feature> ) | <general-enclosed>"
     },
     {
       "name": "style-query",
-      "href": "https://drafts.csswg.org/css-conditional-5/#typedef-style-query",
       "syntax": "not <style-in-parens> | <style-in-parens> [ [ and <style-in-parens> ]* | [ or <style-in-parens> ]* ] | <style-feature>"
     },
     {
       "name": "style-range",
-      "href": "https://drafts.csswg.org/css-conditional-5/#typedef-style-range",
       "syntax": "<style-range-value> <mf-comparison> <style-range-value> | <style-range-value> <mf-lt> <style-range-value> <mf-lt> <style-range-value> | <style-range-value> <mf-gt> <style-range-value> <mf-gt> <style-range-value>"
     },
     {
       "name": "style-range-value",
-      "href": "https://drafts.csswg.org/css-conditional-5/#typedef-style-range-value",
       "syntax": "<custom-property-name> | <style-feature-value>"
     },
     {
       "name": "subclass-selector",
-      "href": "https://drafts.csswg.org/selectors-4/#typedef-subclass-selector",
       "syntax": "<id-selector> | <class-selector> | <attribute-selector> | <pseudo-class-selector>"
     },
     {
       "name": "supports-at-rule-fn",
-      "href": "https://drafts.csswg.org/css-conditional-5/#typedef-supports-at-rule-fn",
       "syntax": "at-rule( <at-keyword-token> )"
     },
     {
       "name": "supports-condition",
-      "href": "https://drafts.csswg.org/css-conditional-3/#typedef-supports-condition",
       "syntax": "not <supports-in-parens> | <supports-in-parens> [ and <supports-in-parens> ]* | <supports-in-parens> [ or <supports-in-parens> ]*"
     },
     {
-      "name": "supports-condition-name",
-      "href": "https://drafts.csswg.org/css-conditional-5/#typedef-supports-condition-name"
+      "name": "supports-condition-name"
     },
     {
       "name": "supports-decl",
-      "href": "https://drafts.csswg.org/css-conditional-5/#typedef-supports-decl",
       "syntax": "( [ <declaration> | <supports-condition-name> ] )"
     },
     {
       "name": "supports-env-fn",
-      "href": "https://drafts.csswg.org/css-conditional-5/#typedef-supports-env-fn",
       "syntax": "env( <ident> )"
     },
     {
       "name": "supports-feature",
-      "href": "https://drafts.csswg.org/css-conditional-5/#typedef-supports-feature",
       "syntax": "<supports-selector-fn> | <supports-font-tech-fn> | <supports-font-format-fn> | <supports-at-rule-fn> | <supports-named-feature-fn> | <supports-env-fn> | <supports-decl>"
     },
     {
       "name": "supports-font-format-fn",
-      "href": "https://drafts.csswg.org/css-conditional-5/#typedef-supports-font-format-fn",
       "syntax": "font-format( <font-format> )"
     },
     {
       "name": "supports-font-tech-fn",
-      "href": "https://drafts.csswg.org/css-conditional-5/#typedef-supports-font-tech-fn",
       "syntax": "font-tech( <font-tech> )"
     },
     {
       "name": "supports-import-condition",
-      "href": "https://drafts.csswg.org/css-cascade-6/#typedef-supports-import-condition",
       "syntax": "supports( [ <supports-condition> | <declaration> ] )"
     },
     {
       "name": "supports-in-parens",
-      "href": "https://drafts.csswg.org/css-conditional-3/#typedef-supports-in-parens",
       "syntax": "( <supports-condition> ) | <supports-feature> | <general-enclosed>"
     },
     {
       "name": "supports-named-feature-fn",
-      "href": "https://drafts.csswg.org/css-conditional-5/#typedef-supports-named-feature-fn",
       "syntax": "named-feature( <ident> )"
     },
     {
       "name": "supports-selector-fn",
-      "href": "https://drafts.csswg.org/css-conditional-4/#typedef-supports-selector-fn",
       "syntax": "selector( <complex-selector> )"
     },
     {
       "name": "svg-paint",
-      "href": "https://drafts.csswg.org/fill-stroke-3/#typedef-svg-paint",
       "syntax": "child | child( <integer> )"
     },
     {
       "name": "symbol",
-      "href": "https://drafts.csswg.org/css-counter-styles-3/#typedef-symbol",
       "syntax": "<string> | <image> | <custom-ident>"
     },
     {
       "name": "symbols-type",
-      "href": "https://drafts.csswg.org/css-counter-styles-3/#typedef-symbols-type",
       "syntax": "cyclic | numeric | alphabetic | symbolic | fixed"
     },
     {
       "name": "syntax",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-syntax",
       "syntax": "'*' | <syntax-component> [ <syntax-combinator> <syntax-component> ]* | <syntax-string>"
     },
     {
       "name": "syntax-combinator",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-syntax-combinator",
       "syntax": "'|'"
     },
     {
       "name": "syntax-component",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-syntax-component",
       "syntax": "<syntax-single-component> <syntax-multiplier>? | '<' transform-list '>'"
     },
     {
       "name": "syntax-multiplier",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-syntax-multiplier",
       "syntax": "[ '#' | '+' ]"
     },
     {
       "name": "syntax-single-component",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-syntax-single-component",
       "syntax": "'<' <syntax-type-name> '>' | <ident>"
     },
     {
       "name": "syntax-string",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-syntax-string",
       "syntax": "<string>"
     },
     {
       "name": "syntax-type-name",
-      "href": "https://drafts.csswg.org/css-values-5/#typedef-syntax-type-name",
       "syntax": "angle | color | custom-ident | image | integer | length | length-percentage | number | percentage | resolution | string | time | url | transform-function"
     },
     {
       "name": "system-color",
-      "href": "https://drafts.csswg.org/css-color-4/#typedef-system-color",
       "syntax": "AccentColor | AccentColorText | ActiveText | ButtonBorder | ButtonFace | ButtonText | Canvas | CanvasText | Field | FieldText | GrayText | Highlight | HighlightText | LinkText | Mark | MarkText | SelectedItem | SelectedItemText | VisitedText | <deprecated-color>"
     },
     {
       "name": "system-font-family-name",
-      "href": "https://drafts.csswg.org/css-fonts-4/#system-font-family-name-value",
       "syntax": "caption | icon | menu | message-box | small-caption | status-bar"
     },
     {
       "name": "target",
-      "href": "https://drafts.csswg.org/css-content-3/#typedef-target",
       "syntax": "<target-counter()> | <target-counters()> | <target-text()>"
     },
     {
       "name": "target-contrast",
-      "href": "https://drafts.csswg.org/css-color-6/#typedef-target-contrast",
       "syntax": "<wcag2>"
     },
     {
-      "name": "target-name",
-      "href": "https://drafts.csswg.org/css-ui-4/#typedef-target-name"
+      "name": "target-name"
     },
     {
       "name": "text-edge",
-      "href": "https://drafts.csswg.org/css-inline-3/#typedef-text-edge",
       "syntax": "[ text | ideographic | ideographic-ink ] | [ text | ideographic | ideographic-ink | cap | ex ] [ text | ideographic | ideographic-ink | alphabetic ]"
     },
     {
-      "name": "time",
-      "href": "https://drafts.csswg.org/css-values-4/#time-value"
+      "name": "time"
     },
     {
       "name": "time-percentage",
-      "href": "https://drafts.csswg.org/css-values-4/#typedef-time-percentage",
       "syntax": "[ <time> | <percentage> ]"
     },
     {
-      "name": "timeline-range-center-subject",
-      "href": "https://drafts.csswg.org/pointer-animations-1/#typedef-timeline-range-center-subject"
+      "name": "timeline-range-center-subject"
     },
     {
-      "name": "timeline-range-name",
-      "href": "https://drafts.csswg.org/scroll-animations-1/#typedef-timeline-range-name"
+      "name": "timeline-range-name"
     },
     {
-      "name": "top",
-      "href": "https://drafts.csswg.org/css2/#value-def-top"
+      "name": "top"
     },
     {
       "name": "track-breadth",
-      "href": "https://drafts.csswg.org/css-grid-2/#typedef-track-breadth",
       "syntax": "<length-percentage [0,∞]> | <flex [0,∞]> | min-content | max-content | auto"
     },
     {
       "name": "track-list",
-      "href": "https://drafts.csswg.org/css-grid-2/#typedef-track-list",
       "syntax": "[ <line-names>? [ <track-size> | <track-repeat> ] ]+ <line-names>?"
     },
     {
       "name": "track-repeat",
-      "href": "https://drafts.csswg.org/css-grid-2/#typedef-track-repeat",
       "syntax": "repeat( [ <integer [1,∞]> ] , [ <line-names>? <track-size> ]+ <line-names>? )"
     },
     {
       "name": "track-size",
-      "href": "https://drafts.csswg.org/css-grid-2/#typedef-track-size",
       "syntax": "<track-breadth> | minmax( <inflexible-breadth> , <track-breadth> ) | fit-content( <length-percentage [0,∞]> )"
     },
     {
       "name": "transform-function",
-      "href": "https://drafts.csswg.org/css-transforms-2/#typedef-transform-function",
       "syntax": "<scale3d()> | <scale()> | <scaleX()> | <scaleY()> | <scaleZ()> | <translate3d()> | <translate()> | <translateX()> | <translateY()> | <translateZ()> | <rotate3d()> | <rotate()> | <rotateX()> | <rotateY()> | <rotateZ()> | <skew()> | <skewX()> | <skewY()> | <matrix3d()> | <matrix()> | <perspective()>"
     },
     {
       "name": "transform-list",
-      "href": "https://drafts.csswg.org/css-transforms-1/#typedef-transform-list",
       "syntax": "<transform-function>+"
     },
     {
       "name": "transition-behavior-value",
-      "href": "https://drafts.csswg.org/css-transitions-2/#typedef-transition-behavior-value",
       "syntax": "normal | allow-discrete"
     },
     {
       "name": "try-size",
-      "href": "https://drafts.csswg.org/css-anchor-position-1/#typedef-try-size",
       "syntax": "most-width | most-height | most-block-size | most-inline-size"
     },
     {
       "name": "try-tactic",
-      "href": "https://drafts.csswg.org/css-anchor-position-1/#typedef-position-try-fallbacks-try-tactic",
-      "syntax": "flip-block || flip-inline || flip-start || flip-x || flip-y",
-      "for": [
-        "position-try-fallbacks"
-      ]
+      "syntax": "flip-block || flip-inline || flip-start || flip-x || flip-y"
     },
     {
       "name": "type",
-      "href": "https://drafts.csswg.org/css-forms-1/#typedef-type",
       "syntax": "'<' [ number | string ] '>'"
     },
     {
       "name": "type-selector",
-      "href": "https://drafts.csswg.org/selectors-4/#typedef-type-selector",
       "syntax": "<wq-name> | <ns-prefix>? '*'"
     },
     {
-      "name": "unicode-range-token",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-unicode-range-token"
+      "name": "unicode-range-token"
     },
     {
-      "name": "uri",
-      "href": "https://drafts.csswg.org/css2/#value-def-uri"
+      "name": "uri"
     },
     {
       "name": "url",
-      "href": "https://drafts.csswg.org/css-values-4/#url-value",
       "syntax": "<url()> | <src()>"
     },
     {
-      "name": "url-modifier",
-      "href": "https://drafts.csswg.org/css-values-4/#typedef-url-modifier"
+      "name": "url-modifier"
     },
     {
-      "name": "url-set",
-      "href": "https://drafts.csswg.org/css-ui-4/#typedef-cursor-url-set",
-      "for": [
-        "cursor"
-      ]
+      "name": "url-set"
     },
     {
-      "name": "url-token",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-url-token"
+      "name": "url-token"
     },
     {
       "name": "var-args",
-      "href": "https://drafts.csswg.org/css-variables-2/#typedef-var-args",
       "syntax": "var( <declaration-value> , <declaration-value>? )"
     },
     {
       "name": "vertical-line-command",
-      "href": "https://drafts.csswg.org/css-shapes-1/#typedef-shape-vertical-line-command",
-      "syntax": "vline [ to [ <length-percentage> | top | center | bottom | y-start | y-end ] | by <length-percentage> ]",
-      "for": [
-        "shape()"
-      ]
+      "syntax": "vline [ to [ <length-percentage> | top | center | bottom | y-start | y-end ] | by <length-percentage> ]"
     },
     {
       "name": "view-transition-type",
-      "href": "https://drafts.csswg.org/css-view-transitions-2/#typedef-view-transition-type",
       "syntax": "<custom-ident>"
     },
     {
       "name": "visual-box",
-      "href": "https://drafts.csswg.org/css-box-4/#typedef-visual-box",
       "syntax": "content-box | padding-box | border-box"
     },
     {
-      "name": "voice-family-name",
-      "href": "https://drafts.csswg.org/css-speech-1/#typedef-voice-family-voice-family-name",
-      "for": [
-        "voice-family"
-      ]
+      "name": "voice-family-name"
     },
     {
       "name": "wcag2",
-      "href": "https://drafts.csswg.org/css-color-6/#typedef-wcag2",
       "syntax": "wcag2 | wcag2([<number> | [ aa | aaa ] && large? ])"
     },
     {
-      "name": "whitespace-token",
-      "href": "https://drafts.csswg.org/css-syntax-3/#typedef-whitespace-token"
+      "name": "whitespace-token"
     },
     {
-      "name": "whole-value",
-      "href": "https://drafts.csswg.org/css-values-5/#whole-value"
+      "name": "whole-value"
     },
     {
       "name": "wq-name",
-      "href": "https://drafts.csswg.org/selectors-4/#typedef-wq-name",
       "syntax": "<ns-prefix>? <ident-token>"
     },
     {
       "name": "xyz-params",
-      "href": "https://drafts.csswg.org/css-color-5/#typedef-xyz-params",
       "syntax": "<xyz-space> [ <number> | <percentage> | none ]{3}"
     },
     {
       "name": "xyz-space",
-      "href": "https://drafts.csswg.org/css-color-4/#typedef-xyz-space",
       "syntax": "xyz | xyz-d50 | xyz-d65"
     },
     {
-      "name": "zero",
-      "href": "https://drafts.csswg.org/css-values-4/#zero-value"
+      "name": "zero"
     }
   ]
 };

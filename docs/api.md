@@ -40,14 +40,14 @@ Their results add an `encoding` decision with its canonical name, decision
 source, and consumed BOM byte count. Byte options accept transport, environment,
 and default encoding labels plus `maxCharsetBytes`.
 
-Available deterministic limits are:
+String parsers accept `maxInputBytes`, `maxTokens`, `maxNodes`, `maxDepth`, and
+`maxSteps`. String tokenization accepts `maxInputBytes`, `maxTokens`, and
+`maxSteps`.
 
-- `maxInputBytes`
+Byte-array operations accept the corresponding parser or tokenizer limits.
+Stream operations additionally accept:
+
 - `maxBufferedBytes`
-- `maxTokens`
-- `maxNodes`
-- `maxDepth`
-- `maxSteps`
 
 `maxBufferedBytes` applies to bytes retained while a stream's encoding is
 undecided. Stream decoding is incremental, but parsing and tokenization start
