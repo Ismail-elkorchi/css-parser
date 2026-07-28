@@ -2,7 +2,7 @@
 
 All notable changes are documented in this file.
 
-## Unreleased
+## [0.2.0] - 2026-07-29
 
 - Replace the embedded CSSTree runtime with the package's CSS Syntax
   implementation and remove all embedded runtime dependencies.
