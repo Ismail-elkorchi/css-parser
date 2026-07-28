@@ -1,4 +1,4 @@
-import { InputCursor } from "./input.ts";
+import { InputCursor, utf8ByteLength } from "./input.ts";
 import { ResourceGuard } from "./resources.ts";
 
 import type { InputCursorMark } from "./input.ts";
@@ -165,6 +165,7 @@ export class CssTokenizer {
 
   constructor(input: string, options: TokenizerOptions = {}) {
     this.#guard = options.guard ?? new ResourceGuard(options.limits, options.signal);
+    this.#guard.setInputBytes(utf8ByteLength(input));
     this.#cursor = new InputCursor(input, this.#guard);
     this.#unicodeRanges = options.unicodeRanges ?? false;
   }
@@ -298,6 +299,7 @@ export class CssTokenizer {
     return Object.freeze({
       tokens: Object.freeze(tokens),
       errors: Object.freeze([...this.#errors]),
+      end: this.#cursor.position(),
       usage: this.#guard.snapshot()
     });
   }

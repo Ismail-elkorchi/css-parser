@@ -66,7 +66,7 @@ export class ResourceGuard {
 
   setInputBytes(value: number): void {
     this.assertObservedValue(value, "inputBytes");
-    this.#inputBytes = value;
+    this.#inputBytes = Math.max(this.#inputBytes, value);
     this.#enforce("maxInputBytes", value);
   }
 
