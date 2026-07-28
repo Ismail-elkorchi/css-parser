@@ -50,11 +50,38 @@ export class ResourceGuard {
   #maxDepth = 0;
   #steps = 0;
 
-  constructor(limits: ResourceLimits = {}, readonly signal?: AbortSignal) {
+  constructor(
+    limits: ResourceLimits = {},
+    readonly signal?: AbortSignal,
+    initialUsage?: ResourceUsage
+  ) {
     for (const name of LIMIT_NAMES) {
       validateLimit(name, limits[name]);
     }
     this.limits = Object.freeze({ ...limits });
+    if (initialUsage !== undefined) {
+      this.assertObservedValue(initialUsage.inputBytes, "inputBytes");
+      this.assertObservedValue(
+        initialUsage.maxBufferedBytes,
+        "maxBufferedBytes"
+      );
+      this.assertObservedValue(initialUsage.tokens, "tokens");
+      this.assertObservedValue(initialUsage.nodes, "nodes");
+      this.assertObservedValue(initialUsage.maxDepth, "maxDepth");
+      this.assertObservedValue(initialUsage.steps, "steps");
+      this.#inputBytes = initialUsage.inputBytes;
+      this.#maxBufferedBytes = initialUsage.maxBufferedBytes;
+      this.#tokens = initialUsage.tokens;
+      this.#nodes = initialUsage.nodes;
+      this.#maxDepth = initialUsage.maxDepth;
+      this.#steps = initialUsage.steps;
+      this.#enforce("maxInputBytes", this.#inputBytes);
+      this.#enforce("maxBufferedBytes", this.#maxBufferedBytes);
+      this.#enforce("maxTokens", this.#tokens);
+      this.#enforce("maxNodes", this.#nodes);
+      this.#enforce("maxDepth", this.#maxDepth);
+      this.#enforce("maxSteps", this.#steps);
+    }
     this.assertActive();
   }
 
