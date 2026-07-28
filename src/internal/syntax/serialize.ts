@@ -264,12 +264,16 @@ function serializeUnrestrictedHash(value: string, path: string): string {
 }
 
 function serializeDimensionUnit(value: string, path: string): string {
-  const codePoints = Array.from(value);
-  const first = codePoints.shift();
-  if (first === undefined) fail("invalid-structure", path, "Dimension units cannot be empty");
-  const firstCodePoint = first.codePointAt(0);
-  if (firstCodePoint === undefined) fail("invalid-structure", path, "Invalid dimension unit");
-  return `${escapeHex(firstCodePoint)}${serializeNameContinuation(codePoints.join(""), path)}`;
+  if (/^[eE][+-]?\d/u.test(value)) {
+    const codePoints = Array.from(value);
+    const first = codePoints.shift();
+    const firstCodePoint = first?.codePointAt(0);
+    if (firstCodePoint === undefined) {
+      fail("invalid-structure", path, "Dimension units cannot be empty");
+    }
+    return `${escapeHex(firstCodePoint)}${serializeNameContinuation(codePoints.join(""), path)}`;
+  }
+  return serializeIdentifier(value, path);
 }
 
 function serializeString(value: string, path: string): string {
@@ -820,4 +824,15 @@ export function serializeCssSyntax(value: unknown): string {
     nodeIds: new Set()
   };
   return serializeUnknown(value, "$", state).text;
+}
+
+export function serializeCssComponentValues(
+  values: readonly ComponentValue[]
+): string {
+  const state: ValidationState = {
+    active: new WeakSet(),
+    seen: new WeakSet(),
+    nodeIds: new Set()
+  };
+  return serializeArray(values, "$", state, serializeComponent).text;
 }
