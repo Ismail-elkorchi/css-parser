@@ -8,6 +8,8 @@ const check = process.argv.includes("--check");
 const root = new URL("../../", import.meta.url);
 const sourcesUrl = new URL("test/fixtures/upstream/sources.json", root);
 const outputUrl = new URL("src/internal/generated/css-data.ts", root);
+const permittedTarballUrl =
+  "https://registry.npmjs.org/@webref/css/-/css-8.7.1.tgz";
 
 const sources = expectRecord(
   JSON.parse(await readFile(sourcesUrl, "utf8")),
@@ -18,8 +20,11 @@ const packageName = expectString(pin.package, "sources.webref.package");
 const tarballUrl = expectString(pin.tarball, "sources.webref.tarball");
 const integrity = expectString(pin.integrity, "sources.webref.integrity");
 const sha1 = expectString(pin.sha1, "sources.webref.sha1");
+if (tarballUrl !== permittedTarballUrl) {
+  throw new Error("The WebRef provenance does not match the permitted registry artifact.");
+}
 
-const response = await globalThis.fetch(tarballUrl);
+const response = await globalThis.fetch(permittedTarballUrl);
 if (!response.ok) {
   throw new Error(
     `Unable to download ${tarballUrl}: ${String(response.status)} ${response.statusText}`
