@@ -117,6 +117,13 @@ test("dimension serialization cannot be reinterpreted as an exponent", () => {
   assert.match(serialized, /\\65 /u);
 });
 
+test("dimension serialization leaves ordinary identifier units readable", () => {
+  const declaration = parseCssDeclaration("width:1px");
+  assert.equal(declaration.ok, true);
+  if (!declaration.ok) return;
+  assert.equal(serializeCssSyntax(declaration.value), "width:1px;");
+});
+
 test("restricted identifier code points are escaped and round-trip", () => {
   const declaration = parseCssDeclaration(String.raw`x:\202e name`);
   assert.equal(declaration.ok, true);
