@@ -4,7 +4,7 @@
 
 import type { CssWebrefData } from "../grammar/catalog-types.ts";
 
-export const CSS_WEBREF_DATA = {
+export const CSS_WEBREF_DATA: CssWebrefData = {
   "properties": [
     {
       "name": "-webkit-align-content",
@@ -18711,4 +18711,4 @@ export const CSS_WEBREF_DATA = {
       "href": "https://drafts.csswg.org/css-values-4/#zero-value"
     }
   ]
-} as const satisfies CssWebrefData;
+};
