@@ -16,7 +16,7 @@ import {
   SyntaxResourceError
 } from "../dist/internal/syntax/resources.js";
 
-test("independent input preprocessing normalizes CSS code points", () => {
+test("input preprocessing normalizes CSS code points", () => {
   assert.equal(
     preprocessCssInput("a\r\nb\rc\fd\u0000e\ud800f\udc00g😀"),
     "a\nb\nc\nd\ufffde\ufffdf\ufffdg😀"

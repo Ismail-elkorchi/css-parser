@@ -2,7 +2,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 
 import { chromium, firefox, webkit } from "playwright";
 
-import { parse, serialize } from "../../dist/mod.js";
+import { parseStylesheet, serialize } from "../../dist/mod.js";
 
 const cases = [
   { id: "rule", css: ".card { color: red; margin: 1px 2px; }" },
@@ -42,7 +42,11 @@ const cases = [
 ];
 
 function canonicalize(css) {
-  return serialize(parse(css));
+  const result = parseStylesheet(css);
+  if (!result.ok) {
+    throw new Error(`unable to parse browser oracle case: ${JSON.stringify(result.errors)}`);
+  }
+  return serialize(result.value);
 }
 
 async function cssomSnapshot(page, css) {

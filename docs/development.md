@@ -1,20 +1,28 @@
-# Development and Releases
+# Development
 
-## Layout
+## Repository layout
 
-- `src/public/` defines the published API and types.
-- `src/internal/` contains encoding, tokenizer, tree, serializer, and the typed CSSTree facade.
-- `src/internal/vendor/csstree/` is the only embedded runtime implementation.
-- `test/` contains behavior tests and fixed selector fixtures.
-- `scripts/qualification/` contains direct fuzz, runtime, browser, performance, and package checks.
-- `scripts/smoke/` contains runnable runtime entrypoint checks.
-- `examples/` contains public API examples.
+- `src/public/` composes the published API and public-only operations.
+- `src/internal/syntax/` contains input, encoding, tokenization, parsing,
+  resource accounting, and serialization.
+- `src/internal/selectors/` contains selector parsing, specificity, and
+  matching.
+- `src/internal/cssom/`, `properties/`, and `grammar/` contain declaration and
+  property semantics.
+- `src/internal/generated/` contains reproducible data generated from the pinned
+  WebRef package.
+- `test/` contains focused public, syntax, selector, CSSOM, and qualification
+  tests.
+- `scripts/` contains generation, direct qualification, build, smoke, and
+  release-integrity tooling.
+- `examples/` contains runnable public API examples.
 
 Generated `dist/` and `reports/` files are not committed.
 
 ## Verify a change
 
-Node.js 20 or newer, npm 10 or newer, and Deno are sufficient for the fast checks:
+Node.js 20 or newer, npm 10 or newer, and Deno are sufficient for the fast
+checks:
 
 ```sh
 npm ci
@@ -35,8 +43,14 @@ npx playwright install chromium firefox webkit
 npm run qualification:release
 ```
 
-The release profile adds a CSSOM differential; it does not replace focused regression tests.
+Regenerate the pinned CSS property and selector catalog with
+`npm run generate:css-data`. `npm run generate:check` downloads the exact
+registry artifact, verifies its integrity, and rejects stale generated output.
 
 ## Release
 
-Set the same version in `package.json`, `package-lock.json`, and `jsr.json`, update `CHANGELOG.md`, and run release qualification. After the release change is merged, tag that exact `main` commit and create a GitHub release. The release event publishes the qualified source to npm and JSR.
+Update the changelog and set the same version in `package.json`,
+`package-lock.json`, and `jsr.json`. Run release qualification before merging
+the version change. Tag the exact qualified `main` commit and create the GitHub
+release; the release workflow verifies tag and manifest parity before publishing
+to npm and JSR.

@@ -1,14 +1,17 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { parse, serialize } from "../dist/mod.js";
+import { parseStylesheet, serialize } from "../dist/mod.js";
 
-test("round trip parse-serialize-parse normalizes stably", () => {
-  const firstTree = parse(".x { color: red; margin: 1px 2px; }");
-  const firstSerialized = serialize(firstTree);
+function parse(source) {
+  const result = parseStylesheet(source);
+  assert.equal(result.ok, true);
+  if (!result.ok) throw new Error("parse failed");
+  return result.value;
+}
 
-  const secondTree = parse(firstSerialized);
-  const secondSerialized = serialize(secondTree);
-
-  assert.equal(firstSerialized, secondSerialized);
+test("public parse-serialize-parse normalization is stable", () => {
+  const first = serialize(parse(".x { color: red; margin: 1px 2px; }"));
+  const second = serialize(parse(first));
+  assert.equal(first, second);
 });

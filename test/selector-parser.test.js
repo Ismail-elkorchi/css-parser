@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { parseSelectorList } from "../dist/internal/selectors/parser.js";
 import {
-  specificitiesOfSelectorList
-} from "../dist/internal/selectors/specificity.js";
-import { SyntaxResourceError } from "../dist/internal/syntax/resources.js";
+  parseSelectorList,
+  specificitiesOfSelectorList,
+  SyntaxResourceError
+} from "../dist/mod.js";
 
 function parse(source) {
   const result = parseSelectorList(source);
@@ -131,7 +131,12 @@ test("invalid top-level selectors fail with exact selector diagnostics", () => {
     ":not(::before)",
     ":has(.item, >)",
     ":has(::before)",
-    ":has(:has(.nested))"
+    ":has(:has(.nested))",
+    ":future-library-pseudo",
+    ":future-library-pseudo()",
+    "::future-library-pseudo",
+    "::future-library-pseudo()",
+    ":matches(.obsolete)"
   ]) {
     const result = parseSelectorList(source);
     assert.equal(result.ok, false, source);

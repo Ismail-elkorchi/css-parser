@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { cp, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 const outputDirectory = "dist";
@@ -9,12 +9,6 @@ execFileSync(
   process.execPath,
   ["node_modules/typescript/bin/tsc", "-p", "tsconfig.build.json"],
   { stdio: "inherit" }
-);
-
-await cp(
-  path.join("src", "internal", "vendor", "csstree"),
-  path.join(outputDirectory, "internal", "vendor", "csstree"),
-  { recursive: true }
 );
 
 for (const declaration of await collectDeclarations(outputDirectory)) {

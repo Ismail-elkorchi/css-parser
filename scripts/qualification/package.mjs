@@ -52,12 +52,8 @@ try {
     "package.json",
     "README.md",
     "LICENSE",
-    "THIRD_PARTY_NOTICES.md",
     "dist/mod.js",
-    "dist/mod.d.ts",
-    "dist/internal/vendor/csstree/LICENSE",
-    "dist/internal/vendor/csstree/csstree.esm.d.ts",
-    "dist/internal/vendor/csstree/csstree.esm.js"
+    "dist/mod.d.ts"
   ]) {
     if (!paths.has(required)) throw new Error(`packed package is missing ${required}`);
   }
@@ -80,10 +76,10 @@ try {
   await writeFile(
     join(consumer, "runtime.mjs"),
     [
-      'import { parse, serialize, tokenize } from "@ismail-elkorchi/css-parser";',
-      'const stylesheet = parse(".card { color: red; }");',
-      'if (stylesheet.errors.length !== 0 || serialize(stylesheet) !== ".card{color:red}") throw new Error("runtime package smoke failed");',
-      'if (tokenize(".card{}").length === 0) throw new Error("tokenizer package smoke failed");',
+      'import { parseStylesheet, serialize, tokenize } from "@ismail-elkorchi/css-parser";',
+      'const stylesheet = parseStylesheet(".card { color: red; }");',
+      'if (!stylesheet.ok || stylesheet.errors.length !== 0 || serialize(stylesheet.value) !== ".card {color:red;}") throw new Error("runtime package smoke failed");',
+      'if (tokenize(".card{}").tokens.length === 0) throw new Error("tokenizer package smoke failed");',
       ""
     ].join("\n"),
     "utf8"
@@ -93,10 +89,10 @@ try {
   await writeFile(
     join(consumer, "contract.ts"),
     [
-      'import { parse, type ParseOptions, type StyleSheetTree } from "@ismail-elkorchi/css-parser";',
-      "const options: ParseOptions = { budgets: { maxInputBytes: 1024 } };",
-      'const stylesheet: StyleSheetTree = parse(".card{}", options);',
-      "void stylesheet;",
+      'import { parseStylesheet, type CssStylesheet, type SyntaxParserOptions, type SyntaxResult } from "@ismail-elkorchi/css-parser";',
+      "const options: SyntaxParserOptions = { limits: { maxInputBytes: 1024, maxSteps: 10000 } };",
+      'const stylesheet: SyntaxResult<CssStylesheet> = parseStylesheet(".card{}", options);',
+      "if (stylesheet.ok) void stylesheet.value.rules;",
       ""
     ].join("\n"),
     "utf8"

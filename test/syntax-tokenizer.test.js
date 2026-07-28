@@ -26,7 +26,7 @@ function simplify(input, options) {
   });
 }
 
-test("independent tokenizer emits the complete punctuation and compatibility token set", () => {
+test("tokenizer emits the complete punctuation and compatibility token set", () => {
   assert.deepEqual(
     simplify(" \t\n<!-- --> :;,[](){}"),
     [
@@ -48,7 +48,7 @@ test("independent tokenizer emits the complete punctuation and compatibility tok
   );
 });
 
-test("independent tokenizer decodes identifiers, hashes, at-keywords, functions, and URLs", () => {
+test("tokenizer decodes identifiers, hashes, at-keywords, functions, and URLs", () => {
   assert.deepEqual(
     simplify(String.raw`foo \66 oo --x @media #id #123 calc( url(foo\ bar) url("quoted")`),
     [
@@ -75,7 +75,7 @@ test("independent tokenizer decodes identifiers, hashes, at-keywords, functions,
   );
 });
 
-test("independent tokenizer preserves numeric semantics", () => {
+test("tokenizer preserves numeric semantics", () => {
   assert.deepEqual(
     simplify("1 -2 +.5 1. 1e3 -2.5E-2px 30%"),
     [
@@ -104,7 +104,7 @@ test("independent tokenizer preserves numeric semantics", () => {
   );
 });
 
-test("independent tokenizer only parses Unicode ranges in the descriptor context", () => {
+test("tokenizer only parses Unicode ranges in the descriptor context", () => {
   assert.deepEqual(simplify("U+26"), [
     { kind: "ident", value: "U" },
     { kind: "number", value: 26, numberType: "integer", representation: "+26", sign: "+" }
@@ -132,7 +132,7 @@ test("quoted URLs preserve the significant whitespace left by CSS tokenization",
   ]);
 });
 
-test("independent tokenizer reports exact recovery diagnostics", () => {
+test("tokenizer reports exact recovery diagnostics", () => {
   const cases = [
     ["/*", "unexpected-eof-in-comment"],
     ["\"x", "unexpected-eof-in-string"],
@@ -147,7 +147,7 @@ test("independent tokenizer reports exact recovery diagnostics", () => {
   }
 });
 
-test("independent tokenizer spans map to raw UTF-16 input", () => {
+test("tokenizer spans map to raw UTF-16 input", () => {
   const result = tokenizeCss("😀\r\n.x");
   assert.deepEqual(
     result.tokens.map((token) => [token.kind, token.span.start.offset, token.span.end.offset]),
@@ -186,7 +186,7 @@ test("a terminal reverse solidus is a delimiter rather than an EOF escape", () =
   );
 });
 
-test("independent tokenizer enforces token and step limits during work", () => {
+test("tokenizer enforces token and step limits during work", () => {
   assert.throws(
     () => tokenizeCss("a b", { limits: { maxTokens: 1 } }),
     (error) => error instanceof SyntaxResourceError && error.limitName === "maxTokens"

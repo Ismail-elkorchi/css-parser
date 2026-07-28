@@ -1,5 +1,6 @@
 /**
- * Deterministic CSS parsing, traversal, selector, editing, and render-signal APIs.
+ * Standards-based CSS parsing, serialization, traversal, editing, property,
+ * declaration-block, and selector APIs.
  *
  * @module
  */

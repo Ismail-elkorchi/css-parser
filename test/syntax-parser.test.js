@@ -17,7 +17,7 @@ function valueKinds(values) {
   return values.map((value) => value.kind);
 }
 
-test("independent parser builds stylesheet and at-rule structure", () => {
+test("parser builds stylesheet and at-rule structure", () => {
   const result = parseCssStylesheet(
     "@layer reset; @media (width > 20rem) { .card { color: red } }"
   );

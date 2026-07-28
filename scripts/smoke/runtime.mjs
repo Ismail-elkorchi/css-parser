@@ -1,8 +1,8 @@
 import {
-  parse,
-  parseBytes,
-  parseDeclarationList,
-  parseStream,
+  parseBlockContents,
+  parseStylesheet,
+  parseStylesheetBytes,
+  parseStylesheetStream,
   serialize,
   tokenize
 } from "../../dist/mod.js";
@@ -23,25 +23,27 @@ function streamFrom(bytes) {
 }
 
 const source = "@media (min-width: 40rem) { .card { color: red; margin: 1px; } }";
-const parsed = parse(source, { captureSpans: true });
-const fromBytes = parseBytes(new TextEncoder().encode(source));
-const fromStream = await parseStream(streamFrom(new TextEncoder().encode(source)));
-const declarations = parseDeclarationList("display: grid; gap: 1rem;");
+const parsed = parseStylesheet(source);
+const fromBytes = parseStylesheetBytes(new TextEncoder().encode(source));
+const fromStream = await parseStylesheetStream(streamFrom(new TextEncoder().encode(source)));
+const declarations = parseBlockContents("display: grid; gap: 1rem;");
 const tokens = tokenize(source);
 
+if (!parsed.ok || !fromBytes.ok || !fromStream.ok || !declarations.ok) {
+  throw new Error("runtime smoke parse failed");
+}
 const snapshot = {
-  stylesheet: serialize(parsed),
-  bytes: serialize(fromBytes),
-  stream: serialize(fromStream),
-  declarations: serialize(declarations),
-  tokenKinds: tokens.map((token) => token.kind),
-  errorIds: parsed.errors.map((error) => error.parseErrorId)
+  stylesheet: serialize(parsed.value),
+  bytes: serialize(fromBytes.value),
+  stream: serialize(fromStream.value),
+  declarations: declarations.value.map((item) => serialize(item)).join(""),
+  tokenKinds: tokens.tokens.map((token) => token.kind),
+  errorCodes: parsed.errors.map((error) => error.code)
 };
 
 if (
-  parsed.kind !== "stylesheet" ||
-  parsed.root.type !== "StyleSheet" ||
-  tokens.length === 0 ||
+  parsed.value.kind !== "stylesheet" ||
+  tokens.tokens.length === 0 ||
   snapshot.stylesheet !== snapshot.bytes ||
   snapshot.stylesheet !== snapshot.stream
 ) {

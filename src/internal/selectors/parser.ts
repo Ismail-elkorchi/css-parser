@@ -1,3 +1,4 @@
+import { CSS_WEBREF_DATA } from "../generated/css-data.ts";
 import { ResourceGuard } from "../syntax/resources.ts";
 import { parseCssComponentValues } from "../syntax/parser.ts";
 
@@ -43,68 +44,34 @@ const NTH_PSEUDOS = new Set([
   "nth-of-type",
   "nth-last-of-type"
 ]);
-const FUNCTIONAL_PSEUDO_CLASSES = new Set([
-  "dir",
-  "has",
-  "is",
-  "lang",
-  "not",
-  ...NTH_PSEUDOS,
-  "where"
-]);
-const NON_FUNCTIONAL_PSEUDO_CLASSES = new Set([
-  "active",
-  "any-link",
-  "autofill",
-  "buffering",
-  "checked",
-  "default",
-  "defined",
-  "disabled",
-  "empty",
-  "enabled",
-  "first-child",
-  "first-of-type",
-  "focus",
-  "focus-visible",
-  "focus-within",
-  "fullscreen",
-  "hover",
-  "in-range",
-  "indeterminate",
-  "invalid",
-  "last-child",
-  "last-of-type",
-  "link",
-  "modal",
-  "muted",
-  "only-child",
-  "only-of-type",
-  "open",
-  "optional",
-  "out-of-range",
-  "paused",
-  "picture-in-picture",
-  "placeholder-shown",
-  "playing",
-  "popover-open",
-  "read-only",
-  "read-write",
-  "required",
-  "root",
-  "scope",
-  "seeking",
-  "stalled",
-  "target",
-  "unchecked",
-  "user-invalid",
-  "user-valid",
-  "valid",
-  "visited",
-  "volume-locked"
-]);
-const FUNCTIONAL_PSEUDO_ELEMENTS = new Set(["part", "slotted"]);
-const NON_FUNCTIONAL_PSEUDO_ELEMENTS = new Set(LEGACY_PSEUDO_ELEMENTS);
+const EXCLUDED_OBSOLETE_PSEUDOS = new Set(["matches"]);
+
+function knownPseudos(
+  kind: "class" | "element",
+  functional: boolean
+): ReadonlySet<string> {
+  const prefix = kind === "class" ? ":" : "::";
+  const names = CSS_WEBREF_DATA.selectors.flatMap((selector) => {
+    if (
+      !selector.name.startsWith(prefix) ||
+      (kind === "class" && selector.name.startsWith("::"))
+    ) {
+      return [];
+    }
+    const notation = selector.name.slice(prefix.length);
+    const isFunctional = notation.endsWith("()");
+    const name = isFunctional ? notation.slice(0, -2) : notation;
+    return isFunctional === functional && !EXCLUDED_OBSOLETE_PSEUDOS.has(name)
+      ? [name]
+      : [];
+  });
+  return new Set(names);
+}
+
+const FUNCTIONAL_PSEUDO_CLASSES = knownPseudos("class", true);
+const NON_FUNCTIONAL_PSEUDO_CLASSES = knownPseudos("class", false);
+const FUNCTIONAL_PSEUDO_ELEMENTS = knownPseudos("element", true);
+const NON_FUNCTIONAL_PSEUDO_ELEMENTS = knownPseudos("element", false);
 
 interface ParsedList {
   readonly selectors: readonly ComplexSelector[];
@@ -820,10 +787,26 @@ class ComplexSelectorParser {
       nameValue.kind === "ident" ? nameValue.value : nameValue.name
     );
     if (kind === "class" && LEGACY_PSEUDO_ELEMENTS.has(name)) kind = "element";
+    const knownFunctional = kind === "class"
+      ? FUNCTIONAL_PSEUDO_CLASSES
+      : FUNCTIONAL_PSEUDO_ELEMENTS;
+    const knownNonFunctional = kind === "class"
+      ? NON_FUNCTIONAL_PSEUDO_CLASSES
+      : NON_FUNCTIONAL_PSEUDO_ELEMENTS;
+    if (
+      (nameValue.kind === "ident" && !knownNonFunctional.has(name)) ||
+      (nameValue.kind === "function-block" && !knownFunctional.has(name))
+    ) {
+      this.#fail(
+        "invalid-pseudo",
+        `Unknown pseudo-${kind}: ${name}.`,
+        nameValue.span
+      );
+      return null;
+    }
     if (
       nameValue.kind === "ident" &&
-      ((kind === "class" && FUNCTIONAL_PSEUDO_CLASSES.has(name)) ||
-        (kind === "element" && FUNCTIONAL_PSEUDO_ELEMENTS.has(name)))
+      knownFunctional.has(name)
     ) {
       this.#fail(
         "invalid-pseudo",

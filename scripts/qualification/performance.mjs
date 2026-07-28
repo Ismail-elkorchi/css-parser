@@ -1,6 +1,6 @@
 import { mkdir, writeFile } from "node:fs/promises";
 
-import { parse } from "../../dist/mod.js";
+import { parseStylesheet } from "../../dist/mod.js";
 
 const reportPath = new URL("../../reports/performance.json", import.meta.url);
 
@@ -22,13 +22,13 @@ function median(values) {
 }
 
 function measure(name, source, iterations) {
-  for (let index = 0; index < 4; index += 1) parse(source);
+  for (let index = 0; index < 4; index += 1) parseStylesheet(source);
 
   const durations = [];
   let maxErrors = 0;
   for (let index = 0; index < iterations; index += 1) {
     const start = process.hrtime.bigint();
-    const result = parse(source);
+    const result = parseStylesheet(source);
     durations.push(Number(process.hrtime.bigint() - start));
     maxErrors = Math.max(maxErrors, result.errors.length);
   }
