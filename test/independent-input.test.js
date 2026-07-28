@@ -95,6 +95,25 @@ test("resource guard enforces deterministic work and reports observed usage", ()
   );
 });
 
+test("resource guards continue a prior operation without resetting budgets", () => {
+  const first = new ResourceGuard({ maxSteps: 2 });
+  first.step();
+  const second = new ResourceGuard(
+    { maxSteps: 2 },
+    undefined,
+    first.snapshot()
+  );
+  second.step();
+  assert.equal(second.snapshot().steps, 2);
+  assert.throws(
+    () => second.step(),
+    (error) =>
+      error instanceof SyntaxResourceError &&
+      error.limitName === "maxSteps" &&
+      error.actual === 3
+  );
+});
+
 test("resource guard uses typed cancellation", () => {
   const controller = new AbortController();
   const guard = new ResourceGuard({}, controller.signal);
