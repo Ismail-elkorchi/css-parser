@@ -27,7 +27,7 @@ function parseStylesheetOrThrow(source) {
   return result.value;
 }
 
-test("structural serialization preserves independently parsed syntax", () => {
+test("structural serialization preserves parsed syntax", () => {
   const cases = [
     "a{color:red;margin:-2.5e-2px}",
     "@layer reset;@media(width>1px){a{--x:[a]{b:c} d}}",

@@ -54,22 +54,25 @@ try {
         }
       });
 
-      const parsed = parser.parse(source);
-      const fromBytes = parser.parseBytes(bytes);
-      const fromStream = await parser.parseStream(stream);
-      const expected = parser.serialize(parsed);
+      const parsed = parser.parseStylesheet(source);
+      const fromBytes = parser.parseStylesheetBytes(bytes);
+      const fromStream = await parser.parseStylesheetStream(stream);
+      if (!parsed.ok || !fromBytes.ok || !fromStream.ok) {
+        return { ok: false, serialized: "" };
+      }
+      const expected = parser.serialize(parsed.value);
 
       return {
         ok:
-          parsed.kind === "stylesheet" &&
-          parser.serialize(fromBytes) === expected &&
-          parser.serialize(fromStream) === expected &&
-          parser.tokenize(source).length > 0,
+          parsed.value.kind === "stylesheet" &&
+          parser.serialize(fromBytes.value) === expected &&
+          parser.serialize(fromStream.value) === expected &&
+          parser.tokenize(source).tokens.length > 0,
         serialized: expected
       };
     });
 
-    if (!result.ok || result.serialized !== ".card{color:red}") {
+    if (!result.ok || result.serialized !== ".card {color:red;}") {
       throw new Error(`browser smoke failed: ${JSON.stringify(result)}`);
     }
   } finally {

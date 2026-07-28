@@ -1,6 +1,10 @@
 import { mkdir, writeFile } from "node:fs/promises";
 
-import { BudgetExceededError, parse, serialize } from "../../dist/mod.js";
+import {
+  parseStylesheet,
+  serialize,
+  SyntaxResourceError
+} from "../../dist/mod.js";
 
 const runs = 700;
 const initialSeed = 0x9e3779b9;
@@ -42,24 +46,24 @@ for (let index = 0; index < runs; index += 1) {
   const source = generate(index);
   try {
     const options = {
-      budgets: {
+      limits: {
         maxInputBytes: 32_768,
         maxTokens: 12_000,
         maxNodes: 12_000,
         maxDepth: 512,
-        maxTimeMs: 500
+        maxSteps: 250_000
       }
     };
-    const first = parse(source, options);
-    const second = parse(source, options);
+    const first = parseStylesheet(source, options);
+    const second = parseStylesheet(source, options);
     if (
       JSON.stringify(first) !== JSON.stringify(second) ||
-      serialize(first) !== serialize(second)
+      (first.ok && second.ok && serialize(first.value) !== serialize(second.value))
     ) {
       failures.push({ index, reason: "nondeterministic result" });
     }
   } catch (error) {
-    if (error instanceof BudgetExceededError) {
+    if (error instanceof SyntaxResourceError) {
       budgetErrors += 1;
     } else {
       crashes += 1;

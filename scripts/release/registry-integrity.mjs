@@ -5,10 +5,8 @@ import path from "node:path";
 const expectedJsrInclude = Object.freeze([
   "LICENSE",
   "README.md",
-  "THIRD_PARTY_NOTICES.md",
   "jsr/mod.ts",
-  "src/**/*.ts",
-  "src/internal/vendor/csstree/**"
+  "src/**/*.ts"
 ]);
 const npmProvenancePredicate = "https://slsa.dev/provenance/v1";
 
@@ -44,10 +42,8 @@ export async function buildExpectedJsrVersion(root, jsrManifest) {
     "jsr.json",
     "LICENSE",
     "README.md",
-    "THIRD_PARTY_NOTICES.md",
     "jsr/mod.ts",
-    ...await collectFiles(root, "src", (file) => file.endsWith(".ts")),
-    ...await collectFiles(root, "src/internal/vendor/csstree")
+    ...await collectFiles(root, "src", (file) => file.endsWith(".ts"))
   ])].sort();
   const manifest = {};
   for (const file of files) {

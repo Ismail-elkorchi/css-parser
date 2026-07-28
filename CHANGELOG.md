@@ -4,13 +4,18 @@ All notable changes are documented in this file.
 
 ## Unreleased
 
-- Consolidate verification around direct behavior, runtime, browser, fuzz, performance, and packed-consumer checks.
-- Remove generated scoring, research, mutation-pilot, HTML fixture, and duplicate policy infrastructure.
-- Make the npm and JSR entrypoints expose the same public TypeScript contract.
-- Remove unused parse5/entities runtime files, submodules, and specification snapshots.
-- Simplify the documentation and contributor path around the current package.
-- Require canonical `ParseContext` values in `parseFragment()` and remove the redundant `ParseOptions.context` and `includeSpans` aliases.
-- Remove the unused argument from `getParseErrorSpecRef()`.
+- Replace the vendored CSSTree runtime with an independent, strict-TypeScript
+  CSS Syntax engine and remove all embedded runtime dependencies.
+- Introduce discriminated syntax, diagnostic, resource, selector, property, and
+  CSSOM declaration contracts shared by npm and JSR.
+- Add standards-based byte and stream decoding, structural serialization,
+  traversal, and source-preserving edit planning.
+- Add pinned WebRef property grammars, CSSOM declaration semantics, and
+  Selectors Level 4 parsing, specificity, and three-valued matching.
+- Remove trace, outline, chunk, render-signal, implicit selector-cache, legacy
+  adapter, and obsolete fixture surfaces.
+- Consolidate qualification around public behavior, runtimes, browser
+  differentials, fuzzing, performance, and clean packed consumers.
 
 ## [0.1.1] - 2026-03-04
 - Add OIDC `publish.yml` workflow for npm Trusted Publishing and JSR publish on release events.

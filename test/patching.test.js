@@ -2,83 +2,109 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
-  applyPatchPlan,
+  applyPatch,
   computePatch,
-  parse,
+  findNodesByKind,
+  parseStylesheet,
   PatchPlanningError,
   serialize
 } from "../dist/mod.js";
 
-function findFirstByType(root, type) {
-  let match = null;
-  const walkNode = (node) => {
-    if (match !== null) {
-      return;
-    }
-    if (node.type === type) {
-      match = node;
-      return;
-    }
-    const children = Array.isArray(node.children) ? node.children : [];
-    for (const child of children) {
-      if (child && typeof child === "object" && typeof child.type === "string") {
-        walkNode(child);
-      }
-    }
-  };
-  walkNode(root);
-  return match;
+function parse(source) {
+  const result = parseStylesheet(source);
+  assert.equal(result.ok, true);
+  if (!result.ok) throw new Error("parse failed");
+  return result.value;
 }
 
-test("captureSpans attaches source offsets for rules", () => {
-  const css = ".a{color:red}.b{margin:1px}";
-  const parsed = parse(css, { captureSpans: true });
-  const firstRule = findFirstByType(parsed.root, "Rule");
-
-  assert.ok(firstRule);
-  assert.ok(firstRule.span);
-  assert.equal(firstRule.spanProvenance, "input");
-  assert.equal(css.slice(firstRule.span.start, firstRule.span.end).startsWith(".a{"), true);
-});
-
-test("computePatch supports deterministic structural edit plans", () => {
-  const original = ".a{color:red}.b{margin:1px}";
-  const parsed = parse(original, { captureSpans: true });
-  const rules = [];
-  for (const node of parsed.children) {
-    if (node.type === "Rule") {
-      rules.push(node);
-    }
-  }
-
+test("source edits use exact parser spans", () => {
+  const source = ".a{color:red}.b{margin:1px}";
+  const stylesheet = parse(source);
+  const rules = findNodesByKind(stylesheet, "qualified-rule");
   assert.equal(rules.length, 2);
+  assert.equal(
+    source.slice(rules[0].span.start.offset, rules[0].span.end.offset),
+    ".a{color:red}"
+  );
 
   const edits = [
-    { kind: "replaceNode", target: rules[0].id, css: ".a{color:blue}" },
-    { kind: "insertCssAfter", target: rules[1].id, css: ".c{padding:2px}" }
+    { kind: "replace-node", target: rules[0].id, css: ".a{color:blue}" },
+    { kind: "insert-after", target: rules[1].id, css: ".c{padding:2px}" }
   ];
-
-  const firstPlan = computePatch(original, edits);
-  const secondPlan = computePatch(original, edits);
-  assert.deepEqual(firstPlan, secondPlan);
-
-  const patched = applyPatchPlan(original, firstPlan);
-  assert.equal(patched, ".a{color:blue}.b{margin:1px}.c{padding:2px}");
-
-  const patchedTree = parse(patched);
-  const expectedTree = parse(".a{color:blue}.b{margin:1px}.c{padding:2px}");
-  assert.equal(serialize(patchedTree), serialize(expectedTree));
+  const first = computePatch(source, stylesheet, edits);
+  const second = computePatch(source, stylesheet, edits);
+  assert.deepEqual(first, second);
+  assert.equal(first.result, ".a{color:blue}.b{margin:1px}.c{padding:2px}");
+  assert.equal(applyPatch(source, first), first.result);
+  assert.equal(
+    serialize(parse(first.result)),
+    ".a{color:blue;}.b{margin:1px;}.c{padding:2px;}"
+  );
 });
 
-test("computePatch rejects unknown targets with structured error", () => {
-  const original = ".a{color:red}";
+test("source edits reject missing, overlapping, and tampered plans", () => {
+  const source = ".a{color:red}";
+  const stylesheet = parse(source);
+  const rule = stylesheet.rules[0];
+  assert.ok(rule);
 
   assert.throws(
-    () => computePatch(original, [{ kind: "replaceNode", target: 999_999, css: ".z{}" }]),
-    (error) => {
-      assert.ok(error instanceof PatchPlanningError);
-      assert.equal(error.payload.code, "NODE_NOT_FOUND");
-      return true;
-    }
+    () => computePatch(source, stylesheet, [
+      { kind: "replace-node", target: 999_999, css: ".z{}" }
+    ]),
+    (error) =>
+      error instanceof PatchPlanningError &&
+      error.reason === "node-not-found"
+  );
+  assert.throws(
+    () => computePatch(source, stylesheet, [
+      { kind: "remove-node", target: stylesheet.id },
+      { kind: "remove-node", target: rule.id }
+    ]),
+    (error) =>
+      error instanceof PatchPlanningError &&
+      error.reason === "overlapping-edits"
+  );
+
+  const plan = computePatch(source, stylesheet, []);
+  assert.throws(
+    () => applyPatch(source, { ...plan, result: "tampered" }),
+    (error) =>
+      error instanceof PatchPlanningError &&
+      error.reason === "invalid-plan"
+  );
+  assert.throws(
+    () => computePatch(source, stylesheet, [
+      { kind: "replace-node", target: rule.id }
+    ]),
+    (error) =>
+      error instanceof PatchPlanningError &&
+      error.reason === "invalid-edit"
+  );
+  assert.throws(
+    () => applyPatch(source, {
+      operations: [{ kind: "unknown", start: 0, end: source.length }],
+      result: source
+    }),
+    (error) =>
+      error instanceof PatchPlanningError &&
+      error.reason === "invalid-plan"
+  );
+});
+
+test("source edits reject duplicate node identities", () => {
+  const source = ".a{color:red}";
+  const stylesheet = parse(source);
+  const rule = stylesheet.rules[0];
+  assert.ok(rule);
+  const duplicate = {
+    ...stylesheet,
+    rules: [{ ...rule, id: stylesheet.id }]
+  };
+  assert.throws(
+    () => computePatch(source, duplicate, []),
+    (error) =>
+      error instanceof PatchPlanningError &&
+      error.reason === "duplicate-node-id"
   );
 });

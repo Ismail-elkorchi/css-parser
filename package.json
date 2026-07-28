@@ -1,7 +1,7 @@
 {
   "name": "@ismail-elkorchi/css-parser",
   "version": "0.1.1",
-  "description": "CSS parser with stylesheet structure, selector utilities, and tokenization helpers.",
+  "description": "Independent CSS syntax parser, serializer, CSSOM declarations, and selector engine.",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -27,14 +27,12 @@
   "files": [
     "dist",
     "README.md",
-    "LICENSE",
-    "THIRD_PARTY_NOTICES.md"
+    "LICENSE"
   ],
   "scripts": {
     "build": "node scripts/build/build.mjs",
-    "check:fast": "npm run lint && npm run typecheck && npm test && npm run generate:check && npm run typecheck:jsr && npm run docs:lint:jsr && npm run docs:test:jsr && npm run examples:run",
+    "check:fast": "npm run lint && npm run typecheck && npm test && npm run generate:check && npm run typecheck:jsr && npm run docs:test:jsr && npm run examples:run",
     "deps:outdated": "npm outdated",
-    "docs:lint:jsr": "deno doc --lint jsr/mod.ts",
     "docs:test:jsr": "deno test --doc jsr/mod.ts",
     "examples:run": "npm run build && node examples/run-all.mjs",
     "fmt": "eslint . --fix --max-warnings=0",

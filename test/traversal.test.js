@@ -2,51 +2,64 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
-  findAllByType,
-  findById,
-  parse,
-  walk,
-  walkByType
+  CssTreeStructureError,
+  findNodeById,
+  findNodesByKind,
+  parseStylesheet,
+  walkCss
 } from "../dist/mod.js";
 
-test("walk and walkByType are deterministic", () => {
-  const tree = parse(".a{color:red}.b:hover{margin:1px}");
+function parse(source) {
+  const result = parseStylesheet(source);
+  assert.equal(result.ok, true);
+  if (!result.ok) throw new Error("parse failed");
+  return result.value;
+}
 
-  const firstWalk = [];
-  walk(tree, (node, depth) => {
-    firstWalk.push(`${String(depth)}:${node.type}`);
+test("typed traversal follows stable structural order", () => {
+  const stylesheet = parse(".a{color:red}.b:hover{margin:1px}");
+  const first = [];
+  walkCss(stylesheet, (node, depth, parent) => {
+    first.push([depth, node.kind, parent?.kind ?? null]);
   });
-
-  const secondWalk = [];
-  walk(tree, (node, depth) => {
-    secondWalk.push(`${String(depth)}:${node.type}`);
+  const second = [];
+  walkCss(stylesheet, (node, depth, parent) => {
+    second.push([depth, node.kind, parent?.kind ?? null]);
   });
-
-  assert.deepEqual(firstWalk, secondWalk);
-
-  const firstRules = [];
-  walkByType(tree, "Rule", (node, depth) => {
-    firstRules.push(`${String(depth)}:${String(node.id)}`);
-  });
-
-  const secondRules = [];
-  walkByType(tree, "Rule", (node, depth) => {
-    secondRules.push(`${String(depth)}:${String(node.id)}`);
-  });
-
-  assert.deepEqual(firstRules, secondRules);
-  assert.ok(firstRules.length >= 2);
+  assert.deepEqual(first, second);
+  assert.deepEqual(
+    findNodesByKind(stylesheet, "qualified-rule")
+      .map((node) => node.id),
+    stylesheet.rules.map((rule) => rule.id)
+  );
+  assert.equal(
+    findNodeById(stylesheet, stylesheet.rules[0].id),
+    stylesheet.rules[0]
+  );
 });
 
-test("find helpers return expected nodes", () => {
-  const tree = parse(".x{color:red}.y{margin:1px}");
+test("traversal rejects cyclic and shared caller-constructed graphs", () => {
+  const stylesheet = parse(".a{}");
+  const cyclic = {
+    ...stylesheet,
+    rules: []
+  };
+  cyclic.rules.push(cyclic);
+  assert.throws(
+    () => walkCss(cyclic, () => {}),
+    (error) =>
+      error instanceof CssTreeStructureError &&
+      error.reason === "cycle"
+  );
 
-  const rules = [...findAllByType(tree, "Rule")];
-  assert.equal(rules.length, 2);
-
-  const firstRule = rules[0];
-  assert.ok(firstRule);
-
-  const byId = findById(tree, firstRule.id);
-  assert.equal(byId?.id, firstRule.id);
+  const shared = {
+    ...stylesheet,
+    rules: [stylesheet.rules[0], stylesheet.rules[0]]
+  };
+  assert.throws(
+    () => walkCss(shared, () => {}),
+    (error) =>
+      error instanceof CssTreeStructureError &&
+      error.reason === "shared-node"
+  );
 });

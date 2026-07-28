@@ -1,5 +1,5 @@
 /** Parses streamed CSS while enforcing resource budgets. */
-import { parseStream, serialize } from "../dist/mod.js";
+import { parseStylesheetStream, serialize } from "../dist/mod.js";
 
 function assert(condition, message) {
   if (!condition) {
@@ -17,16 +17,19 @@ export async function runParseStreamBudget() {
     }
   });
 
-  const tree = await parseStream(stream, {
-    budgets: {
+  const result = await parseStylesheetStream(stream, {
+    limits: {
       maxInputBytes: 1024,
       maxBufferedBytes: 128,
       maxTokens: 128,
-      maxNodes: 128
+      maxNodes: 128,
+      maxSteps: 10_000
     }
   });
 
-  const serialized = serialize(tree);
+  assert(result.ok, "streamed stylesheet should parse");
+  if (!result.ok) return "";
+  const serialized = serialize(result.value);
   assert(serialized.includes(".a"), "stream parse should include selector");
   return serialized;
 }

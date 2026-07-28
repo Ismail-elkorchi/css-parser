@@ -91,7 +91,3 @@ export function resolveCssProperty(name: string): CssPropertySemantics | null {
     ? null
     : standardSemantics(requestedName, requested);
 }
-
-export function getCssPropertyData(name: string): CssPropertyData | null {
-  return PROPERTY_DATA.get(lowerAscii(name)) ?? null;
-}

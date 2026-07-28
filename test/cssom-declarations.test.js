@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { CssDeclarationBlock } from "../dist/internal/cssom/declarations.js";
+import { CssDeclarationBlock } from "../dist/mod.js";
 
 test("declaration blocks discard invalid declarations and resolve duplicates", () => {
   const block = CssDeclarationBlock.parse(

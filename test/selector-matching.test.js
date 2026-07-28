@@ -3,11 +3,11 @@ import test from "node:test";
 
 import {
   matchSelectorList,
+  parseSelectorList,
   querySelectorList,
-  SelectorTreeError
-} from "../dist/internal/selectors/matcher.js";
-import { parseSelectorList } from "../dist/internal/selectors/parser.js";
-import { SyntaxResourceError } from "../dist/internal/syntax/resources.js";
+  SelectorTreeError,
+  SyntaxResourceError
+} from "../dist/mod.js";
 
 const HTML = "http://www.w3.org/1999/xhtml";
 const SVG = "http://www.w3.org/2000/svg";

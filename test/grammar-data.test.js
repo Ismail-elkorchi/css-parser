@@ -117,7 +117,7 @@ test("the generated catalog contains the pinned canonical WebRef inventory", () 
   ));
 });
 
-test("every generated grammar is accepted by the independent grammar parser", () => {
+test("every generated grammar is accepted by the grammar parser", () => {
   const syntaxes = [];
   for (const property of CSS_WEBREF_DATA.properties) {
     if (property.syntax !== undefined) syntaxes.push(property.syntax);

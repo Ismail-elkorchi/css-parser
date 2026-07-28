@@ -8,10 +8,8 @@
   "publish": {
     "include": [
       "src/**/*.ts",
-      "src/internal/vendor/csstree/**",
       "jsr/mod.ts",
       "README.md",
-      "THIRD_PARTY_NOTICES.md",
       "LICENSE"
     ]
   },

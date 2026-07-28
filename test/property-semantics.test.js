@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { validateCssPropertyValue } from "../dist/internal/properties/matcher.js";
-import { resolveCssProperty } from "../dist/internal/properties/registry.js";
-import { parseCssDeclaration } from "../dist/internal/syntax/parser.js";
-import { SyntaxResourceError } from "../dist/internal/syntax/resources.js";
+import {
+  parseDeclaration as parseCssDeclaration,
+  resolveCssProperty,
+  SyntaxResourceError,
+  validateCssPropertyValue
+} from "../dist/mod.js";
 
 function parseDeclaration(source) {
   const result = parseCssDeclaration(source);

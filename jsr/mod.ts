@@ -1,12 +1,14 @@
 /**
- * CSS parsing, serialization, selector queries, tree editing, and render-signal extraction.
+ * Independent CSS parsing, serialization, CSSOM declaration, property, and
+ * selector APIs.
  *
  * @example Parse and serialize a stylesheet.
  * ```ts
- * import { parse, serialize } from "./mod.ts";
+ * import { parseStylesheet, serialize } from "./mod.ts";
  *
- * const stylesheet = parse(".card { color: red; }");
- * console.log(serialize(stylesheet));
+ * const result = parseStylesheet(".card { color: red; }");
+ * if (!result.ok) throw new Error("Invalid stylesheet");
+ * console.log(serialize(result.value));
  * ```
  *
  * @module
