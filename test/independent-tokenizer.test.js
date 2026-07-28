@@ -160,6 +160,32 @@ test("independent tokenizer spans map to raw UTF-16 input", () => {
   );
 });
 
+test("identifier starts follow the current restricted non-ASCII ranges", () => {
+  assert.deepEqual(simplify("·foo ×foo \u202efoo 😀foo"), [
+    { kind: "ident", value: "·foo" },
+    { kind: "whitespace" },
+    { kind: "delim", value: 0xd7 },
+    { kind: "ident", value: "foo" },
+    { kind: "whitespace" },
+    { kind: "delim", value: 0x202e },
+    { kind: "ident", value: "foo" },
+    { kind: "whitespace" },
+    { kind: "ident", value: "😀foo" }
+  ]);
+});
+
+test("a terminal reverse solidus is a delimiter rather than an EOF escape", () => {
+  assert.deepEqual(simplify("a\\"), [
+    { kind: "ident", value: "a" },
+    { kind: "delim", value: 0x5c }
+  ]);
+  assert.ok(tokenizeCss("\\").errors.some((error) => error.code === "invalid-escape"));
+  assert.equal(
+    tokenizeCss("\\").errors.some((error) => error.code === "unexpected-eof-in-escape"),
+    false
+  );
+});
+
 test("independent tokenizer enforces token and step limits during work", () => {
   assert.throws(
     () => tokenizeCss("a b", { limits: { maxTokens: 1 } }),

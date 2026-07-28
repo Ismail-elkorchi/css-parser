@@ -1,4 +1,4 @@
-import { InputCursor } from "./input.ts";
+import { InputCursor, utf8ByteLength } from "./input.ts";
 import { ResourceGuard } from "./resources.ts";
 
 import type { InputCursorMark } from "./input.ts";
@@ -63,8 +63,28 @@ function isAsciiLetter(value: number | null): boolean {
   );
 }
 
+function isNonAsciiIdent(value: number | null): boolean {
+  return (
+    value === 0x00b7 ||
+    (value !== null && value >= 0x00c0 && value <= 0x00d6) ||
+    (value !== null && value >= 0x00d8 && value <= 0x00f6) ||
+    (value !== null && value >= 0x00f8 && value <= 0x037d) ||
+    (value !== null && value >= 0x037f && value <= 0x1fff) ||
+    value === 0x200c ||
+    value === 0x200d ||
+    value === 0x203f ||
+    value === 0x2040 ||
+    (value !== null && value >= 0x2070 && value <= 0x218f) ||
+    (value !== null && value >= 0x2c00 && value <= 0x2fef) ||
+    (value !== null && value >= 0x3001 && value <= 0xd7ff) ||
+    (value !== null && value >= 0xf900 && value <= 0xfdcf) ||
+    (value !== null && value >= 0xfdf0 && value <= 0xfffd) ||
+    (value !== null && value >= 0x10000)
+  );
+}
+
 function isIdentStart(value: number | null): boolean {
-  return value === 0x5f || isAsciiLetter(value) || (value !== null && value >= 0x80);
+  return value === 0x5f || isAsciiLetter(value) || isNonAsciiIdent(value);
 }
 
 function isIdent(value: number | null): boolean {
@@ -106,7 +126,7 @@ function fixedToken<TKind extends CssToken["kind"]>(
 }
 
 function validEscape(first: number | null, second: number | null): boolean {
-  return first === 0x5c && second !== 0x0a;
+  return first === 0x5c && second !== null && second !== 0x0a;
 }
 
 function wouldStartIdent(first: number | null, second: number | null, third: number | null): boolean {
@@ -165,6 +185,7 @@ export class CssTokenizer {
 
   constructor(input: string, options: TokenizerOptions = {}) {
     this.#guard = options.guard ?? new ResourceGuard(options.limits, options.signal);
+    this.#guard.setInputBytes(utf8ByteLength(input));
     this.#cursor = new InputCursor(input, this.#guard);
     this.#unicodeRanges = options.unicodeRanges ?? false;
   }
@@ -298,6 +319,7 @@ export class CssTokenizer {
     return Object.freeze({
       tokens: Object.freeze(tokens),
       errors: Object.freeze([...this.#errors]),
+      end: this.#cursor.position(),
       usage: this.#guard.snapshot()
     });
   }

@@ -1,4 +1,4 @@
-import type { ResourceUsage, SourceSpan } from "./types.ts";
+import type { ResourceUsage, SourcePosition, SourceSpan } from "./types.ts";
 
 interface TokenBase {
   readonly span: SourceSpan;
@@ -174,5 +174,6 @@ export interface TokenizerDiagnostic {
 export interface TokenizationResult {
   readonly tokens: readonly Exclude<CssToken, EofToken>[];
   readonly errors: readonly TokenizerDiagnostic[];
+  readonly end: SourcePosition;
   readonly usage: ResourceUsage;
 }

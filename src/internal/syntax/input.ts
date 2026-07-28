@@ -19,6 +19,29 @@ interface DecodedCodePoint {
   readonly endOffset: number;
 }
 
+export function utf8ByteLength(input: string): number {
+  let bytes = 0;
+  for (let offset = 0; offset < input.length; offset += 1) {
+    const first = input.charCodeAt(offset);
+    if (first <= 0x7f) {
+      bytes += 1;
+    } else if (first <= 0x7ff) {
+      bytes += 2;
+    } else if (first >= 0xd800 && first <= 0xdbff) {
+      const second = input.charCodeAt(offset + 1);
+      if (second >= 0xdc00 && second <= 0xdfff) {
+        bytes += 4;
+        offset += 1;
+      } else {
+        bytes += 3;
+      }
+    } else {
+      bytes += 3;
+    }
+  }
+  return bytes;
+}
+
 function decodeAt(input: string, offset: number): DecodedCodePoint | null {
   if (offset >= input.length) {
     return null;
