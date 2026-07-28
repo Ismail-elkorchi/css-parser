@@ -8,7 +8,10 @@ import {
 import { SyntaxResourceError } from "../dist/internal/syntax/resources.js";
 
 function simplify(input, options) {
-  return tokenizeCss(input, options).tokens.map((token) => {
+  const result = options === undefined
+    ? tokenizeCss(input)
+    : new CssTokenizer(input, options).tokenize();
+  return result.tokens.map((token) => {
     const result = { kind: token.kind };
     for (const key of [
       "value",

@@ -1,6 +1,6 @@
 import type { ComponentValue, SyntaxDiagnostic } from "../syntax/ast.ts";
 import type {
-  ResourceLimits,
+  ParserResourceLimits,
   ResourceUsage,
   SourceSpan
 } from "../syntax/types.ts";
@@ -145,7 +145,7 @@ export type SelectorParseResult =
   | SelectorParseFailure;
 
 export interface SelectorParserOptions {
-  readonly limits?: ResourceLimits;
+  readonly limits?: ParserResourceLimits;
   readonly signal?: AbortSignal;
 }
 

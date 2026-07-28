@@ -38,20 +38,16 @@ const document = expectRecord(
   JSON.parse(extractTarFile(gunzipSync(archive), "package/css.json")),
   "package/css.json"
 );
-validateEverySyntax(document);
 
 const catalog = {
   properties: expectArray(document.properties, "properties").map(
     (value, index) => selectProperty(value, `properties[${String(index)}]`)
   ),
-  atrules: expectArray(document.atrules, "atrules").map(
-    (value, index) => selectAtRule(value, `atrules[${String(index)}]`)
-  ),
   functions: expectArray(document.functions, "functions").map(
     (value, index) => selectGrammar(value, `functions[${String(index)}]`)
   ),
   selectors: expectArray(document.selectors, "selectors").map(
-    (value, index) => selectGrammar(value, `selectors[${String(index)}]`)
+    (value, index) => selectSelectorName(value, `selectors[${String(index)}]`)
   ),
   types: expectArray(document.types, "types").map(
     (value, index) => selectGrammar(value, `types[${String(index)}]`)
@@ -90,7 +86,7 @@ function selectProperty(value, path) {
       record.styleDeclaration,
       `${path}.styleDeclaration`
     ),
-    syntax: optionalString(record.syntax, `${path}.syntax`),
+    syntax: optionalSyntax(record.syntax, `${path}.syntax`),
     legacyAliasOf: optionalString(record.legacyAliasOf, `${path}.legacyAliasOf`),
     longhands: optionalStringArray(record.longhands, `${path}.longhands`),
     resetLonghands: optionalStringArray(
@@ -107,63 +103,23 @@ function selectProperty(value, path) {
   });
 }
 
-function selectAtRule(value, path) {
-  const record = expectRecord(value, path);
-  return compact({
-    name: expectString(record.name, `${path}.name`),
-    href: expectString(record.href, `${path}.href`),
-    syntax: optionalString(record.syntax, `${path}.syntax`),
-    descriptors: expectArray(record.descriptors, `${path}.descriptors`).map(
-      (descriptor, index) => {
-        const descriptorPath = `${path}.descriptors[${String(index)}]`;
-        const item = expectRecord(descriptor, descriptorPath);
-        return compact({
-          name: expectString(item.name, `${descriptorPath}.name`),
-          href: expectString(item.href, `${descriptorPath}.href`),
-          syntax: optionalString(item.syntax, `${descriptorPath}.syntax`),
-          initial: optionalString(item.initial, `${descriptorPath}.initial`)
-        });
-      }
-    )
-  });
-}
-
 function selectGrammar(value, path) {
   const record = expectRecord(value, path);
   return compact({
     name: expectString(record.name, `${path}.name`),
-    href: expectString(record.href, `${path}.href`),
-    syntax: optionalString(record.syntax, `${path}.syntax`),
-    for: optionalStringArray(record.for, `${path}.for`)
+    syntax: optionalSyntax(record.syntax, `${path}.syntax`)
   });
+}
+
+function selectSelectorName(value, path) {
+  const record = expectRecord(value, path);
+  return expectString(record.name, `${path}.name`);
 }
 
 function compact(value) {
   return Object.fromEntries(
     Object.entries(value).filter((entry) => entry[1] !== undefined)
   );
-}
-
-function validateEverySyntax(value, path = "css.json") {
-  if (Array.isArray(value)) {
-    value.forEach((item, index) => validateEverySyntax(item, `${path}[${String(index)}]`));
-    return;
-  }
-  if (!isRecord(value)) return;
-  for (const [name, child] of Object.entries(value)) {
-    const childPath = `${path}.${name}`;
-    if (name === "syntax") {
-      const syntax = expectString(child, childPath);
-      try {
-        parseCssValueDefinition(syntax);
-      } catch (error) {
-        throw new Error(`Unsupported value definition at ${childPath}: ${syntax}`, {
-          cause: error
-        });
-      }
-    }
-    validateEverySyntax(child, childPath);
-  }
 }
 
 function extractTarFile(archive, wantedPath) {
@@ -238,6 +194,19 @@ function expectString(value, path) {
 
 function optionalString(value, path) {
   return value === undefined ? undefined : expectString(value, path);
+}
+
+function optionalSyntax(value, path) {
+  const syntax = optionalString(value, path);
+  if (syntax === undefined) return undefined;
+  try {
+    parseCssValueDefinition(syntax);
+  } catch (error) {
+    throw new Error(`Unsupported value definition at ${path}: ${syntax}`, {
+      cause: error
+    });
+  }
+  return syntax;
 }
 
 function expectStringArray(value, path) {

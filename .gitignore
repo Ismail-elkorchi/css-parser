@@ -1,5 +1,3 @@
 /node_modules/
 /dist/
-/tmp/
-/reports/*
-!/reports/.gitkeep
+/reports/

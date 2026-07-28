@@ -38,9 +38,12 @@ import type {
   ResourceUsage
 } from "../internal/syntax/types.ts";
 import type {
-  CssByteInputOptions,
   DecodedTokenizationResult,
-  DecodedSyntaxResult
+  DecodedSyntaxResult,
+  ParseStylesheetBytesOptions,
+  ParseStylesheetStreamOptions,
+  TokenizeBytesOptions,
+  TokenizeStreamOptions
 } from "./types.ts";
 
 /** Thrown when a byte stream violates the public input contract or fails. */
@@ -174,7 +177,7 @@ export function tokenize(
   return tokenizeCss(input, options);
 }
 
-function encodingOptions(options: CssByteInputOptions): EncodingOptions {
+function encodingOptions(options: EncodingOptions): EncodingOptions {
   return {
     ...(options.transportEncodingLabel === undefined
       ? {}
@@ -238,7 +241,7 @@ function combine(chunks: readonly Uint8Array[], length: number): Uint8Array {
 
 async function decodeStream(
   stream: ReadableStream<Uint8Array>,
-  options: CssByteInputOptions
+  options: ParseStylesheetStreamOptions | TokenizeStreamOptions
 ): Promise<DecodedStream> {
   const input: unknown = stream;
   if (
@@ -348,7 +351,7 @@ function assertBytes(bytes: Uint8Array): void {
 /** Decodes and parses a complete CSS stylesheet byte array. */
 export function parseStylesheetBytes(
   bytes: Uint8Array,
-  options: CssByteInputOptions = {}
+  options: ParseStylesheetBytesOptions = {}
 ): DecodedSyntaxResult<CssStylesheet> {
   assertBytes(bytes);
   assertOptions(options);
@@ -372,7 +375,7 @@ export function parseStylesheetBytes(
 /** Reads, decodes, and parses a complete CSS stylesheet byte stream. */
 export async function parseStylesheetStream(
   stream: ReadableStream<Uint8Array>,
-  options: CssByteInputOptions = {}
+  options: ParseStylesheetStreamOptions = {}
 ): Promise<DecodedSyntaxResult<CssStylesheet>> {
   assertOptions(options);
   const decoded = await decodeStream(stream, options);
@@ -391,7 +394,7 @@ export async function parseStylesheetStream(
 /** Decodes and tokenizes a complete CSS byte array. */
 export function tokenizeBytes(
   bytes: Uint8Array,
-  options: CssByteInputOptions = {}
+  options: TokenizeBytesOptions = {}
 ): DecodedTokenizationResult {
   assertBytes(bytes);
   assertOptions(options);
@@ -419,7 +422,7 @@ export function tokenizeBytes(
 /** Reads, decodes, and tokenizes a complete CSS byte stream. */
 export async function tokenizeStream(
   stream: ReadableStream<Uint8Array>,
-  options: CssByteInputOptions = {}
+  options: TokenizeStreamOptions = {}
 ): Promise<DecodedTokenizationResult> {
   assertOptions(options);
   const decoded = await decodeStream(stream, options);

@@ -1,6 +1,5 @@
 /**
- * Independent CSS parsing, serialization, CSSOM declaration, property, and
- * selector APIs.
+ * CSS parsing, serialization, CSSOM declaration, property, and selector APIs.
  *
  * @example Parse and serialize a stylesheet.
  * ```ts

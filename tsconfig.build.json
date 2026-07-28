@@ -7,6 +7,5 @@
     "declarationMap": false,
     "sourceMap": false
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["dist", "node_modules", "tests", "scripts", "tmp"]
+  "include": ["src/**/*.ts"]
 }

@@ -4,8 +4,8 @@ All notable changes are documented in this file.
 
 ## Unreleased
 
-- Replace the vendored CSSTree runtime with an independent, strict-TypeScript
-  CSS Syntax engine and remove all embedded runtime dependencies.
+- Replace the embedded CSSTree runtime with the package's CSS Syntax
+  implementation and remove all embedded runtime dependencies.
 - Introduce discriminated syntax, diagnostic, resource, selector, property, and
   CSSOM declaration contracts shared by npm and JSR.
 - Add standards-based byte and stream decoding, structural serialization,

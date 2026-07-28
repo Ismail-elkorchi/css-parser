@@ -46,6 +46,13 @@ test("public tokenization returns diagnostics, usage, and exact tokens", () => {
   assert.equal(first.usage.inputBytes, 13);
 });
 
+test("public tokenization cannot enable descriptor-only tokenizer state", () => {
+  const regular = tokenize("U+4??");
+  const attemptedOverride = tokenize("U+4??", { unicodeRanges: true });
+  assert.deepEqual(attemptedOverride, regular);
+  assert.equal(regular.tokens.some((token) => token.kind === "unicode-range"), false);
+});
+
 test("byte entrypoints expose the encoding decision and raw-byte usage", () => {
   const bytes = new TextEncoder().encode('@charset "utf-8";.b{margin:1px}');
   const parsed = parseStylesheetBytes(bytes);

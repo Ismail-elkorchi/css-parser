@@ -13,7 +13,10 @@ import type { TokenizationResult } from "../internal/syntax/tokens.ts";
 import type {
   EncodingDecision,
   EncodingOptions,
-  ResourceLimits
+  ParserResourceLimits,
+  StreamParserResourceLimits,
+  StreamTokenizerResourceLimits,
+  TokenizerResourceLimits
 } from "../internal/syntax/types.ts";
 
 export type {
@@ -46,11 +49,15 @@ export type {
 export type {
   EncodingDecision,
   EncodingOptions,
+  ParserResourceLimits,
   ResourceLimitName,
-  ResourceLimits,
   ResourceUsage,
+  SelectorResourceLimits,
   SourcePosition,
-  SourceSpan
+  SourceSpan,
+  StreamParserResourceLimits,
+  StreamTokenizerResourceLimits,
+  TokenizerResourceLimits
 } from "../internal/syntax/types.ts";
 export type { SyntaxParserOptions } from "../internal/syntax/parser.ts";
 export type { TokenizerOptions } from "../internal/syntax/tokenizer.ts";
@@ -121,10 +128,27 @@ export type {
   SelectorUnknownReason
 } from "../internal/selectors/matcher.ts";
 
-/** Options shared by byte-array and byte-stream operations. */
-export interface CssByteInputOptions extends EncodingOptions {
-  /** Deterministic limits applied to raw input and parser work. */
-  readonly limits?: ResourceLimits;
+/** Decoding and resource options for stylesheet byte arrays. */
+export interface ParseStylesheetBytesOptions extends EncodingOptions {
+  readonly limits?: ParserResourceLimits;
+  readonly signal?: AbortSignal;
+}
+
+/** Decoding and resource options for stylesheet byte streams. */
+export interface ParseStylesheetStreamOptions extends EncodingOptions {
+  readonly limits?: StreamParserResourceLimits;
+  readonly signal?: AbortSignal;
+}
+
+/** Decoding and resource options for tokenizing byte arrays. */
+export interface TokenizeBytesOptions extends EncodingOptions {
+  readonly limits?: TokenizerResourceLimits;
+  readonly signal?: AbortSignal;
+}
+
+/** Decoding and resource options for tokenizing byte streams. */
+export interface TokenizeStreamOptions extends EncodingOptions {
+  readonly limits?: StreamTokenizerResourceLimits;
   /** Cancels decoding or parsing. */
   readonly signal?: AbortSignal;
 }

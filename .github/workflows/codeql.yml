@@ -28,7 +28,6 @@ jobs:
         with:
           languages: javascript-typescript
           queries: security-and-quality
-          config-file: ./.github/codeql/codeql-config.yml
       - name: Autobuild
         uses: github/codeql-action/autobuild@7188fc363630916deb702c7fdcf4e481b751f97a # v4.37.1
       - name: Perform CodeQL analysis

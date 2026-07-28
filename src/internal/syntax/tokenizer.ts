@@ -32,18 +32,21 @@ import type {
   UrlToken
 } from "./tokens.ts";
 import type {
-  ResourceLimits,
   ResourceUsage,
   SourcePosition,
-  SourceSpan
+  SourceSpan,
+  TokenizerResourceLimits
 } from "./types.ts";
 
 const CSS_SYNTAX = "https://drafts.csswg.org/css-syntax/";
 const REPLACEMENT_CHARACTER = 0xfffd;
 
 export interface TokenizerOptions {
-  readonly limits?: ResourceLimits;
+  readonly limits?: TokenizerResourceLimits;
   readonly signal?: AbortSignal;
+}
+
+interface TokenizerDriverOptions extends TokenizerOptions {
   readonly unicodeRanges?: boolean;
   readonly guard?: ResourceGuard;
 }
@@ -128,7 +131,7 @@ export class CssTokenizer {
   readonly #errors: TokenizerDiagnostic[] = [];
   #emittedEof = false;
 
-  constructor(input: string, options: TokenizerOptions = {}) {
+  constructor(input: string, options: TokenizerDriverOptions = {}) {
     this.#guard = options.guard ?? new ResourceGuard(options.limits, options.signal);
     this.#guard.setInputBytes(utf8ByteLength(input));
     this.#cursor = new InputCursor(input, this.#guard);
@@ -664,5 +667,8 @@ export class CssTokenizer {
 }
 
 export function tokenizeCss(input: string, options: TokenizerOptions = {}): TokenizationResult {
-  return new CssTokenizer(input, options).tokenize();
+  return new CssTokenizer(input, {
+    ...(options.limits === undefined ? {} : { limits: options.limits }),
+    ...(options.signal === undefined ? {} : { signal: options.signal })
+  }).tokenize();
 }

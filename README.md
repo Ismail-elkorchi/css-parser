@@ -1,8 +1,8 @@
 # @ismail-elkorchi/css-parser
 
-An independent CSS syntax parser, serializer, CSSOM declaration model, property
-validator, and Selectors Level 4 engine for Node.js, Deno, Bun, and modern
-browsers. It has no runtime dependencies.
+A CSS syntax parser, serializer, CSSOM declaration model, property validator,
+and Selectors Level 4 engine for Node.js, Deno, Bun, and modern browsers. It has
+no runtime dependencies.
 
 ## Install
 
@@ -69,7 +69,6 @@ encoding and resource accounting for tokenization.
 mutation, and serialization semantics. `resolveCssProperty()` and
 `validateCssPropertyValue()` use pinned WebRef grammar data.
 
-Selector parsing is independent of any document representation.
 `matchSelectorList()` and `querySelectorList()` require an explicit typed
 environment for tree access, namespaces, document mode, attributes, and dynamic
 pseudo-classes. Their results preserve `match`, `no-match`, and `unknown`

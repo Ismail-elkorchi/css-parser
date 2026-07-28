@@ -11,7 +11,7 @@ import type {
   SimpleSelector
 } from "./types.ts";
 import type {
-  ResourceLimits,
+  SelectorResourceLimits,
   ResourceUsage,
   SourceSpan
 } from "../syntax/types.ts";
@@ -109,7 +109,7 @@ export interface SelectorEnvironment<TNode extends object> {
 }
 
 export interface SelectorMatchOptions<TNode extends object = object> {
-  readonly limits?: ResourceLimits;
+  readonly limits?: SelectorResourceLimits;
   readonly signal?: AbortSignal;
   readonly scopes?: ReadonlySet<TNode>;
   readonly nesting?: SelectorList;

@@ -15,31 +15,14 @@ export interface CssPropertyData {
   readonly canonicalOrder?: string;
 }
 
-export interface CssDescriptorData {
-  readonly name: string;
-  readonly href: string;
-  readonly syntax?: string;
-  readonly initial?: string;
-}
-
-export interface CssAtRuleData {
-  readonly name: string;
-  readonly href: string;
-  readonly syntax?: string;
-  readonly descriptors: readonly CssDescriptorData[];
-}
-
 export interface CssGrammarData {
   readonly name: string;
-  readonly href: string;
   readonly syntax?: string;
-  readonly for?: readonly string[];
 }
 
 export interface CssWebrefData {
   readonly properties: readonly CssPropertyData[];
-  readonly atrules: readonly CssAtRuleData[];
   readonly functions: readonly CssGrammarData[];
-  readonly selectors: readonly CssGrammarData[];
+  readonly selectors: readonly string[];
   readonly types: readonly CssGrammarData[];
 }

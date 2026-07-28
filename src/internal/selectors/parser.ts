@@ -53,12 +53,12 @@ function knownPseudos(
   const prefix = kind === "class" ? ":" : "::";
   const names = CSS_WEBREF_DATA.selectors.flatMap((selector) => {
     if (
-      !selector.name.startsWith(prefix) ||
-      (kind === "class" && selector.name.startsWith("::"))
+      !selector.startsWith(prefix) ||
+      (kind === "class" && selector.startsWith("::"))
     ) {
       return [];
     }
-    const notation = selector.name.slice(prefix.length);
+    const notation = selector.slice(prefix.length);
     const isFunctional = notation.endsWith("()");
     const name = isFunctional ? notation.slice(0, -2) : notation;
     return isFunctional === functional && !EXCLUDED_OBSOLETE_PSEUDOS.has(name)
