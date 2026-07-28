@@ -1,0 +1,19 @@
+{
+  "webPlatformTests": {
+    "repository": "https://github.com/web-platform-tests/wpt",
+    "commit": "6ef32b046d691dd751b9c88417011b831feb034a",
+    "license": "BSD-3-Clause",
+    "trees": {
+      "css/css-syntax": "7e685096433a0f40c6d9b464f79c2420d1e44c57",
+      "css/cssom": "b9ef44e25bf289683daa5a5f82bdab6bb18fa19a",
+      "css/selectors": "3c808660a5980938165dd20fe010b764667c0940"
+    }
+  },
+  "webref": {
+    "package": "@webref/css@8.7.1",
+    "tarball": "https://registry.npmjs.org/@webref/css/-/css-8.7.1.tgz",
+    "integrity": "sha512-O60bIKYKl5RpLYsWOnOlWzBCEa2NYKapaeg28gOxsjfHHFK51BWRFcwFNJG04lcZxE6yzrEhWzsW35Bjv5RRXA==",
+    "sha1": "481d6fd53548a0248eab2785739835d4cb2fac10",
+    "license": "MIT"
+  }
+}

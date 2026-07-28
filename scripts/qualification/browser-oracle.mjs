@@ -8,15 +8,37 @@ const cases = [
   { id: "rule", css: ".card { color: red; margin: 1px 2px; }" },
   { id: "selector-list", css: "main > .card, aside.note { display: block; }" },
   { id: "attribute-selector", css: "a[href^=\"https\"] { text-decoration: none; }" },
+  { id: "selector-logical", css: "article:is(.card, #lead):not([hidden]) { color: red; }" },
+  { id: "selector-relational", css: "section:has(> article.card) { contain: content; }" },
+  { id: "selector-nth-of", css: "li:nth-child(2n + 1 of .item) { color: blue; }" },
+  { id: "selector-escaped", css: ".\\66 oo\\+bar { color: blue; }" },
   { id: "media", css: "@media (min-width: 40rem) { .grid { display: grid; } }" },
+  { id: "media-range", css: "@media (40rem <= width < 80rem) { .grid { display: grid; } }" },
   { id: "supports", css: "@supports (display: grid) { .grid { display: grid; } }" },
+  { id: "supports-selector", css: "@supports selector(:has(> img)) { article { display: block; } }" },
   { id: "custom-property", css: ":root { --space: 1rem; } .box { margin: var(--space); }" },
+  { id: "custom-property-blocks", css: ":root { --tokens: [a, b] { c: d }; }" },
   { id: "calc", css: ".box { width: calc(100% - 1rem); }" },
+  { id: "modern-color", css: ".box { color: color(display-p3 1 0 0 / .8); }" },
+  { id: "gradient", css: ".box { background-image: linear-gradient(45deg, red, blue); }" },
   { id: "font-face", css: "@font-face { font-family: test; src: url(test.woff2); }" },
+  { id: "font-feature-values", css: "@font-feature-values test { @styleset { nice: 1; } }" },
   { id: "keyframes", css: "@keyframes fade { from { opacity: 0; } to { opacity: 1; } }" },
   { id: "layer", css: "@layer base { body { color: black; } }" },
+  { id: "layer-list", css: "@layer reset, base, components;" },
+  { id: "container", css: "@container card (inline-size > 20rem) { .title { font-size: 2rem; } }" },
+  { id: "scope", css: "@scope (.card) to (.content) { h2 { color: red; } }" },
+  { id: "starting-style", css: "@starting-style { dialog[open] { opacity: 0; } }" },
+  { id: "property", css: "@property --size { syntax: \"<length>\"; inherits: false; initial-value: 0px; }" },
+  { id: "nested-rule", css: ".card { color: red; & > .title { color: blue; } }" },
+  { id: "nested-declarations", css: ".card { color: red; @media (width > 20rem) { color: blue; } background: white; }" },
+  { id: "unicode-range", css: "@font-face { font-family: test; src: url(test.woff2); unicode-range: U+0025-00FF; }" },
+  { id: "escaped-string", css: ".box::before { content: \"a\\a b\"; }" },
   { id: "escaped-identifier", css: ".\\66 oo { color: blue; }" },
-  { id: "important", css: ".hidden { display: none !important; }" }
+  { id: "important", css: ".hidden { display: none !important; }" },
+  { id: "unknown-property", css: ".box { future-property: future(1 2 3); color: red; }" },
+  { id: "malformed-recovery", css: ".a { color: red; broken; display: block; }" },
+  { id: "unclosed-function", css: ".a { --value: calc(1px + var(--x); }" }
 ];
 
 function canonicalize(css) {
@@ -45,7 +67,15 @@ async function cssomSnapshot(page, css) {
         }
 
         if (character === "\"" || character === "'") {
-          if (pendingSpace && result.length > 0 && !result.endsWith("(") && !result.endsWith(":")) {
+          if (
+            pendingSpace &&
+            result.length > 0 &&
+            !result.endsWith("(") &&
+            !result.endsWith(":") &&
+            !result.endsWith(">") &&
+            !result.endsWith("+") &&
+            !result.endsWith("~")
+          ) {
             result += " ";
           }
           pendingSpace = false;
@@ -59,14 +89,29 @@ async function cssomSnapshot(page, css) {
           continue;
         }
 
-        if (character === ")" || character === ":" || character === ",") {
+        if (
+          character === ")" ||
+          character === ":" ||
+          character === "," ||
+          character === ">" ||
+          character === "+" ||
+          character === "~"
+        ) {
           result = result.trimEnd();
           result += character;
           pendingSpace = false;
           continue;
         }
 
-        if (pendingSpace && result.length > 0 && !result.endsWith("(") && !result.endsWith(":")) {
+        if (
+          pendingSpace &&
+          result.length > 0 &&
+          !result.endsWith("(") &&
+          !result.endsWith(":") &&
+          !result.endsWith(">") &&
+          !result.endsWith("+") &&
+          !result.endsWith("~")
+        ) {
           result += " ";
         }
         pendingSpace = false;

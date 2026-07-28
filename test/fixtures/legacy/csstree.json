@@ -1,0 +1,23 @@
+{
+  "upstream": {
+    "repository": "https://github.com/csstree/csstree",
+    "package": "css-tree@3.0.1"
+  },
+  "files": [
+    {
+      "path": "src/internal/vendor/csstree/LICENSE",
+      "bytes": 1065,
+      "sha256": "a7d4ce7343a169d623ba68f98bf7aed9a4e0a3d6730dcf37a40d4fc96879704e"
+    },
+    {
+      "path": "src/internal/vendor/csstree/csstree.esm.d.ts",
+      "bytes": 431,
+      "sha256": "a02bc06a66781035dd631c891332dbd43d483a0a751941049a4cbf94e8064040"
+    },
+    {
+      "path": "src/internal/vendor/csstree/csstree.esm.js",
+      "bytes": 192154,
+      "sha256": "498ad7ee5981f22e364d47a89e9bbe3d11758c45b4248ed3fdb1cee975f2b193"
+    }
+  ]
+}
