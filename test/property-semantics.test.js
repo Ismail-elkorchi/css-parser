@@ -103,11 +103,27 @@ test("sequence matching applies conditional comma omission", () => {
   assert.equal(validate("background: red, blue").status, "invalid");
 });
 
+test("typed CSS math validates dimensions for calc, min, max, and clamp", () => {
+  for (const source of [
+    "width: calc(1px + 2%)",
+    "width: min(20px, 10%)",
+    "max-width: max(2rem, 40vw)",
+    "flex: 2 3 clamp(10px, 25%, 200px)",
+    "line-height: calc(1.2 * 1em)"
+  ]) assert.equal(validate(source).status, "valid", source);
+
+  for (const source of [
+    "width: calc(1px + 1deg)",
+    "width: calc(2px * 3px)",
+    "width: clamp(1px, 2deg, 3px)",
+    "width: min()"
+  ]) assert.equal(validate(source).status, "invalid", source);
+});
+
 test("unsupported grammar evidence is not misreported as invalid CSS", () => {
-  const math = validate("width: calc(1px + 2%)");
-  assert.equal(math.status, "unsupported");
-  assert.equal(math.reason, "unresolved-grammar");
-  assert.ok(math.unresolvedReferences.includes("<length:math-function>"));
+  const unsupportedMath = validate("width: sin(1px)");
+  assert.equal(unsupportedMath.status, "unsupported");
+  assert.equal(unsupportedMath.reason, "unresolved-grammar");
 
   const variable = validate("color: var(--theme)");
   assert.equal(variable.status, "unsupported");

@@ -88,6 +88,176 @@ const MATH_FUNCTIONS = new Set([
   "random-item-mix", "rem", "round", "sign", "sin", "sqrt", "tan"
 ]);
 
+type MathDimension = "number" | "percentage" | "length" | "angle" | "time" | "frequency" | "resolution" | "flex";
+
+interface MathValue {
+  readonly dimensions: ReadonlySet<MathDimension>;
+  readonly number: number | null;
+}
+
+function mathValue(dimension: MathDimension, number: number | null = null): MathValue {
+  return { dimensions: new Set([dimension]), number };
+}
+
+function sameDimensions(left: ReadonlySet<MathDimension>, right: ReadonlySet<MathDimension>): boolean {
+  if (left.size !== right.size) return false;
+  for (const value of left) if (!right.has(value)) return false;
+  return true;
+}
+
+function additiveDimensions(
+  left: ReadonlySet<MathDimension>,
+  right: ReadonlySet<MathDimension>
+): ReadonlySet<MathDimension> | null {
+  if (sameDimensions(left, right)) return new Set(left);
+  const combined = new Set([...left, ...right]);
+  return [...combined].every((value) => value === "length" || value === "percentage")
+    ? combined : null;
+}
+
+class CssMathAnalyzer {
+  readonly #step: () => void;
+
+  constructor(step: () => void) {
+    this.#step = step;
+  }
+
+  analyze(value: CssFunction): MathValue | null {
+    this.#step();
+    const name = lowerAscii(value.name);
+    if (name === "calc") return new CssMathExpressionParser(value.value, this).parse();
+    if (name !== "min" && name !== "max" && name !== "clamp") return null;
+    const groups: ComponentValue[][] = [[]];
+    for (const component of value.value) {
+      this.#step();
+      if (component.kind === "comma") groups.push([]);
+      else groups.at(-1)?.push(component);
+    }
+    if (name === "clamp" ? groups.length !== 3 : groups.length < 1) return null;
+    const parsed: MathValue[] = [];
+    for (const group of groups) {
+      const entry = new CssMathExpressionParser(group, this).parse();
+      if (entry === null) return null;
+      parsed.push(entry);
+    }
+    let dimensions = parsed[0]?.dimensions;
+    if (dimensions === undefined) return null;
+    for (const entry of parsed.slice(1)) {
+      const combined = additiveDimensions(dimensions, entry.dimensions);
+      if (combined === null) return null;
+      dimensions = combined;
+    }
+    return { dimensions, number: null };
+  }
+
+  primary(value: ComponentValue): MathValue | null {
+    this.#step();
+    if (value.kind === "number") return mathValue("number", value.value);
+    if (value.kind === "percentage") return mathValue("percentage");
+    if (value.kind === "dimension") {
+      const unit = lowerAscii(value.unit);
+      if (LENGTH_UNITS.has(unit)) return mathValue("length");
+      if (ANGLE_UNITS.has(unit)) return mathValue("angle");
+      if (TIME_UNITS.has(unit)) return mathValue("time");
+      if (FREQUENCY_UNITS.has(unit)) return mathValue("frequency");
+      if (RESOLUTION_UNITS.has(unit)) return mathValue("resolution");
+      if (FLEX_UNITS.has(unit)) return mathValue("flex");
+      return null;
+    }
+    if (value.kind === "simple-block" && value.associatedToken === "open-paren") {
+      return new CssMathExpressionParser(value.value, this).parse();
+    }
+    if (value.kind === "function-block" && MATH_FUNCTIONS.has(lowerAscii(value.name))) {
+      return this.analyze(value);
+    }
+    return null;
+  }
+}
+
+class CssMathExpressionParser {
+  readonly #values: readonly ComponentValue[];
+  readonly #analyzer: CssMathAnalyzer;
+  #position = 0;
+
+  constructor(values: readonly ComponentValue[], analyzer: CssMathAnalyzer) {
+    this.#values = values.filter((value) => value.kind !== "whitespace");
+    this.#analyzer = analyzer;
+  }
+
+  parse(): MathValue | null {
+    const value = this.#sum();
+    return value !== null && this.#position === this.#values.length ? value : null;
+  }
+
+  #peek(): ComponentValue | undefined { return this.#values[this.#position]; }
+
+  #consume(): ComponentValue | undefined {
+    const value = this.#peek();
+    this.#position += 1;
+    return value;
+  }
+
+  #delimiter(code: number): boolean {
+    const value = this.#peek();
+    if (value?.kind !== "delim" || value.value !== code) return false;
+    this.#position += 1;
+    return true;
+  }
+
+  #sum(): MathValue | null {
+    let left = this.#product();
+    if (left === null) return null;
+    for (;;) {
+      const operator = this.#peek();
+      if (operator?.kind !== "delim" || (operator.value !== 43 && operator.value !== 45)) return left;
+      this.#position += 1;
+      const right = this.#product();
+      if (right === null) return null;
+      const dimensions = additiveDimensions(left.dimensions, right.dimensions);
+      if (dimensions === null) return null;
+      const number: number | null = left.number !== null && right.number !== null
+        ? operator.value === 43 ? left.number + right.number : left.number - right.number
+        : null;
+      left = { dimensions, number };
+    }
+  }
+
+  #product(): MathValue | null {
+    let left = this.#unary();
+    if (left === null) return null;
+    for (;;) {
+      const operator = this.#peek();
+      if (operator?.kind !== "delim" || (operator.value !== 42 && operator.value !== 47)) return left;
+      this.#position += 1;
+      const right = this.#unary();
+      if (right === null) return null;
+      const leftNumber: boolean = left.dimensions.size === 1 && left.dimensions.has("number");
+      const rightNumber: boolean = right.dimensions.size === 1 && right.dimensions.has("number");
+      if (operator.value === 42) {
+        if (!leftNumber && !rightNumber) return null;
+        if (leftNumber && rightNumber) {
+          left = mathValue("number", left.number === null || right.number === null ? null : left.number * right.number);
+        } else left = leftNumber ? { dimensions: right.dimensions, number: null } : { dimensions: left.dimensions, number: null };
+      } else {
+        if (!rightNumber || right.number === 0) return null;
+        left = leftNumber
+          ? mathValue("number", left.number === null || right.number === null ? null : left.number / right.number)
+          : { dimensions: left.dimensions, number: null };
+      }
+    }
+  }
+
+  #unary(): MathValue | null {
+    if (this.#delimiter(43)) return this.#unary();
+    if (this.#delimiter(45)) {
+      const value = this.#unary();
+      return value === null ? null : { ...value, number: value.number === null ? null : -value.number };
+    }
+    const value = this.#consume();
+    return value === undefined ? null : this.#analyzer.primary(value);
+  }
+}
+
 const BORDER_STYLES = new Set([
   "none", "hidden", "dotted", "dashed", "solid", "double", "groove",
   "ridge", "inset", "outset"
@@ -636,15 +806,7 @@ class PropertyGrammarMatcher {
   ): MatchResult {
     if (reference.constraint?.kind !== "range") return matched;
     const value = values[start];
-    if (
-      value?.kind === "function-block" &&
-      MATH_FUNCTIONS.has(lowerAscii(value.name))
-    ) {
-      return result([], [
-        ...matched.unsupported,
-        `<${reference.name}:math-function>`
-      ]);
-    }
+    if (value?.kind === "function-block" && MATH_FUNCTIONS.has(lowerAscii(value.name))) return matched;
     return value !== undefined &&
         matched.ends.has(start + 1) &&
         this.#rangeMatches(reference, value)
@@ -707,6 +869,9 @@ class PropertyGrammarMatcher {
         return atomic(value?.kind === "number" && value.value === 0);
       case "percentage":
       case "percentage-token":
+        if (value?.kind === "function-block" && MATH_FUNCTIONS.has(lowerAscii(value.name))) {
+          return this.#matchMath(reference, value, start, new Set(["percentage"]));
+        }
         return atomic(value?.kind === "percentage");
       case "dimension":
       case "dimension-token":
@@ -714,6 +879,15 @@ class PropertyGrammarMatcher {
       case "length":
       case "quirky-length":
         return this.#matchDimensionType(reference, value, start, LENGTH_UNITS, true);
+      case "length-percentage":
+        if (value?.kind === "function-block" && MATH_FUNCTIONS.has(lowerAscii(value.name))) {
+          return this.#matchMath(reference, value, start, new Set(["length", "percentage"]));
+        }
+        return atomic(
+          value?.kind === "percentage" ||
+          (value?.kind === "dimension" && LENGTH_UNITS.has(lowerAscii(value.unit))) ||
+          (value?.kind === "number" && value.value === 0)
+        );
       case "angle":
         return this.#matchDimensionType(reference, value, start, ANGLE_UNITS, false);
       case "time":
@@ -805,7 +979,10 @@ class PropertyGrammarMatcher {
     integer: boolean
   ): MatchResult {
     if (value?.kind === "function-block" && MATH_FUNCTIONS.has(lowerAscii(value.name))) {
-      return result([], [`<${reference.name}:math-function>`]);
+      const matched = this.#matchMath(reference, value, start, new Set(["number"]));
+      if (!integer || !matched.ends.has(start + 1)) return matched;
+      const math = new CssMathAnalyzer(() => { this.#guard.step(); }).analyze(value);
+      return Number.isInteger(math?.number) ? matched : emptyResult();
     }
     return value?.kind === "number" &&
         (!integer || value.numberType === "integer") &&
@@ -823,7 +1000,15 @@ class PropertyGrammarMatcher {
   ): MatchResult {
     if (value === undefined) return emptyResult();
     if (value.kind === "function-block" && MATH_FUNCTIONS.has(lowerAscii(value.name))) {
-      return result([], [`<${reference.name}:math-function>`]);
+      const expected: MathDimension | null = units === LENGTH_UNITS ? "length"
+        : units === ANGLE_UNITS ? "angle"
+          : units === TIME_UNITS ? "time"
+            : units === FREQUENCY_UNITS ? "frequency"
+              : units === RESOLUTION_UNITS ? "resolution"
+                : units === FLEX_UNITS ? "flex" : null;
+      return expected === null
+        ? result([], [`<${reference.name}:math-function>`])
+        : this.#matchMath(reference, value, start, new Set([expected]));
     }
     const matches =
       (value.kind === "dimension" && units.has(lowerAscii(value.unit))) ||
@@ -831,6 +1016,19 @@ class PropertyGrammarMatcher {
     return matches && this.#rangeMatches(reference, value)
       ? singleEnd(start + 1)
       : emptyResult();
+  }
+
+  #matchMath(
+    reference: GrammarReference,
+    value: CssFunction,
+    start: number,
+    allowed: ReadonlySet<MathDimension>
+  ): MatchResult {
+    const math = new CssMathAnalyzer(() => { this.#guard.step(); }).analyze(value);
+    if (math === null) return ["calc", "min", "max", "clamp"].includes(lowerAscii(value.name))
+      ? emptyResult() : result([], [`<${reference.name}:math-function>`]);
+    for (const dimension of math.dimensions) if (!allowed.has(dimension)) return emptyResult();
+    return singleEnd(start + 1);
   }
 
   #rangeMatches(reference: GrammarReference, value: ComponentValue): boolean {
