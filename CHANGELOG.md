@@ -2,6 +2,14 @@
 
 All notable changes are documented in this file.
 
+## [0.2.1] - 2026-08-26
+
+- Validate `calc()`, `min()`, `max()`, and `clamp()` through typed numeric
+  dimensional analysis, including mixed length-percentage expressions.
+- Reject incompatible addition, nonnumeric divisors, and products of two
+  dimensional values while retaining typed unsupported outcomes for math
+  functions outside the implemented validation slice.
+
 ## [0.2.0] - 2026-07-29
 
 - Replace the embedded CSSTree runtime with the package's CSS Syntax
