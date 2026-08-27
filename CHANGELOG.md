@@ -2,6 +2,13 @@
 
 All notable changes are documented in this file.
 
+## [0.2.2] - 2026-08-27
+
+- Validate CSS Grid line-name groups as structured square-block component
+  values, including repeated groups in fixed and auto-repeat track lists.
+- Reject CSS-wide keywords, commas, and non-ident components where the Grid
+  grammar requires custom identifiers.
+
 ## [0.2.1] - 2026-08-26
 
 - Validate `calc()`, `min()`, `max()`, and `clamp()` through typed numeric

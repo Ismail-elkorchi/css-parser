@@ -945,6 +945,22 @@ class PropertyGrammarMatcher {
           return singleEnd(start + 1);
         }
         return this.#matchDimensionType(reference, value, start, LENGTH_UNITS, true);
+      case "line-names": {
+        if (
+          value?.kind !== "simple-block" ||
+          value.associatedToken !== "open-square"
+        ) {
+          return emptyResult();
+        }
+        const names = significant(value.value);
+        return names.every(
+          (name) =>
+            name.kind === "ident" &&
+            !CSS_GENERIC_KEYWORD_EXCLUSIONS.has(lowerAscii(name.value))
+        )
+          ? singleEnd(start + 1)
+          : emptyResult();
+      }
       case "paint":
         return this.#match(grammar(PAINT_SYNTAX), values, start);
       case "any-value":
