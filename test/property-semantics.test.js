@@ -120,6 +120,25 @@ test("typed CSS math validates dimensions for calc, min, max, and clamp", () => 
   ]) assert.equal(validate(source).status, "invalid", source);
 });
 
+test("Grid track lists validate square-block line-name groups", () => {
+  for (const source of [
+    "grid-template-columns: [content-start] minmax(10px, 1fr) [content-end]",
+    "grid-template-columns: [a b] repeat(2, [item-start] 20px [item-end]) [c]",
+    "grid-template-columns: [cards] repeat(auto-fit, minmax(10px, 1fr)) [cards-end]",
+    "grid-template-rows: [header-start] auto [header-end main-start] 1fr [main-end]"
+  ]) {
+    assert.equal(validate(source).status, "valid", source);
+  }
+
+  for (const source of [
+    "grid-template-columns: [initial] 10px",
+    "grid-template-columns: [line, other] 10px",
+    "grid-template-columns: [line 2] 10px"
+  ]) {
+    assert.equal(validate(source).status, "invalid", source);
+  }
+});
+
 test("unsupported grammar evidence is not misreported as invalid CSS", () => {
   const unsupportedMath = validate("width: sin(1px)");
   assert.equal(unsupportedMath.status, "unsupported");
