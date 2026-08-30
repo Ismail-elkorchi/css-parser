@@ -18,8 +18,9 @@ extensions.
 returns matches in tree order. Applications that evaluate several selectors
 against one immutable tree should create a `SelectorMatchSession` with
 `createSelectorMatchSession()`. A session validates and indexes tree structure,
-element names, IDs, and classes once, then preserves tree order while narrowing
-each query from the selector's rightmost compound. All entry points require a
+element names, IDs, classes, attribute names, document roots, and subtree
+intervals once. It preserves tree order while joining selective compounds
+across selector relationships. All entry points require a
 `SelectorEnvironment<TNode>` so the engine never guesses application semantics:
 
 - `tree.data()` and `tree.children()` expose the caller-owned tree.
@@ -27,6 +28,9 @@ each query from the selector's rightmost compound. All entry points require a
 - `defaultNamespace` and `resolveNamespacePrefix()` define namespace behavior.
 - `idValues()` and `classNames()` define document-language identity rules.
 - `attributeValueCaseSensitivity()` defines attribute-specific value matching.
+- `pseudoClassCandidates()` may provide an exhaustive candidate set for
+  dynamic state; matching still verifies every candidate with
+  `matchPseudoClass()`.
 - `matchPseudoClass()` decides dynamic or host-defined state.
 
 The tree adapter classifies nodes as `element`, `text`, or `other`. Element data

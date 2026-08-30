@@ -341,3 +341,168 @@ test("selector match sessions narrow queries through identity indexes", () => {
     after
   });
 });
+
+test("selector match sessions narrow attribute and root queries", () => {
+  const children = Array.from({ length: 10_000 }, (_, index) =>
+    element(
+      `item-${String(index)}`,
+      "div",
+      index === 9_999 ? [attribute("data-needle", "yes")] : []
+    )
+  );
+  const body = element("large-body", "body", [], children);
+  const documentElement = element("large-html", "html", [], [body]);
+  const root = { kind: "other", id: "large-document", children: [documentElement] };
+  const session = createSelectorMatchSession(root, environment, {
+    limits: { maxNodes: 10_003, maxSteps: 50_000 }
+  });
+
+  const attributeBefore = session.usage();
+  const attributeResult = session.query(parse("[data-needle]"));
+  const attributeAfter = session.usage();
+  const rootResult = session.query(parse(":root"));
+  const rootAfter = session.usage();
+
+  assert.deepEqual(
+    attributeResult.matches.map((node) => node.id),
+    ["item-9999"]
+  );
+  assert.deepEqual(rootResult.matches.map((node) => node.id), ["large-html"]);
+  assert.ok(attributeAfter.steps - attributeBefore.steps <= 5, {
+    attributeBefore,
+    attributeAfter
+  });
+  assert.ok(rootAfter.steps - attributeAfter.steps <= 5, {
+    attributeAfter,
+    rootAfter
+  });
+});
+
+test("selector sessions narrow logical and environment-owned pseudo classes", () => {
+  const children = Array.from({ length: 10_000 }, (_, index) =>
+    element(
+      `item-${String(index)}`,
+      "a",
+      index === 9_999 ? [attribute("class", "focused")] : []
+    )
+  );
+  const focused = children.at(-1);
+  assert.ok(focused !== undefined);
+  const root = { kind: "other", id: "pseudo-document", children };
+  const pseudoEnvironment = {
+    ...environment,
+    pseudoClassCandidates(pseudo) {
+      return pseudo.name === "focus" ? [focused, element("outside", "a")] : null;
+    },
+    matchPseudoClass(node, pseudo) {
+      return pseudo.name === "focus" && node === focused ? "match" : "no-match";
+    }
+  };
+  const session = createSelectorMatchSession(root, pseudoEnvironment, {
+    limits: { maxNodes: 10_001, maxSteps: 50_000 }
+  });
+
+  const focusBefore = session.usage();
+  const focusResult = session.query(parse(":focus"));
+  const focusAfter = session.usage();
+  const logicalResult = session.query(parse(":where(.focused, .absent)"));
+  const logicalAfter = session.usage();
+
+  assert.deepEqual(focusResult.matches.map((node) => node.id), ["item-9999"]);
+  assert.deepEqual(logicalResult.matches.map((node) => node.id), ["item-9999"]);
+  assert.ok(focusAfter.steps - focusBefore.steps <= 10, {
+    focusBefore,
+    focusAfter
+  });
+  assert.ok(logicalAfter.steps - focusAfter.steps <= 15, {
+    focusAfter,
+    logicalAfter
+  });
+});
+
+test("selector matching short-circuits relation and logical alternatives", () => {
+  let child = element("needle", "span", [attribute("class", "needle")]);
+  for (let index = 0; index < 5_000; index += 1) {
+    child = element(
+      `ancestor-${String(index)}`,
+      "div",
+      [attribute("class", "ancestor")],
+      [child]
+    );
+  }
+  const documentElement = element("deep-html", "html", [], [child]);
+  const root = { kind: "other", id: "deep-document", children: [documentElement] };
+  const session = createSelectorMatchSession(root, environment, {
+    limits: { maxNodes: 5_003, maxSteps: 40_000 }
+  });
+
+  const relationBefore = session.usage();
+  const relationResult = session.query(parse(".ancestor .needle"));
+  const relationAfter = session.usage();
+  const needle = relationResult.matches[0];
+  assert.ok(needle !== undefined);
+  const logicalResult = session.match(parse(":is(.needle, :has(*))"), needle);
+  const logicalAfter = session.usage();
+
+  assert.deepEqual(relationResult.matches.map((node) => node.id), ["needle"]);
+  assert.equal(logicalResult.status, "match");
+  assert.ok(relationAfter.steps - relationBefore.steps <= 8, {
+    relationBefore,
+    relationAfter
+  });
+  assert.ok(logicalAfter.steps - relationAfter.steps <= 5, {
+    relationAfter,
+    logicalAfter
+  });
+});
+
+test("selector queries propagate selective left compounds toward the subject", () => {
+  const matching = [
+    element("inside-1", "a", [attribute("class", "target")]),
+    element("inside-2", "a", [attribute("class", "target")])
+  ];
+  const rare = element("rare", "div", [attribute("class", "rare")], [
+    element("rare-section", "section", [], matching)
+  ]);
+  const outside = Array.from({ length: 5_000 }, (_, index) =>
+    element(`outside-${String(index)}`, "a", [attribute("class", "target")])
+  );
+  const documentElement = element("selective-html", "html", [], [
+    element("selective-body", "body", [], [rare, ...outside])
+  ]);
+  const root = {
+    kind: "other",
+    id: "selective-document",
+    children: [documentElement]
+  };
+  const session = createSelectorMatchSession(root, environment, {
+    limits: { maxNodes: 5_007, maxSteps: 40_000 }
+  });
+  const before = session.usage();
+  const result = session.query(parse(".rare > section a.target"));
+  const after = session.usage();
+
+  assert.deepEqual(result.matches.map((node) => node.id), ["inside-1", "inside-2"]);
+  assert.ok(after.steps - before.steps <= 25, { before, after });
+});
+
+test(":has() short-circuits after the first matching relative selector", () => {
+  const first = element("first-match", "span", [attribute("class", "first")]);
+  const children = [
+    first,
+    ...Array.from({ length: 5_000 }, (_, index) =>
+      element(`other-${String(index)}`, "span")
+    )
+  ];
+  const container = element("container", "div", [], children);
+  const root = { kind: "other", id: "has-document", children: [container] };
+  const session = createSelectorMatchSession(root, environment, {
+    limits: { maxNodes: 5_003, maxSteps: 30_000 }
+  });
+  const before = session.usage();
+  const result = session.match(parse(":has(> .first, *)"), container);
+  const after = session.usage();
+
+  assert.equal(result.status, "match");
+  assert.ok(after.steps - before.steps <= 8, { before, after });
+});

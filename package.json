@@ -1,6 +1,6 @@
 {
   "name": "@ismail-elkorchi/css-parser",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "CSS syntax parser, serializer, CSSOM declaration model, property validator, and selector engine.",
   "license": "MIT",
   "repository": {

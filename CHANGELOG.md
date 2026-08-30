@@ -2,6 +2,15 @@
 
 All notable changes are documented in this file.
 
+## [0.2.4] - 2026-08-30
+
+- Short-circuit selector lists, logical pseudo-class alternatives, relative
+  selector candidates, and ancestor relationships after a definite match.
+- Narrow selector queries through attribute-name and document-root candidate
+  indexes, dynamic pseudo-class candidates, compound intersections, and
+  document-order subtree joins while preserving namespaces, HTML casing,
+  three-valued matching, resource accounting, and deterministic order.
+
 ## [0.2.3] - 2026-08-30
 
 - Add explicit reusable selector match sessions that validate and index an
