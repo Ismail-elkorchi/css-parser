@@ -2,6 +2,14 @@
 
 All notable changes are documented in this file.
 
+## [0.2.3] - 2026-08-30
+
+- Add explicit reusable selector match sessions that validate and index an
+  immutable caller-owned tree once for related selector operations.
+- Narrow selector queries through document-order element-name, ID, and class
+  candidate indexes while preserving three-valued matching, resource usage,
+  cancellation, namespaces, and quirks-mode behavior.
+
 ## [0.2.2] - 2026-08-27
 
 - Validate CSS Grid line-name groups as structured square-block component
