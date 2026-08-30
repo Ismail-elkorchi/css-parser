@@ -48,6 +48,7 @@ export {
   specificityOfComplexSelector
 } from "../internal/selectors/specificity.ts";
 export {
+  createSelectorMatchSession,
   matchSelectorList,
   querySelectorList,
   SelectorTreeError

@@ -15,8 +15,12 @@ extensions.
 ## Environment
 
 `matchSelectorList()` tests one node. `querySelectorList()` walks a root and
-returns matches in tree order. Both require a `SelectorEnvironment<TNode>` so
-the engine never guesses application semantics:
+returns matches in tree order. Applications that evaluate several selectors
+against one immutable tree should create a `SelectorMatchSession` with
+`createSelectorMatchSession()`. A session validates and indexes tree structure,
+element names, IDs, and classes once, then preserves tree order while narrowing
+each query from the selector's rightmost compound. All entry points require a
+`SelectorEnvironment<TNode>` so the engine never guesses application semantics:
 
 - `tree.data()` and `tree.children()` expose the caller-owned tree.
 - `documentMode` distinguishes XML from the three HTML quirks modes.
@@ -43,9 +47,14 @@ evaluated by the engine; the hook supplies state the tree cannot contain.
 ## Reuse and limits
 
 Parse a selector once and reuse its immutable syntax tree. Matching has no
-implicit global cache. Pass deterministic resource limits, an abort signal,
-optional `:scope` nodes, and an optional nesting selector through
-`SelectorMatchOptions`.
+implicit global cache. A selector match session owns its index explicitly and
+reports cumulative resource usage across its operations. Pass deterministic
+resource limits, an abort signal, optional `:scope` nodes, and an optional
+nesting selector through `SelectorMatchOptions`.
+
+The tree, element names, IDs, classes, and attributes must remain immutable for
+the lifetime of a session. Dynamic pseudo-class decisions may change through
+the environment callback when the caller deliberately uses mutable state.
 
 Selector traversal rejects cyclic and shared-node graphs with
 `SelectorTreeError`.

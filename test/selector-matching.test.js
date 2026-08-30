@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  createSelectorMatchSession,
   matchSelectorList,
   parseSelectorList,
   querySelectorList,
@@ -287,4 +288,56 @@ test("matching rejects non-tree graphs and enforces resource limits", () => {
       error instanceof SyntaxResourceError &&
       error.limitName === "maxNodes"
   );
+});
+
+test("selector match sessions reuse one structural index", () => {
+  let childReads = 0;
+  const countingEnvironment = {
+    ...environment,
+    tree: {
+      ...environment.tree,
+      children(node) {
+        childReads += 1;
+        return environment.tree.children(node);
+      }
+    }
+  };
+  const session = createSelectorMatchSession(
+    document,
+    countingEnvironment
+  );
+  const indexedChildReads = childReads;
+
+  assert.deepEqual(
+    session.query(parse("section > .item")).matches.map((node) => node.id),
+    ["first", "second"]
+  );
+  assert.equal(session.match(parse("#content"), section).status, "match");
+  assert.deepEqual(
+    session.query(parse("svg|rect[xlink|href]")).matches.map((node) => node.id),
+    ["rect"]
+  );
+  assert.equal(childReads, indexedChildReads);
+  assert.ok(session.usage().steps > 0);
+});
+
+test("selector match sessions narrow queries through identity indexes", () => {
+  const children = Array.from({ length: 10_000 }, (_, index) =>
+    element(`item-${String(index)}`, "div", [
+      attribute("class", index === 9_999 ? "item needle" : "item")
+    ])
+  );
+  const root = { kind: "other", id: "large-document", children };
+  const session = createSelectorMatchSession(root, environment, {
+    limits: { maxNodes: 10_001, maxSteps: 50_000 }
+  });
+  const before = session.usage();
+  const result = session.query(parse(".needle"));
+  const after = session.usage();
+
+  assert.deepEqual(result.matches.map((node) => node.id), ["item-9999"]);
+  assert.ok(after.steps - before.steps <= 4, {
+    before,
+    after
+  });
 });

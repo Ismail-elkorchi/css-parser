@@ -149,6 +149,18 @@ export interface SelectorQueryResult<TNode extends object> {
   readonly usage: ResourceUsage;
 }
 
+/**
+ * Reuses one validated selector-tree index across related match and query
+ * operations. The caller-owned tree and its structural identity data must stay
+ * immutable for the lifetime of the session. Dynamic pseudo-class state may
+ * continue to be supplied by the environment callback.
+ */
+export interface SelectorMatchSession<TNode extends object> {
+  match(selector: SelectorList, node: TNode): SelectorMatchResult;
+  query(selector: SelectorList): SelectorQueryResult<TNode>;
+  usage(): ResourceUsage;
+}
+
 export class SelectorTreeError extends TypeError {
   readonly code = "CSS_SELECTOR_INVALID_TREE";
 
@@ -163,6 +175,12 @@ interface TreeIndex<TNode extends object> {
   readonly parent: ReadonlyMap<TNode, TNode | null>;
   readonly children: ReadonlyMap<TNode, readonly TNode[]>;
   readonly elements: readonly TNode[];
+  readonly elementData: ReadonlyMap<TNode, SelectorElementData>;
+  readonly elementsById: ReadonlyMap<string, readonly TNode[]>;
+  readonly elementsByClass: ReadonlyMap<string, readonly TNode[]>;
+  readonly elementsByExactLocalName: ReadonlyMap<string, readonly TNode[]>;
+  readonly elementsByQualifiedName: ReadonlyMap<string, readonly TNode[]>;
+  readonly htmlElementsByLocalName: ReadonlyMap<string, readonly TNode[]>;
 }
 
 interface DecisionResult {
@@ -260,6 +278,28 @@ function whitespaceTokens(value: string): readonly string[] {
   return Object.freeze(result);
 }
 
+function appendIndexEntry<TNode extends object>(
+  index: Map<string, TNode[]>,
+  key: string,
+  node: TNode
+): void {
+  const entries = index.get(key) ?? [];
+  entries.push(node);
+  index.set(key, entries);
+}
+
+function freezeIndex<TNode extends object>(
+  index: ReadonlyMap<string, readonly TNode[]>
+): ReadonlyMap<string, readonly TNode[]> {
+  return new Map(
+    [...index].map(([key, nodes]) => [key, Object.freeze([...nodes])])
+  );
+}
+
+function qualifiedNameKey(namespace: string | null, localName: string): string {
+  return `${namespace ?? "\u0000"}\u0001${localName}`;
+}
+
 function buildTreeIndex<TNode extends object>(
   root: TNode,
   environment: SelectorEnvironment<TNode>,
@@ -268,6 +308,12 @@ function buildTreeIndex<TNode extends object>(
   const parent = new Map<TNode, TNode | null>();
   const children = new Map<TNode, readonly TNode[]>();
   const elements: TNode[] = [];
+  const elementData = new Map<TNode, SelectorElementData>();
+  const elementsById = new Map<string, TNode[]>();
+  const elementsByClass = new Map<string, TNode[]>();
+  const elementsByExactLocalName = new Map<string, TNode[]>();
+  const elementsByQualifiedName = new Map<string, TNode[]>();
+  const htmlElementsByLocalName = new Map<string, TNode[]>();
   const active = new Set<TNode>();
   const stack: {
     readonly node: TNode;
@@ -289,8 +335,48 @@ function buildTreeIndex<TNode extends object>(
     active.add(frame.node);
     parent.set(frame.node, frame.parent);
     guard.createNode(frame.depth);
-    if (environment.tree.data(frame.node).kind === "element") {
+    const data = environment.tree.data(frame.node);
+    if (data.kind === "element") {
       elements.push(frame.node);
+      elementData.set(frame.node, data);
+      appendIndexEntry(elementsByExactLocalName, data.localName, frame.node);
+      appendIndexEntry(
+        elementsByQualifiedName,
+        qualifiedNameKey(data.namespace, data.localName),
+        frame.node
+      );
+      if (
+        environment.documentMode.syntax === "html" &&
+        data.namespace === "http://www.w3.org/1999/xhtml"
+      ) {
+        appendIndexEntry(
+          htmlElementsByLocalName,
+          lowerAscii(data.localName),
+          frame.node
+        );
+      }
+      for (const value of environment.idValues(frame.node, data)) {
+        guard.step();
+        appendIndexEntry(
+          elementsById,
+          environment.documentMode.syntax === "html" &&
+              environment.documentMode.quirks === "quirks"
+            ? lowerAscii(value)
+            : value,
+          frame.node
+        );
+      }
+      for (const value of environment.classNames(frame.node, data)) {
+        guard.step();
+        appendIndexEntry(
+          elementsByClass,
+          environment.documentMode.syntax === "html" &&
+              environment.documentMode.quirks === "quirks"
+            ? lowerAscii(value)
+            : value,
+          frame.node
+        );
+      }
     }
     const nodeChildren = Object.freeze([
       ...environment.tree.children(frame.node)
@@ -313,7 +399,13 @@ function buildTreeIndex<TNode extends object>(
     root,
     parent,
     children,
-    elements: Object.freeze(elements)
+    elements: Object.freeze(elements),
+    elementData,
+    elementsById: freezeIndex(elementsById),
+    elementsByClass: freezeIndex(elementsByClass),
+    elementsByExactLocalName: freezeIndex(elementsByExactLocalName),
+    elementsByQualifiedName: freezeIndex(elementsByQualifiedName),
+    htmlElementsByLocalName: freezeIndex(htmlElementsByLocalName)
   });
 }
 
@@ -340,8 +432,20 @@ class SelectorMatcher<TNode extends object> {
     return this.#guard.snapshot();
   }
 
-  elements(): readonly TNode[] {
-    return this.#index.elements;
+  queryCandidates(list: SelectorList): readonly TNode[] {
+    const candidates: (readonly TNode[])[] = [];
+    for (const selector of list.selectors) {
+      this.#guard.step();
+      const selected = this.#complexCandidates(selector);
+      if (selected === this.#index.elements) return this.#index.elements;
+      candidates.push(selected);
+    }
+    if (candidates.length === 0) return Object.freeze([]);
+    if (candidates.length === 1) return candidates[0] ?? Object.freeze([]);
+    const retained = new Set(candidates.flat());
+    return Object.freeze(
+      this.#index.elements.filter((node) => retained.has(node))
+    );
   }
 
   matches(list: SelectorList, node: TNode): DecisionResult {
@@ -350,6 +454,70 @@ class SelectorMatcher<TNode extends object> {
       list.selectors.map((selector) =>
         this.#complex(selector, node, null)
       )
+    );
+  }
+
+  #complexCandidates(selector: ComplexSelector): readonly TNode[] {
+    const compound = selector.compounds.at(-1);
+    if (compound === undefined) return Object.freeze([]);
+    let best: readonly TNode[] | null = this.#typeCandidates(compound.type);
+    for (const simple of compound.simples) {
+      let indexed: readonly TNode[] | null = null;
+      if (simple.kind === "id") {
+        const key = this.environment.documentMode.syntax === "html" &&
+            this.environment.documentMode.quirks === "quirks"
+          ? lowerAscii(simple.value)
+          : simple.value;
+        indexed = this.#index.elementsById.get(key) ?? Object.freeze([]);
+      } else if (simple.kind === "class") {
+        const key = this.environment.documentMode.syntax === "html" &&
+            this.environment.documentMode.quirks === "quirks"
+          ? lowerAscii(simple.value)
+          : simple.value;
+        indexed = this.#index.elementsByClass.get(key) ?? Object.freeze([]);
+      }
+      if (indexed !== null && (best === null || indexed.length < best.length)) {
+        best = indexed;
+      }
+    }
+    return best ?? this.#index.elements;
+  }
+
+  #typeCandidates(type: SelectorType | null): readonly TNode[] | null {
+    if (type === null || type.name === "*") return null;
+    let namespace: string | null;
+    if (type.namespace === "*") {
+      namespace = "*";
+    } else if (type.namespace === "") {
+      namespace = null;
+    } else if (type.namespace === null) {
+      if (this.environment.defaultNamespace.kind === "any") {
+        namespace = "*";
+      } else {
+        namespace = this.environment.defaultNamespace.namespace;
+      }
+    } else {
+      const resolution = this.environment.resolveNamespacePrefix(type.namespace);
+      if (resolution.status === "unknown") return null;
+      namespace = resolution.namespace;
+    }
+    const htmlCandidates = this.environment.documentMode.syntax === "html" &&
+        (namespace === "*" || namespace === "http://www.w3.org/1999/xhtml")
+      ? this.#index.htmlElementsByLocalName.get(lowerAscii(type.name)) ?? []
+      : [];
+    const exactCandidates = namespace === "*"
+      ? this.#index.elementsByExactLocalName.get(type.name) ?? []
+      : namespace === "http://www.w3.org/1999/xhtml" &&
+          this.environment.documentMode.syntax === "html"
+        ? []
+        : this.#index.elementsByQualifiedName.get(
+            qualifiedNameKey(namespace, type.name)
+          ) ?? [];
+    if (htmlCandidates.length === 0) return exactCandidates;
+    if (exactCandidates.length === 0) return htmlCandidates;
+    const retained = new Set([...htmlCandidates, ...exactCandidates]);
+    return Object.freeze(
+      this.#index.elements.filter((node) => retained.has(node))
     );
   }
 
@@ -398,8 +566,8 @@ class SelectorMatcher<TNode extends object> {
   }
 
   #compound(compound: CompoundSelector, node: TNode): DecisionResult {
-    const data = this.environment.tree.data(node);
-    if (data.kind !== "element") return known("no-match");
+    const data = this.#index.elementData.get(node);
+    if (data === undefined) return known("no-match");
     let result = compound.type === null
       ? known("match")
       : this.#type(compound.type, data);
@@ -568,7 +736,7 @@ class SelectorMatcher<TNode extends object> {
     ) {
       const results: DecisionResult[] = [];
       for (const selector of pseudo.argument.selectors) {
-        for (const candidate of this.#index.elements) {
+        for (const candidate of this.#complexCandidates(selector)) {
           results.push(this.#complex(selector, candidate, node));
         }
       }
@@ -911,6 +1079,47 @@ class SelectorMatcher<TNode extends object> {
   }
 }
 
+class ImmutableSelectorMatchSession<TNode extends object>
+implements SelectorMatchSession<TNode> {
+  readonly #matcher: SelectorMatcher<TNode>;
+
+  constructor(
+    root: TNode,
+    environment: SelectorEnvironment<TNode>,
+    options: SelectorMatchOptions<TNode>
+  ) {
+    this.#matcher = new SelectorMatcher(root, environment, options);
+  }
+
+  match(selector: SelectorList, node: TNode): SelectorMatchResult {
+    return publicResult(this.#matcher.matches(selector, node), this.#matcher.usage());
+  }
+
+  query(selector: SelectorList): SelectorQueryResult<TNode> {
+    const matches: TNode[] = [];
+    const unknownResults: SelectorQueryUnknown<TNode>[] = [];
+    for (const node of this.#matcher.queryCandidates(selector)) {
+      const result = this.#matcher.matches(selector, node);
+      if (result.decision === "match") matches.push(node);
+      else if (result.decision === "unknown") {
+        unknownResults.push(Object.freeze({
+          node,
+          reasons: result.reasons
+        }));
+      }
+    }
+    return Object.freeze({
+      matches: Object.freeze(matches),
+      unknown: Object.freeze(unknownResults),
+      usage: this.#matcher.usage()
+    });
+  }
+
+  usage(): ResourceUsage {
+    return this.#matcher.usage();
+  }
+}
+
 function matchesAnPlusB(index: number, a: number, b: number): boolean {
   if (a === 0) return index === b;
   const quotient = (index - b) / a;
@@ -938,8 +1147,10 @@ export function matchSelectorList<TNode extends object>(
   environment: SelectorEnvironment<TNode>,
   options: SelectorMatchOptions<TNode> = {}
 ): SelectorMatchResult {
-  const matcher = new SelectorMatcher(root, environment, options);
-  return publicResult(matcher.matches(selector, node), matcher.usage());
+  return createSelectorMatchSession(root, environment, options).match(
+    selector,
+    node
+  );
 }
 
 export function querySelectorList<TNode extends object>(
@@ -948,22 +1159,13 @@ export function querySelectorList<TNode extends object>(
   environment: SelectorEnvironment<TNode>,
   options: SelectorMatchOptions<TNode> = {}
 ): SelectorQueryResult<TNode> {
-  const matcher = new SelectorMatcher(root, environment, options);
-  const matches: TNode[] = [];
-  const unknownResults: SelectorQueryUnknown<TNode>[] = [];
-  for (const node of matcher.elements()) {
-    const result = matcher.matches(selector, node);
-    if (result.decision === "match") matches.push(node);
-    else if (result.decision === "unknown") {
-      unknownResults.push(Object.freeze({
-        node,
-        reasons: result.reasons
-      }));
-    }
-  }
-  return Object.freeze({
-    matches: Object.freeze(matches),
-    unknown: Object.freeze(unknownResults),
-    usage: matcher.usage()
-  });
+  return createSelectorMatchSession(root, environment, options).query(selector);
+}
+
+export function createSelectorMatchSession<TNode extends object>(
+  root: TNode,
+  environment: SelectorEnvironment<TNode>,
+  options: SelectorMatchOptions<TNode> = {}
+): SelectorMatchSession<TNode> {
+  return new ImmutableSelectorMatchSession(root, environment, options);
 }

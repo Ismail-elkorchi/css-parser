@@ -115,6 +115,7 @@ export type {
   SelectorDocumentMode,
   SelectorElementData,
   SelectorEnvironment,
+  SelectorMatchSession,
   SelectorMatchOptions,
   SelectorMatchResult,
   SelectorNamespaceResolution,

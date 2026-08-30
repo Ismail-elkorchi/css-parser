@@ -69,7 +69,8 @@ encoding and resource accounting for tokenization.
 mutation, and serialization semantics. `resolveCssProperty()` and
 `validateCssPropertyValue()` use pinned WebRef grammar data.
 
-`matchSelectorList()` and `querySelectorList()` require an explicit typed
+`matchSelectorList()`, `querySelectorList()`, and reusable
+`createSelectorMatchSession()` operations require an explicit typed
 environment for tree access, namespaces, document mode, attributes, and dynamic
 pseudo-classes. Their results preserve `match`, `no-match`, and `unknown`
 outcomes instead of guessing. See [Selector matching](./docs/selectors.md).
