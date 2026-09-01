@@ -2,6 +2,15 @@
 
 All notable changes are documented in this file.
 
+## [0.2.6] - 2026-09-01
+
+- Compile selector lists directly from retained parser component-value trees,
+  preserving source spans and selector resource accounting without another
+  serialization and tokenization pass.
+- Accept surrounding whitespace around top-level and nested selector-list
+  branches as required by the selector grammar.
+- Add a retained-prelude compilation performance control.
+
 ## [0.2.5] - 2026-09-01
 
 - Join ordered selector candidates directly by stored document ordinals,
