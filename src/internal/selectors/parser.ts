@@ -46,6 +46,15 @@ const NTH_PSEUDOS = new Set([
 ]);
 const EXCLUDED_OBSOLETE_PSEUDOS = new Set(["matches"]);
 
+const EMPTY_RESOURCE_USAGE: ResourceUsage = Object.freeze({
+  inputBytes: 0,
+  maxBufferedBytes: 0,
+  tokens: 0,
+  nodes: 0,
+  maxDepth: 0,
+  steps: 0
+});
+
 function knownPseudos(
   kind: "class" | "element",
   functional: boolean
@@ -126,6 +135,16 @@ function significant(values: readonly ComponentValue[]): readonly ComponentValue
   return Object.freeze(values.filter((value) => value.kind !== "whitespace"));
 }
 
+function trimWhitespace(values: readonly ComponentValue[]): readonly ComponentValue[] {
+  let start = 0;
+  let end = values.length;
+  while (values[start]?.kind === "whitespace") start += 1;
+  while (values[end - 1]?.kind === "whitespace") end -= 1;
+  return start === 0 && end === values.length
+    ? values
+    : Object.freeze(values.slice(start, end));
+}
+
 class SelectorParser {
   readonly #guard: ResourceGuard;
   readonly #diagnostics: SelectorDiagnostic[] = [];
@@ -182,8 +201,9 @@ class SelectorParser {
     return this.#nested(() => {
       const selectors: ComplexSelector[] = [];
       let valid = true;
-      for (const group of splitAtCommas(values)) {
+      for (const untrimmedGroup of splitAtCommas(values)) {
         this.#guard.step();
+        const group = trimWhitespace(untrimmedGroup);
         const diagnosticStart = this.#diagnostics.length;
         const localDiagnostics: SelectorDiagnostic[] = [];
         const parser = new ComplexSelectorParser(
@@ -924,9 +944,18 @@ export function parseSelectorList(
     });
   }
   const parser = new SelectorParser(
-    syntax.value,
+    trimWhitespace(syntax.value),
     options,
     syntax.usage
   );
   return parser.parse(syntax.errors);
+}
+
+/** Parses an immutable component-value sequence already produced by this parser. */
+export function parseSelectorListFromComponentValues(
+  values: readonly ComponentValue[],
+  options: SelectorParserOptions = {}
+): SelectorParseResult {
+  const parser = new SelectorParser(trimWhitespace(values), options, EMPTY_RESOURCE_USAGE);
+  return parser.parse(Object.freeze([]));
 }

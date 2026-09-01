@@ -45,7 +45,10 @@ export {
   validateCssPropertyValue
 } from "../internal/properties/matcher.ts";
 
-export { parseSelectorList } from "../internal/selectors/parser.ts";
+export {
+  parseSelectorList,
+  parseSelectorListFromComponentValues
+} from "../internal/selectors/parser.ts";
 export {
   specificitiesOfSelectorList,
   specificityOfComplexSelector

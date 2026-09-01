@@ -3,6 +3,8 @@ import test from "node:test";
 
 import {
   parseSelectorList,
+  parseSelectorListFromComponentValues,
+  parseStylesheet,
   specificitiesOfSelectorList,
   SyntaxResourceError
 } from "../dist/mod.js";
@@ -56,6 +58,37 @@ test("functional selectors retain nested and relative selector structure", () =>
     pseudos[2].argument.selectors.map((nested) => nested.leadingCombinator),
     [">", "+"]
   );
+});
+
+test("selector parser consumes a retained qualified-rule prelude without tokenizing it again", () => {
+  const stylesheet = parseStylesheet(
+    "article:is(.featured, #lead) > a[href^='/docs'] { color: red }"
+  );
+  assert.equal(stylesheet.ok, true);
+  if (!stylesheet.ok) return;
+  const rule = stylesheet.value.rules[0];
+  assert.equal(rule?.kind, "qualified-rule");
+  if (rule?.kind !== "qualified-rule") return;
+  const retainedPrelude = rule.prelude;
+  const parsed = parseSelectorListFromComponentValues(retainedPrelude);
+  const fromText = parseSelectorList("article:is(.featured, #lead) > a[href^='/docs']");
+  assert.equal(parsed.ok, true);
+  assert.equal(fromText.ok, true);
+  if (!parsed.ok || !fromText.ok) return;
+  assert.deepEqual(parsed.value, fromText.value);
+  assert.strictEqual(rule.prelude, retainedPrelude);
+  assert.equal(parsed.usage.inputBytes, 0);
+  assert.equal(parsed.usage.tokens, 0);
+  assert.ok(parsed.usage.nodes > 0);
+  assert.throws(
+    () => parseSelectorListFromComponentValues(retainedPrelude, { limits: { maxSteps: 0 } }),
+    (error) => error instanceof SyntaxResourceError && error.limitName === "maxSteps"
+  );
+});
+
+test("selector lists ignore surrounding whitespace in top-level and nested branches", () => {
+  assert.equal(parseSelectorList("  article > a  ").ok, true);
+  assert.equal(parseSelectorList(":is(.card, #lead )").ok, true);
 });
 
 test("An+B arguments and of selector lists are typed", () => {
