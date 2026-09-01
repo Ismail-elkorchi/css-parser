@@ -66,6 +66,14 @@ them. Invalid, cyclic, shared, or duplicate-id structures throw
 `CssSerializationError`. `serializeCssComponentValues()` serializes a component
 value list.
 
+`cloneCssComponentValues()` unfolds an acyclic component-value graph into an
+independent tree. Every occurrence receives fresh object identity, and function
+and simple-block nodes receive deterministic tree-local identifiers. This is
+intended for semantic transformations such as custom-property substitution
+that may insert one parsed value more than once. Its options bound tokens,
+structural nodes, depth, and work and accept cancellation. Cyclic input is
+rejected with `CssTreeStructureError`.
+
 `walkCss()` visits structural nodes in depth-first order.
 `findNodeById()` and `findNodesByKind()` provide exact typed lookup.
 
