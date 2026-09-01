@@ -25,6 +25,8 @@ export {
   computePatch,
   PatchPlanningError
 } from "./edits.ts";
+export { cloneCssComponentValues } from "./clone.ts";
+export type { CloneCssComponentValuesOptions } from "./clone.ts";
 
 export {
   serializeCssSyntax as serialize,
