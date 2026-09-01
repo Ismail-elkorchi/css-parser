@@ -5,7 +5,9 @@ import {
   createSelectorMatchSession,
   parseDeclaration,
   parseSelectorList,
-  parseStylesheet
+  parseSelectorListFromComponentValues,
+  parseStylesheet,
+  serializeCssComponentValues
 } from "../../dist/mod.js";
 
 const reportPath = new URL("../../reports/performance.json", import.meta.url);
@@ -56,6 +58,44 @@ function measure(name, source, iterations) {
     medianNs,
     nsPerByte: Number((medianNs / source.length).toFixed(3)),
     maxErrors
+  };
+}
+
+function measureSelectorCompilation(source, iterations) {
+  const stylesheet = parseStylesheet(source);
+  if (!stylesheet.ok) throw new Error("selector compilation fixture did not parse");
+  const preludes = stylesheet.value.rules.flatMap((rule) =>
+    rule.kind === "qualified-rule" ? [rule.prelude] : []
+  );
+  const serialized = preludes.map((prelude) => serializeCssComponentValues(prelude).trim());
+  const directDurations = [];
+  const reparsedDurations = [];
+  for (let iteration = 0; iteration < iterations + 4; iteration += 1) {
+    let start = process.hrtime.bigint();
+    for (const prelude of preludes) {
+      if (!parseSelectorListFromComponentValues(prelude).ok) {
+        throw new Error("retained selector prelude did not parse");
+      }
+    }
+    const direct = Number(process.hrtime.bigint() - start);
+    start = process.hrtime.bigint();
+    for (const selector of serialized) {
+      if (!parseSelectorList(selector).ok) throw new Error("serialized selector did not parse");
+    }
+    const reparsed = Number(process.hrtime.bigint() - start);
+    if (iteration >= 4) {
+      directDurations.push(direct);
+      reparsedDurations.push(reparsed);
+    }
+  }
+  const directMedianNs = median(directDurations);
+  const reparseMedianNs = median(reparsedDurations);
+  return {
+    selectors: preludes.length,
+    iterations,
+    directMedianNs,
+    reparseMedianNs,
+    directToReparseRatio: directMedianNs / reparseMedianNs,
   };
 }
 
@@ -191,11 +231,13 @@ const propertyValidation = {
   p95Ns: percentile(validationDurations, 0.95),
   statistics: validationSession.statistics()
 };
+const selectorCompilation = measureSelectorCompilation(buildStylesheet(640), 12);
 const ok =
   scenarios.every((scenario) => scenario.maxErrors === 0) &&
   growth.every((entry) => entry.normalizedGrowth <= maxNormalizedGrowth) &&
   selectorMatching.queryP95Ns < maxSelectorQueryP95Ns &&
-  propertyValidation.p95Ns < maxPropertyValidationP95Ns;
+  propertyValidation.p95Ns < maxPropertyValidationP95Ns &&
+  selectorCompilation.directToReparseRatio <= 0.8;
 const report = {
   schemaVersion: 1,
   suite: "css-parser-performance",
@@ -207,7 +249,8 @@ const report = {
   scenarios,
   growth,
   selectorMatching,
-  propertyValidation
+  propertyValidation,
+  selectorCompilation
 };
 
 await mkdir(new URL("../../reports/", import.meta.url), { recursive: true });

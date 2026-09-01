@@ -4,6 +4,12 @@
 source-located tree. Specificity is available through
 `specificityOfComplexSelector()` and `specificitiesOfSelectorList()`.
 
+`parseSelectorListFromComponentValues()` consumes an immutable component-value
+sequence already returned by the syntax parser. Stylesheet processors can
+compile a qualified-rule prelude without serializing and tokenizing it again.
+The selector parser still applies its selector node, nesting, and step limits;
+the caller retains ownership of the supplied syntax tree.
+
 The parser implements type, universal, id, class, attribute, nesting,
 pseudo-class, and pseudo-element selectors; namespace prefixes; all Level 4
 combinators; logical and relational pseudo-classes; `:nth-*()` forms; and the
