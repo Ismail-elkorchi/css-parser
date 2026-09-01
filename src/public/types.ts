@@ -78,6 +78,9 @@ export type {
 } from "../internal/properties/registry.ts";
 export type {
   InvalidPropertyValue,
+  PropertyValidationSession,
+  PropertyValidationSessionOptions,
+  PropertyValidationSessionStatistics,
   PropertyValidationOptions,
   PropertyValueValidation,
   UnsupportedPropertyValue,

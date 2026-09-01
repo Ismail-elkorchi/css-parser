@@ -24,6 +24,34 @@ export interface PropertyValidationOptions {
   readonly signal?: AbortSignal;
 }
 
+export interface PropertyValidationSessionOptions extends PropertyValidationOptions {
+  /** Maximum distinct canonical property/value pairs retained by this session. */
+  readonly maxEntries?: number;
+}
+
+export interface PropertyValidationSessionStatistics {
+  readonly entries: number;
+  readonly hits: number;
+  readonly misses: number;
+  readonly evictions: number;
+}
+
+/**
+ * Validates already parsed values and retains a bounded semantic-result cache.
+ * Component-value arrays remain caller-owned: keys use their deterministic
+ * structure rather than object identity, so later caller mutation cannot make
+ * a cached result apply to different syntax.
+ */
+export interface PropertyValidationSession {
+  validate(
+    propertyName: string,
+    value: readonly ComponentValue[]
+  ): PropertyValueValidation;
+  validateDeclaration(declaration: CssDeclaration): PropertyValueValidation;
+  statistics(): PropertyValidationSessionStatistics;
+  clear(): void;
+}
+
 interface PropertyValidationBase {
   readonly property: CssPropertySemantics | null;
   readonly usage: ResourceUsage;
@@ -1199,12 +1227,13 @@ function frozenUsage(matcher: PropertyGrammarMatcher): ResourceUsage {
   return matcher.usage();
 }
 
-export function validateCssPropertyValue(
-  declaration: CssDeclaration,
+function validateParsedPropertyValue(
+  propertyName: string,
+  declarationValue: readonly ComponentValue[],
   options: PropertyValidationOptions = {}
 ): PropertyValueValidation {
   const matcher = new PropertyGrammarMatcher(options);
-  const property = resolveCssProperty(declaration.name);
+  const property = resolveCssProperty(propertyName);
   if (property === null) {
     return Object.freeze({
       status: "invalid",
@@ -1214,7 +1243,7 @@ export function validateCssPropertyValue(
     });
   }
   if (property.kind === "custom") {
-    const customStatus = customPropertyValueStatus(declaration.value, matcher);
+    const customStatus = customPropertyValueStatus(declarationValue, matcher);
     if (customStatus === "invalid") {
       return Object.freeze({
         status: "invalid",
@@ -1240,7 +1269,7 @@ export function validateCssPropertyValue(
     });
   }
 
-  const values = significant(declaration.value);
+  const values = significant(declarationValue);
   if (isCssWideKeyword(values)) {
     return Object.freeze({
       status: "valid",
@@ -1303,4 +1332,154 @@ export function validateCssPropertyValue(
     property,
     usage: frozenUsage(matcher)
   });
+}
+
+function fingerprintText(value: string): string {
+  return `${String(value.length)}:${value}`;
+}
+
+function fingerprintComponentValues(
+  values: readonly ComponentValue[],
+  options: PropertyValidationOptions
+): string {
+  const guard = new ResourceGuard(
+    { maxSteps: options.maxSteps ?? DEFAULT_MAX_STEPS },
+    options.signal
+  );
+  const parts: string[] = [];
+  const visit = (value: ComponentValue): void => {
+    guard.step();
+    parts.push(value.kind, "(");
+    switch (value.kind) {
+      case "ident":
+      case "at-keyword":
+      case "string":
+      case "url":
+        parts.push(fingerprintText(value.value));
+        break;
+      case "hash":
+        parts.push(fingerprintText(value.value), value.hashType);
+        break;
+      case "delim":
+        parts.push(String(value.value));
+        break;
+      case "number":
+      case "percentage":
+        parts.push(String(value.value), value.numberType);
+        break;
+      case "dimension":
+        parts.push(String(value.value), value.numberType, fingerprintText(value.unit));
+        break;
+      case "unicode-range":
+        parts.push(String(value.start), ":", String(value.end));
+        break;
+      case "function-block":
+        parts.push(fingerprintText(value.name), "[");
+        for (const child of value.value) visit(child);
+        parts.push("]");
+        break;
+      case "simple-block":
+        parts.push(value.associatedToken, "[");
+        for (const child of value.value) visit(child);
+        parts.push("]");
+        break;
+      case "bad-string":
+      case "bad-url":
+      case "whitespace":
+      case "cdo":
+      case "cdc":
+      case "colon":
+      case "semicolon":
+      case "comma":
+      case "close-square":
+      case "close-paren":
+      case "close-curly":
+        break;
+    }
+    parts.push(")");
+  };
+  for (const value of values) visit(value);
+  return parts.join("");
+}
+
+class BoundedPropertyValidationSession implements PropertyValidationSession {
+  readonly #options: PropertyValidationOptions;
+  readonly #maxEntries: number;
+  readonly #results = new Map<string, PropertyValueValidation>();
+  #hits = 0;
+  #misses = 0;
+  #evictions = 0;
+
+  constructor(options: PropertyValidationSessionOptions) {
+    const maxEntries = options.maxEntries ?? 1_024;
+    if (!Number.isSafeInteger(maxEntries) || maxEntries < 0) {
+      throw new RangeError("maxEntries must be a non-negative safe integer");
+    }
+    this.#maxEntries = maxEntries;
+    this.#options = Object.freeze({
+      ...(options.maxSteps === undefined ? {} : { maxSteps: options.maxSteps }),
+      ...(options.signal === undefined ? {} : { signal: options.signal })
+    });
+  }
+
+  validate(
+    propertyName: string,
+    value: readonly ComponentValue[]
+  ): PropertyValueValidation {
+    const property = resolveCssProperty(propertyName);
+    const identity = property === null
+      ? `unknown:${fingerprintText(propertyName)}`
+      : property.kind === "custom"
+        ? `custom:${fingerprintText(property.name)}`
+        : `standard:${fingerprintText(property.requestedName)}`;
+    const key = `${identity}:${fingerprintComponentValues(value, this.#options)}`;
+    const retained = this.#results.get(key);
+    if (retained !== undefined) {
+      this.#hits += 1;
+      this.#results.delete(key);
+      this.#results.set(key, retained);
+      return retained;
+    }
+    this.#misses += 1;
+    const result = validateParsedPropertyValue(propertyName, value, this.#options);
+    if (this.#maxEntries > 0) {
+      this.#results.set(key, result);
+      if (this.#results.size > this.#maxEntries) {
+        const oldest = this.#results.keys().next().value;
+        if (oldest !== undefined) this.#results.delete(oldest);
+        this.#evictions += 1;
+      }
+    }
+    return result;
+  }
+
+  validateDeclaration(declaration: CssDeclaration): PropertyValueValidation {
+    return this.validate(declaration.name, declaration.value);
+  }
+
+  statistics(): PropertyValidationSessionStatistics {
+    return Object.freeze({
+      entries: this.#results.size,
+      hits: this.#hits,
+      misses: this.#misses,
+      evictions: this.#evictions
+    });
+  }
+
+  clear(): void {
+    this.#results.clear();
+  }
+}
+
+export function createPropertyValidationSession(
+  options: PropertyValidationSessionOptions = {}
+): PropertyValidationSession {
+  return new BoundedPropertyValidationSession(options);
+}
+
+export function validateCssPropertyValue(
+  declaration: CssDeclaration,
+  options: PropertyValidationOptions = {}
+): PropertyValueValidation {
+  return validateParsedPropertyValue(declaration.name, declaration.value, options);
 }

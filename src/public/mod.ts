@@ -40,7 +40,10 @@ export {
 
 export { CssDeclarationBlock } from "../internal/cssom/declarations.ts";
 export { resolveCssProperty } from "../internal/properties/registry.ts";
-export { validateCssPropertyValue } from "../internal/properties/matcher.ts";
+export {
+  createPropertyValidationSession,
+  validateCssPropertyValue
+} from "../internal/properties/matcher.ts";
 
 export { parseSelectorList } from "../internal/selectors/parser.ts";
 export {

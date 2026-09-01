@@ -420,6 +420,69 @@ test("selector sessions narrow logical and environment-owned pseudo classes", ()
   });
 });
 
+test("ordered candidate joins preserve HTML, foreign-content, and pseudo order", () => {
+  const htmlUpper = element("html-upper", "P", [attribute("DATA-KIND", "html")]);
+  const svgExact = element("svg-exact", "P", [attribute("DATA-KIND", "svg")], [], SVG);
+  const htmlLower = element("html-lower", "p", [attribute("data-kind", "html")]);
+  const root = { kind: "other", id: "ordered-document", children: [
+    htmlUpper,
+    svgExact,
+    htmlLower
+  ] };
+  const reversed = [htmlLower, svgExact, htmlUpper, htmlLower];
+  const orderedEnvironment = {
+    ...environment,
+    pseudoClassCandidates(pseudo) {
+      return pseudo.name === "focus" ? reversed : null;
+    },
+    matchPseudoClass(node, pseudo) {
+      return pseudo.name === "focus" && reversed.includes(node)
+        ? "match"
+        : "no-match";
+    }
+  };
+  const session = createSelectorMatchSession(root, orderedEnvironment);
+
+  assert.deepEqual(
+    session.query(parse("P")).matches.map((node) => node.id),
+    ["html-upper", "svg-exact", "html-lower"]
+  );
+  assert.deepEqual(
+    session.query(parse("[*|DATA-KIND]")).matches.map((node) => node.id),
+    ["html-upper", "svg-exact", "html-lower"]
+  );
+  assert.deepEqual(
+    session.query(parse(":is(#html-lower, P, #html-upper)")).matches.map((node) => node.id),
+    ["html-upper", "svg-exact", "html-lower"]
+  );
+  assert.deepEqual(
+    session.query(parse(":focus")).matches.map((node) => node.id),
+    ["html-upper", "svg-exact", "html-lower"]
+  );
+});
+
+test("small ordered unions do not scan a large document", () => {
+  const children = Array.from({ length: 100_000 }, (_, index) =>
+    element(`item-${String(index)}`, index % 7 === 0 ? "span" : "div", [
+      attribute("id", `item-${String(index)}`)
+    ])
+  );
+  const root = { kind: "other", id: "union-document", children };
+  const session = createSelectorMatchSession(root, environment, {
+    limits: { maxNodes: 100_001, maxSteps: 500_000 }
+  });
+  const before = session.usage();
+  const result = session.query(parse("#item-2, #item-50000, #item-99999"));
+  const after = session.usage();
+
+  assert.deepEqual(result.matches.map((node) => node.id), [
+    "item-2",
+    "item-50000",
+    "item-99999"
+  ]);
+  assert.ok(after.steps - before.steps < 100, { before, after });
+});
+
 test("selector matching short-circuits relation and logical alternatives", () => {
   let child = element("needle", "span", [attribute("class", "needle")]);
   for (let index = 0; index < 5_000; index += 1) {
@@ -483,7 +546,10 @@ test("selector queries propagate selective left compounds toward the subject", (
   const after = session.usage();
 
   assert.deepEqual(result.matches.map((node) => node.id), ["inside-1", "inside-2"]);
-  assert.ok(after.steps - before.steps <= 25, { before, after });
+  assert.ok(
+    after.steps - before.steps <= 25,
+    JSON.stringify({ before, after })
+  );
 });
 
 test(":has() short-circuits after the first matching relative selector", () => {

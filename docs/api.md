@@ -92,5 +92,9 @@ The class also exposes CSSOM-style lookup, removal, indexed names,
 identity, or `null`. `validateCssPropertyValue()` returns `valid`, `invalid`, or
 `unsupported`; unsupported results identify grammar areas that cannot be decided
 without application context. Both use the repository's pinned WebRef data.
+`createPropertyValidationSession()` validates a canonical property name and an
+already parsed component-value sequence. Its structural keys do not assume
+caller-owned syntax is immutable, and its least-recently-used result retention
+is bounded by `maxEntries`.
 
 Selector APIs are documented separately in [Selector matching](./selectors.md).

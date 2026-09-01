@@ -1,6 +1,12 @@
 import { mkdir, writeFile } from "node:fs/promises";
 
-import { parseStylesheet } from "../../dist/mod.js";
+import {
+  createPropertyValidationSession,
+  createSelectorMatchSession,
+  parseDeclaration,
+  parseSelectorList,
+  parseStylesheet
+} from "../../dist/mod.js";
 
 const reportPath = new URL("../../reports/performance.json", import.meta.url);
 
@@ -19,6 +25,15 @@ function median(values) {
   return sorted.length % 2 === 0
     ? ((sorted[middle - 1] ?? 0) + (sorted[middle] ?? 0)) / 2
     : (sorted[middle] ?? 0);
+}
+
+function percentile(values, percentileValue) {
+  const sorted = [...values].sort((left, right) => left - right);
+  const index = Math.min(
+    sorted.length - 1,
+    Math.max(0, Math.ceil(sorted.length * percentileValue) - 1)
+  );
+  return sorted[index] ?? 0;
 }
 
 function measure(name, source, iterations) {
@@ -64,17 +79,135 @@ const growth = scenarios.slice(1).map((current, index) => {
 });
 
 const maxNormalizedGrowth = 1.75;
+// The p95 case returns and verifies all 100,000 elements through a seven-branch
+// selector list. This ceiling guards the complete-output workload while the
+// sparse-union regression separately proves that small joins are sublinear in
+// document size.
+const maxSelectorQueryP95Ns = 750_000_000;
+const maxPropertyValidationP95Ns = 250_000;
+const HTML = "http://www.w3.org/1999/xhtml";
+const FOREIGN = "http://www.w3.org/2000/svg";
+const selectorChildren = Array.from({ length: 100_000 }, (_, index) => ({
+  kind: "element",
+  id: `element-${String(index)}`,
+  namespace: index % 97 === 0 ? FOREIGN : HTML,
+  localName: ["div", "span", "a", "p", "li", "td", "th"][index % 7],
+  attributes: [
+    { namespace: null, localName: "class", value: `item group-${String(index % 31)}` },
+    ...(index % 113 === 0
+      ? [{ namespace: null, localName: "data-marker", value: "yes" }]
+      : [])
+  ],
+  children: []
+}));
+const selectorRoot = { kind: "other", children: selectorChildren };
+const selectorEnvironment = {
+  tree: {
+    data(node) {
+      return node.kind === "element"
+        ? {
+            kind: "element",
+            namespace: node.namespace,
+            localName: node.localName,
+            attributes: node.attributes
+          }
+        : { kind: "other" };
+    },
+    children(node) {
+      return node.children;
+    }
+  },
+  documentMode: { syntax: "html", quirks: "no-quirks" },
+  defaultNamespace: { kind: "any" },
+  idValues(node) {
+    return [node.id];
+  },
+  classNames(_node, data) {
+    return data.attributes
+      .filter((attribute) => attribute.localName === "class")
+      .flatMap((attribute) => attribute.value.split(" "));
+  },
+  resolveNamespacePrefix() {
+    return { status: "unknown" };
+  },
+  attributeValueCaseSensitivity() {
+    return "sensitive";
+  },
+  matchPseudoClass() {
+    return "no-match";
+  }
+};
+const selectorSources = [
+  "div", "span", "a", "p", "li", "td", "th",
+  "div, span, a, p, li, td, th",
+  ":is(div, span, a, p, li, td, th)",
+  ".group-1[data-marker]",
+  "#element-99999, #element-2, #element-50000"
+];
+const selectorPrograms = selectorSources.map((source) => {
+  const parsed = parseSelectorList(source);
+  if (!parsed.ok) throw new Error(`selector benchmark parse failed: ${source}`);
+  return parsed.value;
+});
+const selectorSessionStart = process.hrtime.bigint();
+const selectorSession = createSelectorMatchSession(
+  selectorRoot,
+  selectorEnvironment,
+  { limits: { maxNodes: 100_001, maxSteps: 100_000_000 } }
+);
+const selectorIndexNs = Number(process.hrtime.bigint() - selectorSessionStart);
+for (let index = 0; index < 3; index += 1) {
+  for (const selector of selectorPrograms) selectorSession.query(selector);
+}
+const selectorDurations = [];
+for (let iteration = 0; iteration < 8; iteration += 1) {
+  for (const selector of selectorPrograms) {
+    const start = process.hrtime.bigint();
+    selectorSession.query(selector);
+    selectorDurations.push(Number(process.hrtime.bigint() - start));
+  }
+}
+const declaration = parseDeclaration("width: calc(50% - 1rem)");
+if (!declaration.ok) throw new Error("property benchmark declaration failed");
+const validationSession = createPropertyValidationSession({ maxEntries: 16 });
+validationSession.validateDeclaration(declaration.value);
+const validationDurations = [];
+for (let index = 0; index < 10_000; index += 1) {
+  const start = process.hrtime.bigint();
+  validationSession.validate("width", declaration.value.value);
+  validationDurations.push(Number(process.hrtime.bigint() - start));
+}
+const selectorMatching = {
+  elements: selectorChildren.length,
+  selectors: selectorSources,
+  indexNs: selectorIndexNs,
+  queryP50Ns: percentile(selectorDurations, 0.5),
+  queryP95Ns: percentile(selectorDurations, 0.95),
+  usage: selectorSession.usage()
+};
+const propertyValidation = {
+  iterations: validationDurations.length,
+  p50Ns: percentile(validationDurations, 0.5),
+  p95Ns: percentile(validationDurations, 0.95),
+  statistics: validationSession.statistics()
+};
 const ok =
   scenarios.every((scenario) => scenario.maxErrors === 0) &&
-  growth.every((entry) => entry.normalizedGrowth <= maxNormalizedGrowth);
+  growth.every((entry) => entry.normalizedGrowth <= maxNormalizedGrowth) &&
+  selectorMatching.queryP95Ns < maxSelectorQueryP95Ns &&
+  propertyValidation.p95Ns < maxPropertyValidationP95Ns;
 const report = {
   schemaVersion: 1,
   suite: "css-parser-performance",
   generatedAt: new Date().toISOString(),
   ok,
   maxNormalizedGrowth,
+  maxSelectorQueryP95Ns,
+  maxPropertyValidationP95Ns,
   scenarios,
-  growth
+  growth,
+  selectorMatching,
+  propertyValidation
 };
 
 await mkdir(new URL("../../reports/", import.meta.url), { recursive: true });

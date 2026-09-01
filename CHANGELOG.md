@@ -2,6 +2,17 @@
 
 All notable changes are documented in this file.
 
+## [0.2.5] - 2026-09-01
+
+- Join ordered selector candidates directly by stored document ordinals,
+  including k-way selector-list unions, intersections, HTML/foreign-content
+  name joins, and environment-supplied pseudo-class candidates, without
+  rescanning the complete document.
+- Add bounded property-validation sessions for already parsed component-value
+  trees, with structural cache keys and explicit retention statistics.
+- Add 100,000-element candidate-join and repeated parsed-value validation
+  performance controls.
+
 ## [0.2.4] - 2026-08-30
 
 - Short-circuit selector lists, logical pseudo-class alternatives, relative

@@ -67,7 +67,10 @@ encoding and resource accounting for tokenization.
 
 `CssDeclarationBlock` implements declaration parsing, priority, property-name,
 mutation, and serialization semantics. `resolveCssProperty()` and
-`validateCssPropertyValue()` use pinned WebRef grammar data.
+`validateCssPropertyValue()` use pinned WebRef grammar data. Applications that
+validate repeated already-parsed values can use the bounded
+`createPropertyValidationSession()` contract without reconstructing declaration
+text.
 
 `matchSelectorList()`, `querySelectorList()`, and reusable
 `createSelectorMatchSession()` operations require an explicit typed
