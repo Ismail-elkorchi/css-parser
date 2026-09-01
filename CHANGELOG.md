@@ -2,6 +2,12 @@
 
 All notable changes are documented in this file.
 
+## [0.2.7] - 2026-09-01
+
+- Add bounded component-value tree cloning for semantic transformations that
+  insert one parsed value more than once, with fresh tree-local structural IDs,
+  cycle rejection, cancellation, and resource limits.
+
 ## [0.2.6] - 2026-09-01
 
 - Compile selector lists directly from retained parser component-value trees,
