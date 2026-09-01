@@ -188,10 +188,13 @@ interface TreeIndex<TNode extends object> {
   readonly elementsById: ReadonlyMap<string, readonly TNode[]>;
   readonly elementsByClass: ReadonlyMap<string, readonly TNode[]>;
   readonly elementsByExactLocalName: ReadonlyMap<string, readonly TNode[]>;
+  readonly caseSensitiveElementsByExactLocalName: ReadonlyMap<string, readonly TNode[]>;
   readonly elementsByQualifiedName: ReadonlyMap<string, readonly TNode[]>;
   readonly htmlElementsByLocalName: ReadonlyMap<string, readonly TNode[]>;
   readonly elementsByExactAttributeName: ReadonlyMap<string, readonly TNode[]>;
   readonly elementsByQualifiedAttributeName: ReadonlyMap<string, readonly TNode[]>;
+  readonly caseSensitiveElementsByExactAttributeName: ReadonlyMap<string, readonly TNode[]>;
+  readonly caseSensitiveElementsByQualifiedAttributeName: ReadonlyMap<string, readonly TNode[]>;
   readonly htmlElementsByAttributeName: ReadonlyMap<string, readonly TNode[]>;
   readonly documentElements: readonly TNode[];
   readonly elementOrder: ReadonlyMap<TNode, number>;
@@ -331,10 +334,13 @@ function buildTreeIndex<TNode extends object>(
   const elementsById = new Map<string, TNode[]>();
   const elementsByClass = new Map<string, TNode[]>();
   const elementsByExactLocalName = new Map<string, TNode[]>();
+  const caseSensitiveElementsByExactLocalName = new Map<string, TNode[]>();
   const elementsByQualifiedName = new Map<string, TNode[]>();
   const htmlElementsByLocalName = new Map<string, TNode[]>();
   const elementsByExactAttributeName = new Map<string, TNode[]>();
   const elementsByQualifiedAttributeName = new Map<string, TNode[]>();
+  const caseSensitiveElementsByExactAttributeName = new Map<string, TNode[]>();
+  const caseSensitiveElementsByQualifiedAttributeName = new Map<string, TNode[]>();
   const htmlElementsByAttributeName = new Map<string, TNode[]>();
   const documentElements: TNode[] = [];
   const elementOrder = new Map<TNode, number>();
@@ -389,10 +395,18 @@ function buildTreeIndex<TNode extends object>(
           lowerAscii(data.localName),
           frame.node
         );
+      } else {
+        appendIndexEntry(
+          caseSensitiveElementsByExactLocalName,
+          data.localName,
+          frame.node
+        );
       }
       const exactAttributeNames = new Set<string>();
       const qualifiedAttributeNames = new Set<string>();
       const htmlAttributeNames = new Set<string>();
+      const caseSensitiveExactAttributeNames = new Set<string>();
+      const caseSensitiveQualifiedAttributeNames = new Set<string>();
       for (const attribute of data.attributes) {
         guard.step();
         exactAttributeNames.add(attribute.localName);
@@ -405,6 +419,11 @@ function buildTreeIndex<TNode extends object>(
           attribute.namespace === null
         ) {
           htmlAttributeNames.add(lowerAscii(attribute.localName));
+        } else {
+          caseSensitiveExactAttributeNames.add(attribute.localName);
+          caseSensitiveQualifiedAttributeNames.add(
+            qualifiedNameKey(attribute.namespace, attribute.localName)
+          );
         }
       }
       for (const name of exactAttributeNames) {
@@ -415,6 +434,20 @@ function buildTreeIndex<TNode extends object>(
       }
       for (const name of htmlAttributeNames) {
         appendIndexEntry(htmlElementsByAttributeName, name, frame.node);
+      }
+      for (const name of caseSensitiveExactAttributeNames) {
+        appendIndexEntry(
+          caseSensitiveElementsByExactAttributeName,
+          name,
+          frame.node
+        );
+      }
+      for (const name of caseSensitiveQualifiedAttributeNames) {
+        appendIndexEntry(
+          caseSensitiveElementsByQualifiedAttributeName,
+          name,
+          frame.node
+        );
       }
       for (const value of environment.idValues(frame.node, data)) {
         guard.step();
@@ -465,11 +498,20 @@ function buildTreeIndex<TNode extends object>(
     elementsById: freezeIndex(elementsById),
     elementsByClass: freezeIndex(elementsByClass),
     elementsByExactLocalName: freezeIndex(elementsByExactLocalName),
+    caseSensitiveElementsByExactLocalName: freezeIndex(
+      caseSensitiveElementsByExactLocalName
+    ),
     elementsByQualifiedName: freezeIndex(elementsByQualifiedName),
     htmlElementsByLocalName: freezeIndex(htmlElementsByLocalName),
     elementsByExactAttributeName: freezeIndex(elementsByExactAttributeName),
     elementsByQualifiedAttributeName: freezeIndex(
       elementsByQualifiedAttributeName
+    ),
+    caseSensitiveElementsByExactAttributeName: freezeIndex(
+      caseSensitiveElementsByExactAttributeName
+    ),
+    caseSensitiveElementsByQualifiedAttributeName: freezeIndex(
+      caseSensitiveElementsByQualifiedAttributeName
     ),
     htmlElementsByAttributeName: freezeIndex(htmlElementsByAttributeName),
     documentElements: Object.freeze(documentElements),
@@ -511,10 +553,7 @@ class SelectorMatcher<TNode extends object> {
     }
     if (candidates.length === 0) return Object.freeze([]);
     if (candidates.length === 1) return candidates[0] ?? Object.freeze([]);
-    const retained = new Set(candidates.flat());
-    return Object.freeze(
-      this.#index.elements.filter((node) => retained.has(node))
-    );
+    return this.#orderedUnionMany(candidates);
   }
 
   matches(list: SelectorList, node: TNode): DecisionResult {
@@ -529,8 +568,10 @@ class SelectorMatcher<TNode extends object> {
     if (selector.compounds.length === 0) return Object.freeze([]);
     let seedIndex = -1;
     let candidates: readonly TNode[] | null = null;
+    const candidatesByCompound: (readonly TNode[] | null)[] = [];
     for (const [index, compound] of selector.compounds.entries()) {
       const indexed = this.#compoundCandidates(compound);
+      candidatesByCompound.push(indexed);
       if (
         indexed !== null &&
         (candidates === null || indexed.length <= candidates.length)
@@ -544,7 +585,7 @@ class SelectorMatcher<TNode extends object> {
     for (let index = seedIndex + 1; index < selector.compounds.length; index += 1) {
       const compound = selector.compounds[index];
       if (compound === undefined) return candidates;
-      const indexed = this.#compoundCandidates(compound);
+      const indexed = candidatesByCompound[index] ?? null;
       candidates = this.#rightCandidates(
         candidates,
         selector.combinators[index - 1],
@@ -583,9 +624,16 @@ class SelectorMatcher<TNode extends object> {
         indexed = this.#pseudoCandidates(simple);
       }
       if (indexed !== null) {
-        retained = retained === null
-          ? indexed
-          : this.#intersection(retained, indexed);
+        if (retained === null) {
+          retained = indexed;
+        } else if (Math.min(retained.length, indexed.length) <= 256) {
+          retained = this.#intersection(retained, indexed);
+        } else if (indexed.length < retained.length) {
+          // Candidate sets are only a narrowing hint; the complete compound is
+          // verified later. Retaining the smaller ordered seed avoids spending
+          // more work joining common indexes than final verification requires.
+          retained = indexed;
+        }
         if (retained.length === 0) return retained;
       }
     }
@@ -599,29 +647,145 @@ class SelectorMatcher<TNode extends object> {
       (pseudo.name === "is" || pseudo.name === "where") &&
       pseudo.argument.kind === "selector-list"
     ) {
-      const retained = new Set<TNode>();
+      const branches: (readonly TNode[])[] = [];
       for (const selector of pseudo.argument.selectors) {
         const candidates = this.#complexCandidates(selector);
         if (candidates === this.#index.elements) return null;
-        for (const candidate of candidates) retained.add(candidate);
+        branches.push(candidates);
       }
-      return Object.freeze(
-        this.#index.elements.filter((node) => retained.has(node))
-      );
+      return this.#orderedUnionMany(branches);
     }
     const candidates = this.environment.pseudoClassCandidates?.(
       pseudo,
       this.#pseudoContext()
     );
     if (candidates === undefined || candidates === null) return null;
-    const retained = new Set<TNode>();
-    for (const candidate of candidates) {
-      this.#guard.step();
-      if (this.#index.elementData.has(candidate)) retained.add(candidate);
+    return this.#orderedExternalCandidates(candidates);
+  }
+
+  #candidateOrder(node: TNode): number {
+    const order = this.#index.elementOrder.get(node);
+    if (order === undefined) {
+      throw new TypeError("selector candidate is outside the indexed tree");
     }
-    return Object.freeze(
-      this.#index.elements.filter((node) => retained.has(node))
-    );
+    return order;
+  }
+
+  #orderedUnion(
+    left: readonly TNode[],
+    right: readonly TNode[]
+  ): readonly TNode[] {
+    if (left.length === 0) return right;
+    if (right.length === 0) return left;
+    const joined: TNode[] = [];
+    let leftIndex = 0;
+    let rightIndex = 0;
+    while (leftIndex < left.length || rightIndex < right.length) {
+      this.#guard.step();
+      const leftNode = left[leftIndex];
+      const rightNode = right[rightIndex];
+      if (leftNode === undefined) {
+        if (rightNode !== undefined) joined.push(rightNode);
+        rightIndex += 1;
+        continue;
+      }
+      if (rightNode === undefined) {
+        joined.push(leftNode);
+        leftIndex += 1;
+        continue;
+      }
+      const leftOrder = this.#candidateOrder(leftNode);
+      const rightOrder = this.#candidateOrder(rightNode);
+      if (leftOrder <= rightOrder) {
+        joined.push(leftNode);
+        leftIndex += 1;
+      }
+      if (rightOrder <= leftOrder) {
+        if (rightOrder !== leftOrder) joined.push(rightNode);
+        rightIndex += 1;
+      }
+    }
+    return Object.freeze(joined);
+  }
+
+  #orderedUnionMany(
+    lists: readonly (readonly TNode[])[]
+  ): readonly TNode[] {
+    const nonempty = lists.filter((list) => list.length > 0);
+    if (nonempty.length === 0) return Object.freeze([]);
+    if (nonempty.length === 1) return nonempty[0] ?? Object.freeze([]);
+    interface Cursor {
+      readonly list: readonly TNode[];
+      index: number;
+      node: TNode;
+      order: number;
+    }
+    const heap: Cursor[] = [];
+    const less = (left: Cursor, right: Cursor): boolean => {
+      this.#guard.step();
+      return left.order < right.order;
+    };
+    const push = (cursor: Cursor): void => {
+      heap.push(cursor);
+      let index = heap.length - 1;
+      while (index > 0) {
+        const parent = Math.floor((index - 1) / 2);
+        const parentCursor = heap[parent];
+        if (parentCursor === undefined || !less(cursor, parentCursor)) break;
+        heap[index] = parentCursor;
+        index = parent;
+      }
+      heap[index] = cursor;
+    };
+    const pop = (): Cursor | undefined => {
+      const first = heap[0];
+      const last = heap.pop();
+      if (first === undefined || last === undefined || heap.length === 0) {
+        return first;
+      }
+      let index = 0;
+      for (;;) {
+        const leftIndex = index * 2 + 1;
+        const rightIndex = leftIndex + 1;
+        const left = heap[leftIndex];
+        const right = heap[rightIndex];
+        if (left === undefined) break;
+        const childIndex = right !== undefined && less(right, left)
+          ? rightIndex
+          : leftIndex;
+        const child = heap[childIndex];
+        if (child === undefined || !less(child, last)) break;
+        heap[index] = child;
+        index = childIndex;
+      }
+      heap[index] = last;
+      return first;
+    };
+    for (const list of nonempty) {
+      const node = list[0];
+      if (node !== undefined) {
+        push({ list, index: 0, node, order: this.#candidateOrder(node) });
+      }
+    }
+    const joined: TNode[] = [];
+    let lastOrder = -1;
+    while (heap.length > 0) {
+      this.#guard.step();
+      const cursor = pop();
+      if (cursor === undefined) break;
+      if (cursor.order !== lastOrder) {
+        joined.push(cursor.node);
+        lastOrder = cursor.order;
+      }
+      cursor.index += 1;
+      const node = cursor.list[cursor.index];
+      if (node !== undefined) {
+        cursor.node = node;
+        cursor.order = this.#candidateOrder(node);
+        push(cursor);
+      }
+    }
+    return Object.freeze(joined);
   }
 
   #intersection(
@@ -629,11 +793,63 @@ class SelectorMatcher<TNode extends object> {
     right: readonly TNode[]
   ): readonly TNode[] {
     if (left.length === 0 || right.length === 0) return Object.freeze([]);
-    const retained = new Set(
-      left.length < right.length ? left : right
-    );
-    const candidates = left.length < right.length ? right : left;
-    return Object.freeze(candidates.filter((node) => retained.has(node)));
+    const smaller = left.length <= right.length ? left : right;
+    const larger = left.length <= right.length ? right : left;
+    if (smaller.length * 8 < larger.length) {
+      const retained: TNode[] = [];
+      for (const candidate of smaller) {
+        const order = this.#candidateOrder(candidate);
+        let low = 0;
+        let high = larger.length - 1;
+        while (low <= high) {
+          this.#guard.step();
+          const middle = Math.floor((low + high) / 2);
+          const middleNode = larger[middle];
+          if (middleNode === undefined) break;
+          const middleOrder = this.#candidateOrder(middleNode);
+          if (middleOrder === order) {
+            retained.push(candidate);
+            break;
+          }
+          if (middleOrder < order) low = middle + 1;
+          else high = middle - 1;
+        }
+      }
+      return Object.freeze(retained);
+    }
+    const retained: TNode[] = [];
+    let leftIndex = 0;
+    let rightIndex = 0;
+    while (leftIndex < left.length && rightIndex < right.length) {
+      this.#guard.step();
+      const leftNode = left[leftIndex];
+      const rightNode = right[rightIndex];
+      if (leftNode === undefined || rightNode === undefined) break;
+      const leftOrder = this.#candidateOrder(leftNode);
+      const rightOrder = this.#candidateOrder(rightNode);
+      if (leftOrder === rightOrder) {
+        retained.push(leftNode);
+        leftIndex += 1;
+        rightIndex += 1;
+      } else if (leftOrder < rightOrder) leftIndex += 1;
+      else rightIndex += 1;
+    }
+    return Object.freeze(retained);
+  }
+
+  #orderedExternalCandidates(candidates: readonly TNode[]): readonly TNode[] {
+    const byOrder = new Map<number, TNode>();
+    for (const candidate of candidates) {
+      this.#guard.step();
+      const order = this.#index.elementOrder.get(candidate);
+      if (order !== undefined) byOrder.set(order, candidate);
+    }
+    const entries = [...byOrder.entries()];
+    entries.sort((left, right) => {
+      this.#guard.step();
+      return left[0] - right[0];
+    });
+    return Object.freeze(entries.map((entry) => entry[1]));
   }
 
   #rightCandidates(
@@ -682,9 +898,7 @@ class SelectorMatcher<TNode extends object> {
         }
       }
     }
-    return Object.freeze(
-      this.#index.elements.filter((node) => retained.has(node))
-    );
+    return this.#orderedExternalCandidates([...retained]);
   }
 
   #indexedRightCandidates(
@@ -791,16 +1005,21 @@ class SelectorMatcher<TNode extends object> {
         ) ?? []
       : [];
     const exactCandidates = namespace === "*"
-      ? this.#index.elementsByExactAttributeName.get(selector.name) ?? []
-      : this.#index.elementsByQualifiedAttributeName.get(
-          qualifiedNameKey(namespace, selector.name)
-        ) ?? [];
+      ? this.environment.documentMode.syntax === "html"
+        ? this.#index.caseSensitiveElementsByExactAttributeName.get(
+            selector.name
+          ) ?? []
+        : this.#index.elementsByExactAttributeName.get(selector.name) ?? []
+      : this.environment.documentMode.syntax === "html" && namespace === null
+        ? this.#index.caseSensitiveElementsByQualifiedAttributeName.get(
+            qualifiedNameKey(namespace, selector.name)
+          ) ?? []
+        : this.#index.elementsByQualifiedAttributeName.get(
+            qualifiedNameKey(namespace, selector.name)
+          ) ?? [];
     if (htmlCandidates.length === 0) return exactCandidates;
     if (exactCandidates.length === 0) return htmlCandidates;
-    const retained = new Set([...htmlCandidates, ...exactCandidates]);
-    return Object.freeze(
-      this.#index.elements.filter((node) => retained.has(node))
-    );
+    return this.#orderedUnion(htmlCandidates, exactCandidates);
   }
 
   #typeCandidates(type: SelectorType | null): readonly TNode[] | null {
@@ -826,7 +1045,9 @@ class SelectorMatcher<TNode extends object> {
       ? this.#index.htmlElementsByLocalName.get(lowerAscii(type.name)) ?? []
       : [];
     const exactCandidates = namespace === "*"
-      ? this.#index.elementsByExactLocalName.get(type.name) ?? []
+      ? this.environment.documentMode.syntax === "html"
+        ? this.#index.caseSensitiveElementsByExactLocalName.get(type.name) ?? []
+        : this.#index.elementsByExactLocalName.get(type.name) ?? []
       : namespace === "http://www.w3.org/1999/xhtml" &&
           this.environment.documentMode.syntax === "html"
         ? []
@@ -835,10 +1056,7 @@ class SelectorMatcher<TNode extends object> {
           ) ?? [];
     if (htmlCandidates.length === 0) return exactCandidates;
     if (exactCandidates.length === 0) return htmlCandidates;
-    const retained = new Set([...htmlCandidates, ...exactCandidates]);
-    return Object.freeze(
-      this.#index.elements.filter((node) => retained.has(node))
-    );
+    return this.#orderedUnion(htmlCandidates, exactCandidates);
   }
 
   #complex(

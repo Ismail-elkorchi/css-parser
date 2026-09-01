@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  createPropertyValidationSession,
   parseDeclaration as parseCssDeclaration,
   resolveCssProperty,
   SyntaxResourceError,
@@ -172,4 +173,52 @@ test("property matching has an explicit deterministic work budget", () => {
   const result = validate("border: 1px solid red");
   assert.equal(result.status, "valid");
   assert.ok(result.usage.steps > 0);
+});
+
+test("property validation sessions accept parsed values and bound retained results", () => {
+  const width = parseDeclaration("width: calc(50% - 1rem)");
+  const invalid = parseDeclaration("width: 10deg");
+  const color = parseDeclaration("color: red");
+  const session = createPropertyValidationSession({ maxEntries: 2 });
+
+  assert.equal(session.validate("width", width.value).status, "valid");
+  assert.equal(session.validate("WIDTH", width.value).status, "valid");
+  assert.equal(session.validate("width", invalid.value).status, "invalid");
+  assert.deepEqual(session.statistics(), {
+    entries: 2,
+    hits: 1,
+    misses: 2,
+    evictions: 0
+  });
+
+  assert.equal(session.validateDeclaration(color).status, "valid");
+  assert.deepEqual(session.statistics(), {
+    entries: 2,
+    hits: 1,
+    misses: 3,
+    evictions: 1
+  });
+  session.clear();
+  assert.equal(session.statistics().entries, 0);
+  assert.throws(
+    () => createPropertyValidationSession({ maxEntries: -1 }),
+    /maxEntries/u
+  );
+});
+
+test("property validation cache keys follow value structure rather than identity", () => {
+  const first = parseDeclaration("width: 10px");
+  const equal = parseDeclaration("width: 10px");
+  const changed = parseDeclaration("width: 10deg");
+  const session = createPropertyValidationSession();
+
+  assert.equal(session.validate("width", first.value).status, "valid");
+  assert.equal(session.validate("width", equal.value).status, "valid");
+  assert.equal(session.validate("width", changed.value).status, "invalid");
+  assert.deepEqual(session.statistics(), {
+    entries: 2,
+    hits: 1,
+    misses: 2,
+    evictions: 0
+  });
 });

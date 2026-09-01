@@ -20,7 +20,10 @@ against one immutable tree should create a `SelectorMatchSession` with
 `createSelectorMatchSession()`. A session validates and indexes tree structure,
 element names, IDs, classes, attribute names, document roots, and subtree
 intervals once. It preserves tree order while joining selective compounds
-across selector relationships. All entry points require a
+across selector relationships. Candidate arrays carry document ordinals, so
+two-way and k-way unions, intersections, HTML/foreign-content name joins, and
+external pseudo-class filtering operate on the candidate sets rather than
+rescanning the complete document. All entry points require a
 `SelectorEnvironment<TNode>` so the engine never guesses application semantics:
 
 - `tree.data()` and `tree.children()` expose the caller-owned tree.
