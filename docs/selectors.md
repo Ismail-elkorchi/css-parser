@@ -60,14 +60,45 @@ evaluated by the engine; the hook supplies state the tree cannot contain.
 ## Reuse and limits
 
 Parse a selector once and reuse its immutable syntax tree. Matching has no
-implicit global cache. A selector match session owns its index explicitly and
-reports cumulative resource usage across its operations. Pass deterministic
-resource limits, an abort signal, optional `:scope` nodes, and an optional
-nesting selector through `SelectorMatchOptions`.
+implicit global cache. A selector match session owns its index explicitly.
+Pass deterministic resource limits, an abort signal, optional `:scope` nodes,
+and an optional nesting selector through `SelectorMatchOptions`. Session
+construction validates the tree under those limits. `usage()` initially reports
+construction plus cumulative matching work.
+
+Call `session.beginEvaluation({ limits: { maxSteps }, signal })` before a new
+batch of queries to reuse the structural index with a fresh cumulative step
+budget and cancellation signal. All `match()` and `query()` calls in that batch
+share the budget; it is not reset for each selector. `usage()` then reports only
+that evaluation, starting at zero. Tree size and depth limits apply at session
+construction, not to an already validated index. Omitting evaluation options
+starts an unbounded evaluation without a signal; it does not retain the previous
+budget or signal. A failed reset (invalid limits or an already aborted signal)
+leaves the previous evaluation intact.
+
+```ts
+const session = createSelectorMatchSession(root, environment, {
+  limits: { maxNodes: 50_000, maxDepth: 512, maxSteps: 500_000 }
+});
+// Later, after updating the environment's dynamic state:
+session.beginEvaluation({ limits: { maxSteps: 100_000 }, signal });
+const first = session.query(firstSelector);
+const second = session.query(secondSelector);
+```
 
 The tree, element names, IDs, classes, and attributes must remain immutable for
-the lifetime of a session. Dynamic pseudo-class decisions may change through
-the environment callback when the caller deliberately uses mutable state.
+the lifetime of a session. Dynamic pseudo-class state and namespace resolution
+may change between operations. Candidate joins and matching decisions are
+memoized only within each synchronous `match()` or `query()` call, so environment
+callbacks must remain consistent during that call. The session retains scope
+and nesting options across evaluation boundaries.
+
+Relative `:has()` selectors traverse outward from their anchor. Descendant
+relations can reuse candidate indexes restricted to that anchor's subtree;
+child and sibling relations visit only related nodes. Descendant matching
+reuses ancestor results within a query, including unknown reasons, without
+repeatedly walking the same ancestry for every subject. All matches and unknown
+entries remain in tree order.
 
 Selector traversal rejects cyclic and shared-node graphs with
 `SelectorTreeError`.

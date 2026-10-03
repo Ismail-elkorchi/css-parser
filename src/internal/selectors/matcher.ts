@@ -117,6 +117,12 @@ export interface SelectorEnvironment<TNode extends object> {
   ) => SelectorDecision;
 }
 
+/** A fresh cumulative budget and cancellation lifetime for matching operations. */
+export interface SelectorEvaluationOptions {
+  readonly limits?: Pick<SelectorResourceLimits, "maxSteps">;
+  readonly signal?: AbortSignal;
+}
+
 export interface SelectorMatchOptions<TNode extends object = object> {
   readonly limits?: SelectorResourceLimits;
   readonly signal?: AbortSignal;
@@ -165,6 +171,8 @@ export interface SelectorQueryResult<TNode extends object> {
  * continue to be supplied by the environment callback.
  */
 export interface SelectorMatchSession<TNode extends object> {
+  /** Retains the structural index and starts a fresh cumulative matching budget. */
+  beginEvaluation(options?: SelectorEvaluationOptions): void;
   match(selector: SelectorList, node: TNode): SelectorMatchResult;
   query(selector: SelectorList): SelectorQueryResult<TNode>;
   usage(): ResourceUsage;
@@ -199,6 +207,8 @@ interface TreeIndex<TNode extends object> {
   readonly documentElements: readonly TNode[];
   readonly elementOrder: ReadonlyMap<TNode, number>;
   readonly elementSubtreeEnd: ReadonlyMap<TNode, number>;
+  readonly previousElementSibling: ReadonlyMap<TNode, TNode>;
+  readonly nextElementSibling: ReadonlyMap<TNode, TNode>;
 }
 
 interface DecisionResult {
@@ -345,6 +355,9 @@ function buildTreeIndex<TNode extends object>(
   const documentElements: TNode[] = [];
   const elementOrder = new Map<TNode, number>();
   const elementSubtreeEnd = new Map<TNode, number>();
+  const previousElementSibling = new Map<TNode, TNode>();
+  const nextElementSibling = new Map<TNode, TNode>();
+  const lastElementChild = new Map<TNode, TNode>();
   const active = new Set<TNode>();
   const stack: {
     readonly node: TNode;
@@ -374,6 +387,14 @@ function buildTreeIndex<TNode extends object>(
       elementOrder.set(frame.node, elements.length);
       elements.push(frame.node);
       elementData.set(frame.node, data);
+      if (frame.parent !== null) {
+        const previous = lastElementChild.get(frame.parent);
+        if (previous !== undefined) {
+          previousElementSibling.set(frame.node, previous);
+          nextElementSibling.set(previous, frame.node);
+        }
+        lastElementChild.set(frame.parent, frame.node);
+      }
       if (
         frame.parent === null ||
         environment.tree.data(frame.parent).kind !== "element"
@@ -516,14 +537,19 @@ function buildTreeIndex<TNode extends object>(
     htmlElementsByAttributeName: freezeIndex(htmlElementsByAttributeName),
     documentElements: Object.freeze(documentElements),
     elementOrder,
-    elementSubtreeEnd
+    elementSubtreeEnd,
+    previousElementSibling,
+    nextElementSibling
   });
 }
 
 class SelectorMatcher<TNode extends object> {
-  readonly #guard: ResourceGuard;
+  #guard: ResourceGuard;
   readonly #index: TreeIndex<TNode>;
   readonly #scopes: ReadonlySet<TNode>;
+  readonly #candidates = new Map<CompoundSelector, readonly TNode[] | null>();
+  readonly #matches = new Map<ComplexSelector, Map<number, Map<TNode, DecisionResult>>>();
+  readonly #ancestors = new Map<ComplexSelector, Map<number, Map<TNode, DecisionResult>>>();
 
   constructor(
     root: TNode,
@@ -537,6 +563,25 @@ class SelectorMatcher<TNode extends object> {
       : new Set(
           [...options.scopes].filter((node) => this.#index.parent.has(node))
         );
+  }
+
+  beginEvaluation(options: SelectorEvaluationOptions): void {
+    // Construct first so invalid limits or an already aborted signal do not
+    // replace the currently active evaluation.
+    this.#guard = new ResourceGuard(options.limits, options.signal);
+    this.beginOperation();
+  }
+
+  beginOperation(): void {
+    this.#guard.assertActive();
+    // Namespace resolution and pseudo-class state may change between calls.
+    this.#candidates.clear();
+    this.#matches.clear();
+    this.#ancestors.clear();
+  }
+
+  finishOperation(): void {
+    this.beginOperation();
   }
 
   usage(): ResourceUsage {
@@ -560,7 +605,7 @@ class SelectorMatcher<TNode extends object> {
     if (!this.#index.parent.has(node)) return known("no-match");
     return orMapped(
       list.selectors,
-      (selector) => this.#complex(selector, node, null)
+      (selector) => this.#complex(selector, node)
     );
   }
 
@@ -597,6 +642,14 @@ class SelectorMatcher<TNode extends object> {
   }
 
   #compoundCandidates(compound: CompoundSelector): readonly TNode[] | null {
+    const cached = this.#candidates.get(compound);
+    if (cached !== undefined) return cached;
+    const candidates = this.#selectCompoundCandidates(compound);
+    this.#candidates.set(compound, candidates);
+    return candidates;
+  }
+
+  #selectCompoundCandidates(compound: CompoundSelector): readonly TNode[] | null {
     let retained: readonly TNode[] | null = this.#typeCandidates(compound.type);
     for (const simple of compound.simples) {
       let indexed: readonly TNode[] | null = null;
@@ -870,33 +923,16 @@ class SelectorMatcher<TNode extends object> {
       }
     } else if (combinator === "+" || combinator === "~") {
       for (const node of nodes) {
-        const parent = this.#index.parent.get(node) ?? null;
-        if (parent === null) continue;
-        const siblings = this.#index.children.get(parent) ?? [];
-        const nodeIndex = siblings.indexOf(node);
-        for (let index = nodeIndex + 1; index < siblings.length; index += 1) {
+        let sibling = this.#index.nextElementSibling.get(node);
+        while (sibling !== undefined) {
           this.#guard.step();
-          const sibling = siblings[index];
-          if (sibling === undefined || !this.#index.elementData.has(sibling)) {
-            continue;
-          }
           retained.add(sibling);
           if (combinator === "+") break;
+          sibling = this.#index.nextElementSibling.get(sibling);
         }
       }
     } else {
-      const expanded = new Set<TNode>();
-      const stack = [...nodes];
-      while (stack.length > 0) {
-        this.#guard.step();
-        const node = stack.pop();
-        if (node === undefined || expanded.has(node)) continue;
-        expanded.add(node);
-        for (const child of this.#index.children.get(node) ?? []) {
-          if (this.#index.elementData.has(child)) retained.add(child);
-          stack.push(child);
-        }
-      }
+      return this.#indexedRightCandidates(nodes, combinator, this.#index.elements);
     }
     return this.#orderedExternalCandidates([...retained]);
   }
@@ -918,23 +954,25 @@ class SelectorMatcher<TNode extends object> {
       return Object.freeze(retained);
     }
     if (combinator === "+" || combinator === "~") {
+      const firstByParent = new Map<TNode, number>();
+      if (combinator === "~") {
+        for (const node of nodes) {
+          this.#guard.step();
+          const parent = this.#index.parent.get(node) ?? null;
+          if (parent !== null && !firstByParent.has(parent)) {
+            firstByParent.set(parent, this.#candidateOrder(node));
+          }
+        }
+      }
       for (const candidate of indexed) {
         this.#guard.step();
-        const parent = this.#index.parent.get(candidate) ?? null;
-        if (parent === null) continue;
-        const siblings = this.#index.children.get(parent) ?? [];
-        const candidateIndex = siblings.indexOf(candidate);
-        for (let index = candidateIndex - 1; index >= 0; index -= 1) {
-          this.#guard.step();
-          const sibling = siblings[index];
-          if (sibling === undefined || !this.#index.elementData.has(sibling)) {
-            continue;
-          }
-          if (left.has(sibling)) {
-            retained.push(candidate);
-            break;
-          }
-          if (combinator === "+") break;
+        if (combinator === "+") {
+          const previous = this.#index.previousElementSibling.get(candidate);
+          if (previous !== undefined && left.has(previous)) retained.push(candidate);
+        } else {
+          const parent = this.#index.parent.get(candidate) ?? null;
+          const first = parent === null ? undefined : firstByParent.get(parent);
+          if (first !== undefined && first < this.#candidateOrder(candidate)) retained.push(candidate);
         }
       }
       return Object.freeze(retained);
@@ -1059,47 +1097,180 @@ class SelectorMatcher<TNode extends object> {
     return this.#orderedUnion(htmlCandidates, exactCandidates);
   }
 
-  #complex(
+  #complex(selector: ComplexSelector, node: TNode): DecisionResult {
+    return this.#complexAt(selector, selector.compounds.length - 1, node);
+  }
+
+  #decisions(
+    cache: Map<ComplexSelector, Map<number, Map<TNode, DecisionResult>>>,
     selector: ComplexSelector,
-    node: TNode,
-    anchor: TNode | null
-  ): DecisionResult {
-    return this.#complexAt(
-      selector,
-      selector.compounds.length - 1,
-      node,
-      anchor
-    );
+    index: number
+  ): Map<TNode, DecisionResult> {
+    let byIndex = cache.get(selector);
+    if (byIndex === undefined) {
+      byIndex = new Map();
+      cache.set(selector, byIndex);
+    }
+    let byNode = byIndex.get(index);
+    if (byNode === undefined) {
+      byNode = new Map();
+      byIndex.set(index, byNode);
+    }
+    return byNode;
   }
 
   #complexAt(
     selector: ComplexSelector,
     index: number,
     node: TNode,
-    anchor: TNode | null
+    anchor: TNode | null = null
   ): DecisionResult {
     this.#guard.step();
+    const decisions = anchor === null ? this.#decisions(this.#matches, selector, index) : null;
+    const cached = decisions?.get(node);
+    if (cached !== undefined) return cached;
     const compound = selector.compounds[index];
     if (compound === undefined) return known("no-match");
     const own = this.#compound(compound, node);
-    if (own.decision === "no-match") return own;
-    if (index === 0) {
-      const relation = anchor === null
-        ? known("match")
-        : this.#anchorRelation(
-            selector.leadingCombinator ?? " ",
-            anchor,
-            node
-          );
-      return and(own, relation);
+    let result = own;
+    if (own.decision !== "no-match" && index === 0 && anchor !== null) {
+      result = and(own, this.#anchorRelation(selector.leadingCombinator ?? " ", anchor, node));
     }
-    const combinator = selector.combinators[index - 1];
-    const candidates = this.#leftCandidates(node, combinator);
-    const related = orMapped(
-      candidates,
-      (candidate) => this.#complexAt(selector, index - 1, candidate, anchor)
+    if (own.decision !== "no-match" && index > 0) {
+      const combinator = selector.combinators[index - 1];
+      const related = combinator === " " && anchor === null
+        ? this.#ancestorMatch(selector, index - 1, node)
+        : orMapped(
+            this.#leftCandidates(node, combinator),
+            (candidate) => this.#complexAt(selector, index - 1, candidate, anchor)
+          );
+      result = and(own, related);
+    }
+    decisions?.set(node, result);
+    return result;
+  }
+
+  #ancestorMatch(
+    selector: ComplexSelector,
+    index: number,
+    node: TNode
+  ): DecisionResult {
+    const decisions = this.#decisions(this.#ancestors, selector, index);
+    const visited: { readonly node: TNode; readonly own: DecisionResult }[] = [];
+    let candidate = this.#index.parent.get(node) ?? null;
+    let result = known("no-match");
+    while (candidate !== null) {
+      this.#guard.step();
+      const cached = decisions.get(candidate);
+      if (cached !== undefined) {
+        result = cached;
+        break;
+      }
+      const own = this.#index.elementData.has(candidate)
+        ? this.#complexAt(selector, index, candidate)
+        : known("no-match");
+      visited.push({ node: candidate, own });
+      if (own.decision === "match") break;
+      candidate = this.#index.parent.get(candidate) ?? null;
+    }
+    // Cache inclusive ancestry from the farthest visited ancestor back toward
+    // the subject. Iteration also handles trees deeper than the JS call stack.
+    for (let position = visited.length - 1; position >= 0; position -= 1) {
+      const entry = visited[position];
+      if (entry === undefined) continue;
+      result = orMapped([entry.own, result], (value) => value);
+      decisions.set(entry.node, result);
+    }
+    return result;
+  }
+
+  #relative(selector: ComplexSelector, anchor: TNode): DecisionResult {
+    const first = selector.compounds[0];
+    if (first === undefined) return known("no-match");
+    let candidates: Iterable<TNode> = this.#relativeCandidates(
+      anchor,
+      selector.leadingCombinator ?? " ",
+      this.#compoundCandidates(first)
     );
-    return and(own, related);
+    // Candidate propagation only narrows structural possibilities. The normal
+    // matcher still decides every compound and combines unknown reasons in the
+    // same right-to-left order as non-relative selectors.
+    for (let index = 1; index < selector.compounds.length; index += 1) {
+      const compound = selector.compounds[index];
+      if (compound === undefined) return known("no-match");
+      const indexed = this.#compoundCandidates(compound);
+      const related: (readonly TNode[])[] = [];
+      for (const candidate of candidates) {
+        related.push([...this.#relativeCandidates(
+          candidate,
+          selector.combinators[index - 1] ?? " ",
+          indexed
+        )]);
+      }
+      candidates = this.#orderedUnionMany(related);
+    }
+    return orMapped(candidates, (candidate) => this.#complexAt(
+      selector, selector.compounds.length - 1, candidate, anchor
+    ));
+  }
+
+  *#relativeCandidates(
+    anchor: TNode,
+    combinator: SelectorCombinator,
+    indexed: readonly TNode[] | null
+  ): Iterable<TNode> {
+    if (combinator === "+" || combinator === "~") {
+      let sibling = this.#index.nextElementSibling.get(anchor);
+      while (sibling !== undefined) {
+        this.#guard.step();
+        yield sibling;
+        if (combinator === "+") return;
+        sibling = this.#index.nextElementSibling.get(sibling);
+      }
+      return;
+    }
+    if (combinator === ">") {
+      const children = this.#index.children.get(anchor) ?? [];
+      if (indexed !== null && indexed.length < children.length) {
+        for (const candidate of indexed) {
+          this.#guard.step();
+          if (this.#index.parent.get(candidate) === anchor) yield candidate;
+        }
+        return;
+      }
+      for (const child of children) {
+        this.#guard.step();
+        if (this.#index.elementData.has(child)) yield child;
+      }
+      return;
+    }
+    const start = this.#index.elementOrder.get(anchor);
+    const end = this.#index.elementSubtreeEnd.get(anchor);
+    if (start === undefined || end === undefined) return;
+    if (indexed !== null) {
+      let low = 0;
+      let high = indexed.length;
+      while (low < high) {
+        this.#guard.step();
+        const middle = Math.floor((low + high) / 2);
+        const candidate = indexed[middle];
+        if (candidate !== undefined && this.#candidateOrder(candidate) <= start) {
+          low = middle + 1;
+        } else high = middle;
+      }
+      for (let index = low; index < indexed.length; index += 1) {
+        this.#guard.step();
+        const candidate = indexed[index];
+        if (candidate === undefined || this.#candidateOrder(candidate) > end) break;
+        yield candidate;
+      }
+      return;
+    }
+    for (let order = start + 1; order <= end; order += 1) {
+      this.#guard.step();
+      const candidate = this.#index.elements[order];
+      if (candidate !== undefined) yield candidate;
+    }
   }
 
   #compound(compound: CompoundSelector, node: TNode): DecisionResult {
@@ -1253,7 +1424,7 @@ class SelectorMatcher<TNode extends object> {
     ) {
       return orMapped(
         pseudo.argument.selectors,
-        (selector) => this.#complex(selector, node, null)
+        (selector) => this.#complex(selector, node)
       );
     }
     if (
@@ -1262,28 +1433,19 @@ class SelectorMatcher<TNode extends object> {
     ) {
       return invert(orMapped(
         pseudo.argument.selectors,
-        (selector) => this.#complex(selector, node, null)
+        (selector) => this.#complex(selector, node)
       ));
     }
     if (
       name === "has" &&
       pseudo.argument.kind === "selector-list"
     ) {
-      const reasons: SelectorUnknownReason[] = [];
-      for (const selector of pseudo.argument.selectors) {
-        for (const candidate of this.#complexCandidates(selector)) {
-          const result = this.#complex(selector, candidate, node);
-          if (result.decision === "match") return known("match");
-          if (result.decision === "unknown") reasons.push(...result.reasons);
-        }
-      }
-      return reasons.length === 0
-        ? known("no-match")
-        : Object.freeze({
-            decision: "unknown",
-            reasons: uniqueReasons(reasons)
-          });
+      return orMapped(
+        pseudo.argument.selectors,
+        (selector) => this.#relative(selector, node)
+      );
     }
+
     if (name === "scope") {
       if (pseudo.argument.kind !== "none") return known("no-match");
       return known(this.#scopes.has(node) ? "match" : "no-match");
@@ -1450,7 +1612,7 @@ class SelectorMatcher<TNode extends object> {
       } else {
         included = orMapped(
           filter,
-          (selector) => this.#complex(selector, sibling, null)
+          (selector) => this.#complex(selector, sibling)
         );
       }
       if (included.decision === "unknown") reasons.push(...included.reasons);
@@ -1553,38 +1715,31 @@ class SelectorMatcher<TNode extends object> {
     );
   }
 
-  #leftCandidates(
+  *#leftCandidates(
     node: TNode,
     combinator: SelectorCombinator | undefined
-  ): readonly TNode[] {
+  ): Iterable<TNode> {
     const parent = this.#index.parent.get(node) ?? null;
     if (combinator === ">") {
-      return parent !== null &&
-        this.environment.tree.data(parent).kind === "element"
-        ? Object.freeze([parent])
-        : Object.freeze([]);
+      if (parent !== null && this.#index.elementData.has(parent)) yield parent;
+      return;
     }
     if (combinator === "+" || combinator === "~") {
-      if (parent === null) return Object.freeze([]);
-      const siblings = this.#index.children.get(parent) ?? [];
-      const nodeIndex = siblings.indexOf(node);
-      const previous = siblings
-        .slice(0, nodeIndex)
-        .filter(
-          (sibling) => this.environment.tree.data(sibling).kind === "element"
-        )
-        .reverse();
-      return Object.freeze(combinator === "+" ? previous.slice(0, 1) : previous);
+      let sibling = this.#index.previousElementSibling.get(node);
+      while (sibling !== undefined) {
+        this.#guard.step();
+        yield sibling;
+        if (combinator === "+") return;
+        sibling = this.#index.previousElementSibling.get(sibling);
+      }
+      return;
     }
-    const ancestors: TNode[] = [];
     let candidate = parent;
     while (candidate !== null) {
-      if (this.environment.tree.data(candidate).kind === "element") {
-        ancestors.push(candidate);
-      }
+      this.#guard.step();
+      if (this.#index.elementData.has(candidate)) yield candidate;
       candidate = this.#index.parent.get(candidate) ?? null;
     }
-    return Object.freeze(ancestors);
   }
 
   #anchorRelation(
@@ -1593,37 +1748,25 @@ class SelectorMatcher<TNode extends object> {
     node: TNode
   ): DecisionResult {
     if (combinator === ">") {
+      return known(this.#index.parent.get(node) === anchor ? "match" : "no-match");
+    }
+    if (combinator === "+") {
+      return known(this.#index.nextElementSibling.get(anchor) === node ? "match" : "no-match");
+    }
+    const anchorOrder = this.#candidateOrder(anchor);
+    const nodeOrder = this.#candidateOrder(node);
+    if (combinator === "~") {
       return known(
-        this.#index.parent.get(node) === anchor ? "match" : "no-match"
+        this.#index.parent.get(anchor) === this.#index.parent.get(node) && nodeOrder > anchorOrder
+          ? "match" : "no-match"
       );
     }
-    const parent = this.#index.parent.get(anchor) ?? null;
-    if (combinator === "+" || combinator === "~") {
-      if (parent === null || this.#index.parent.get(node) !== parent) {
-        return known("no-match");
-      }
-      const siblings = (this.#index.children.get(parent) ?? []).filter(
-        (sibling) => this.environment.tree.data(sibling).kind === "element"
-      );
-      const anchorIndex = siblings.indexOf(anchor);
-      const nodeIndex = siblings.indexOf(node);
-      return known(
-        combinator === "+"
-          ? nodeIndex === anchorIndex + 1
-            ? "match"
-            : "no-match"
-          : nodeIndex > anchorIndex
-            ? "match"
-            : "no-match"
-      );
-    }
-    let candidate = this.#index.parent.get(node) ?? null;
-    while (candidate !== null) {
-      if (candidate === anchor) return known("match");
-      candidate = this.#index.parent.get(candidate) ?? null;
-    }
-    return known("no-match");
+    return known(
+      nodeOrder > anchorOrder && nodeOrder <= (this.#index.elementSubtreeEnd.get(anchor) ?? anchorOrder)
+        ? "match" : "no-match"
+    );
   }
+
 }
 
 class ImmutableSelectorMatchSession<TNode extends object>
@@ -1638,11 +1781,19 @@ implements SelectorMatchSession<TNode> {
     this.#matcher = new SelectorMatcher(root, environment, options);
   }
 
+  beginEvaluation(options: SelectorEvaluationOptions = {}): void {
+    this.#matcher.beginEvaluation(options);
+  }
+
   match(selector: SelectorList, node: TNode): SelectorMatchResult {
-    return publicResult(this.#matcher.matches(selector, node), this.#matcher.usage());
+    this.#matcher.beginOperation();
+    const result = this.#matcher.matches(selector, node);
+    this.#matcher.finishOperation();
+    return publicResult(result, this.#matcher.usage());
   }
 
   query(selector: SelectorList): SelectorQueryResult<TNode> {
+    this.#matcher.beginOperation();
     const matches: TNode[] = [];
     const unknownResults: SelectorQueryUnknown<TNode>[] = [];
     for (const node of this.#matcher.queryCandidates(selector)) {
@@ -1655,6 +1806,7 @@ implements SelectorMatchSession<TNode> {
         }));
       }
     }
+    this.#matcher.finishOperation();
     return Object.freeze({
       matches: Object.freeze(matches),
       unknown: Object.freeze(unknownResults),
