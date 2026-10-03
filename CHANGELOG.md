@@ -4,6 +4,10 @@ All notable changes are documented in this file.
 
 ## Unreleased
 
+- Build generated package entrypoints through npm's `prepare` lifecycle when
+  installed directly from a pinned Git revision, and qualify that installation
+  alongside the release tarball.
+
 - Bound relational selector work to each `:has()` anchor and reuse descendant
   ancestry decisions within a query, preserving namespaces, tree order, and
   unknown outcomes.

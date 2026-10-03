@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, relative, resolve, sep } from "node:path";
+import { pathToFileURL } from "node:url";
 
 const workspace = await mkdtemp(join(tmpdir(), "css-parser-package-"));
 const reportPath = resolve("reports/package.json");
@@ -152,6 +153,28 @@ try {
     throw new Error("installed package identity or runtime dependency set is invalid");
   }
 
+  // Git dependencies start from committed source without ignored dist files.
+  // Install a full revision so npm must run prepare in its clean checkout.
+  const gitRevision = execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim();
+  const gitSource = `git+${pathToFileURL(process.cwd()).href}#${gitRevision}`;
+  const gitConsumer = join(workspace, "git-consumer");
+  await mkdir(gitConsumer);
+  await writeFile(join(gitConsumer, "package.json"), '{"private":true,"type":"module"}\n', "utf8");
+  execFileSync(
+    "npm",
+    ["install", "--no-audit", "--no-fund", gitSource],
+    { cwd: gitConsumer, stdio: "inherit" }
+  );
+  for (const file of ["runtime.mjs", "contract.ts", "tsconfig.json"]) {
+    await copyFile(join(consumer, file), join(gitConsumer, file));
+  }
+  execFileSync(process.execPath, [join(gitConsumer, "runtime.mjs")], { stdio: "inherit" });
+  execFileSync(
+    process.execPath,
+    [resolve("node_modules/typescript/bin/tsc"), "-p", join(gitConsumer, "tsconfig.json")],
+    { stdio: "inherit" }
+  );
+
   const tarballBytes = await readFile(tarball);
   const sha256 = createHash("sha256").update(tarballBytes).digest("hex");
   if (typeof manifest.integrity !== "string" || !manifest.integrity.startsWith("sha512-")) {
@@ -184,7 +207,12 @@ try {
     },
     runtimeDependencies,
     lockedRuntimeDependencies,
-    installed: { runtimeConsumer: "pass", strictTypeScriptConsumer: "pass" }
+    installed: { runtimeConsumer: "pass", strictTypeScriptConsumer: "pass" },
+    gitInstalled: {
+      revision: gitRevision,
+      runtimeConsumer: "pass",
+      strictTypeScriptConsumer: "pass"
+    }
   });
   process.stdout.write(`package qualification passed: ${installedManifest.name}@${installedManifest.version}\n`);
 } catch (error) {

@@ -17,7 +17,11 @@
   release-integrity tooling.
 - `examples/` contains runnable public API examples.
 
-Generated `dist/` and `reports/` files are not committed.
+Generated `dist/` and `reports/` files are not committed. npm's `prepare`
+lifecycle invokes the canonical build for clean Git dependency installations.
+Package qualification checks both the packed tarball and a clean installation
+of the checkout's full Git `HEAD` revision, including runtime and strict
+TypeScript consumers. Run that check after committing packaging changes.
 
 ## Verify a change
 
