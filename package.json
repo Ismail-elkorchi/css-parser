@@ -31,6 +31,7 @@
   ],
   "scripts": {
     "build": "node scripts/build/build.mjs",
+    "prepare": "npm run build",
     "check:fast": "npm run lint && npm run typecheck && npm test && npm run generate:check && npm run typecheck:jsr && npm run docs:test:jsr && npm run examples:run",
     "deps:outdated": "npm outdated",
     "docs:test:jsr": "deno test --doc jsr/mod.ts",
@@ -49,7 +50,7 @@
     "test": "npm run build && node --test test/*.test.js",
     "test:fuzz": "npm run build && node scripts/qualification/fuzz.mjs",
     "test:oracle": "npm run build && node scripts/qualification/browser-oracle.mjs",
-    "test:package": "npm run build && node scripts/qualification/package.mjs",
+    "test:package": "node scripts/qualification/package.mjs",
     "test:performance": "npm run build && node scripts/qualification/performance.mjs",
     "typecheck": "tsc --noEmit -p tsconfig.build.json",
     "typecheck:jsr": "deno check jsr/mod.ts"
