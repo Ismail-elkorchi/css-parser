@@ -118,6 +118,7 @@ export type {
   SelectorDocumentMode,
   SelectorElementData,
   SelectorEnvironment,
+  SelectorEvaluationOptions,
   SelectorMatchSession,
   SelectorMatchOptions,
   SelectorMatchResult,

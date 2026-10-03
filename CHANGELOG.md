@@ -2,6 +2,14 @@
 
 All notable changes are documented in this file.
 
+## Unreleased
+
+- Bound relational selector work to each `:has()` anchor and reuse descendant
+  ancestry decisions within a query, preserving namespaces, tree order, and
+  unknown outcomes.
+- Add explicit selector evaluation boundaries that reset cumulative matching
+  budgets and cancellation signals while retaining the immutable tree index.
+
 ## [0.2.7] - 2026-09-01
 
 - Add bounded component-value tree cloning for semantic transformations that
