@@ -196,16 +196,23 @@ const selectorSession = createSelectorMatchSession(
   { limits: { maxNodes: 100_001, maxSteps: 100_000_000 } }
 );
 const selectorIndexNs = Number(process.hrtime.bigint() - selectorSessionStart);
+const selectorConstructionUsage = selectorSession.usage();
+let selectorEvaluationSteps = 0;
+// Each benchmark batch is an evaluation; index construction has its own budget.
 for (let index = 0; index < 3; index += 1) {
+  selectorSession.beginEvaluation({ limits: { maxSteps: 100_000_000 } });
   for (const selector of selectorPrograms) selectorSession.query(selector);
+  selectorEvaluationSteps += selectorSession.usage().steps;
 }
 const selectorDurations = [];
 for (let iteration = 0; iteration < 8; iteration += 1) {
+  selectorSession.beginEvaluation({ limits: { maxSteps: 100_000_000 } });
   for (const selector of selectorPrograms) {
     const start = process.hrtime.bigint();
     selectorSession.query(selector);
     selectorDurations.push(Number(process.hrtime.bigint() - start));
   }
+  selectorEvaluationSteps += selectorSession.usage().steps;
 }
 const declaration = parseDeclaration("width: calc(50% - 1rem)");
 if (!declaration.ok) throw new Error("property benchmark declaration failed");
@@ -221,6 +228,8 @@ const selectorMatching = {
   elements: selectorChildren.length,
   selectors: selectorSources,
   indexNs: selectorIndexNs,
+  constructionUsage: selectorConstructionUsage,
+  totalEvaluationSteps: selectorEvaluationSteps,
   queryP50Ns: percentile(selectorDurations, 0.5),
   queryP95Ns: percentile(selectorDurations, 0.95),
   usage: selectorSession.usage()
