@@ -209,6 +209,7 @@ interface TreeIndex<TNode extends object> {
   readonly elementSubtreeEnd: ReadonlyMap<TNode, number>;
   readonly previousElementSibling: ReadonlyMap<TNode, TNode>;
   readonly nextElementSibling: ReadonlyMap<TNode, TNode>;
+  readonly siblingRanks: ReadonlyMap<TNode, SiblingRank>;
 }
 
 interface DecisionResult {
@@ -216,8 +217,11 @@ interface DecisionResult {
   readonly reasons: readonly SelectorUnknownReason[];
 }
 
+const MATCH: DecisionResult = Object.freeze({ decision: "match", reasons: Object.freeze([]) });
+const NO_MATCH: DecisionResult = Object.freeze({ decision: "no-match", reasons: Object.freeze([]) });
+
 function known(decision: "match" | "no-match"): DecisionResult {
-  return Object.freeze({ decision, reasons: Object.freeze([]) });
+  return decision === "match" ? MATCH : NO_MATCH;
 }
 
 function unknown(reason: SelectorUnknownReason): DecisionResult {
@@ -228,11 +232,13 @@ function unknown(reason: SelectorUnknownReason): DecisionResult {
 }
 
 function uniqueReasons(
-  values: readonly SelectorUnknownReason[]
+  values: readonly SelectorUnknownReason[],
+  guard: ResourceGuard
 ): readonly SelectorUnknownReason[] {
   const keys = new Set<string>();
   const result: SelectorUnknownReason[] = [];
   for (const value of values) {
+    guard.step(1 + value.name.length);
     const key = `${value.code}:${value.name}:${String(value.span.start.offset)}`;
     if (keys.has(key)) continue;
     keys.add(key);
@@ -241,7 +247,7 @@ function uniqueReasons(
   return Object.freeze(result);
 }
 
-function and(left: DecisionResult, right: DecisionResult): DecisionResult {
+function and(left: DecisionResult, right: DecisionResult, guard: ResourceGuard): DecisionResult {
   if (left.decision === "no-match" || right.decision === "no-match") {
     return known("no-match");
   }
@@ -250,26 +256,55 @@ function and(left: DecisionResult, right: DecisionResult): DecisionResult {
   }
   return Object.freeze({
     decision: "unknown",
-    reasons: uniqueReasons([...left.reasons, ...right.reasons])
+    reasons: uniqueReasons(joinReasons(left.reasons, right.reasons, guard), guard)
   });
 }
 
 function orMapped<T>(
   values: Iterable<T>,
-  evaluate: (value: T) => DecisionResult
+  evaluate: (value: T) => DecisionResult,
+  guard: ResourceGuard
 ): DecisionResult {
   const reasons: SelectorUnknownReason[] = [];
   for (const value of values) {
+    guard.step();
     const result = evaluate(value);
     if (result.decision === "match") return known("match");
-    if (result.decision === "unknown") reasons.push(...result.reasons);
+    if (result.decision === "unknown") {
+      for (const reason of result.reasons) {
+        guard.step();
+        reasons.push(reason);
+      }
+    }
   }
   return reasons.length === 0
     ? known("no-match")
     : Object.freeze({
         decision: "unknown",
-        reasons: uniqueReasons(reasons)
+        reasons: uniqueReasons(reasons, guard)
       });
+}
+
+function copyValues<T>(values: Iterable<T>, guard: ResourceGuard): T[] {
+  const result: T[] = [];
+  for (const value of values) {
+    guard.step();
+    result.push(value);
+  }
+  return result;
+}
+
+function joinReasons(
+  left: readonly SelectorUnknownReason[],
+  right: readonly SelectorUnknownReason[],
+  guard: ResourceGuard
+): readonly SelectorUnknownReason[] {
+  const result = copyValues(left, guard);
+  for (const reason of right) {
+    guard.step();
+    result.push(reason);
+  }
+  return result;
 }
 
 function invert(value: DecisionResult): DecisionResult {
@@ -277,12 +312,13 @@ function invert(value: DecisionResult): DecisionResult {
   return known(value.decision === "match" ? "no-match" : "match");
 }
 
-function lowerAscii(value: string): string {
+function lowerAscii(value: string, guard: ResourceGuard): string {
+  guard.step(1 + value.length);
   return value.replace(/[A-Z]/gu, (character) => character.toLowerCase());
 }
 
-function equalAsciiInsensitive(left: string, right: string): boolean {
-  return lowerAscii(left) === lowerAscii(right);
+function equalAsciiInsensitive(left: string, right: string, guard: ResourceGuard): boolean {
+  return lowerAscii(left, guard) === lowerAscii(right, guard);
 }
 
 function isAsciiWhitespace(character: string): boolean {
@@ -295,10 +331,11 @@ function isAsciiWhitespace(character: string): boolean {
   );
 }
 
-function whitespaceTokens(value: string): readonly string[] {
+function whitespaceTokens(value: string, guard: ResourceGuard): readonly string[] {
   const result: string[] = [];
   let token = "";
   for (const character of value) {
+    guard.step();
     if (isAsciiWhitespace(character)) {
       if (token.length > 0) result.push(token);
       token = "";
@@ -321,15 +358,36 @@ function appendIndexEntry<TNode extends object>(
 }
 
 function freezeIndex<TNode extends object>(
-  index: ReadonlyMap<string, readonly TNode[]>
+  index: Map<string, TNode[]>,
+  guard: ResourceGuard
 ): ReadonlyMap<string, readonly TNode[]> {
-  return new Map(
-    [...index].map(([key, nodes]) => [key, Object.freeze([...nodes])])
+  // These construction-owned postings already have their final contents.
+  for (const nodes of index.values()) {
+    guard.step(1 + nodes.length);
+    Object.freeze(nodes);
+  }
+  return index;
+}
+
+function qualifiedNameKey(namespace: string | null, localName: string, guard: ResourceGuard): string {
+  guard.step(1 + (namespace?.length ?? 0) + localName.length);
+  return `${namespace ?? "\u0000"}\u0001${localName}`;
+}
+
+function elementTypeKey(element: SelectorElementData, html: boolean, guard: ResourceGuard): string {
+  return qualifiedNameKey(
+    element.namespace,
+    html && element.namespace === "http://www.w3.org/1999/xhtml"
+      ? lowerAscii(element.localName, guard) : element.localName,
+    guard
   );
 }
 
-function qualifiedNameKey(namespace: string | null, localName: string): string {
-  return `${namespace ?? "\u0000"}\u0001${localName}`;
+interface SiblingRank {
+  readonly index: number;
+  readonly count: number;
+  readonly typeIndex: number;
+  readonly typeCount: number;
 }
 
 function buildTreeIndex<TNode extends object>(
@@ -383,6 +441,7 @@ function buildTreeIndex<TNode extends object>(
     parent.set(frame.node, frame.parent);
     guard.createNode(frame.depth);
     const data = environment.tree.data(frame.node);
+    guard.assertActive();
     if (data.kind === "element") {
       elementOrder.set(frame.node, elements.length);
       elements.push(frame.node);
@@ -397,14 +456,15 @@ function buildTreeIndex<TNode extends object>(
       }
       if (
         frame.parent === null ||
-        environment.tree.data(frame.parent).kind !== "element"
+        !elementData.has(frame.parent)
       ) {
         documentElements.push(frame.node);
       }
+      guard.step(1 + data.localName.length);
       appendIndexEntry(elementsByExactLocalName, data.localName, frame.node);
       appendIndexEntry(
         elementsByQualifiedName,
-        qualifiedNameKey(data.namespace, data.localName),
+        qualifiedNameKey(data.namespace, data.localName, guard),
         frame.node
       );
       if (
@@ -413,7 +473,7 @@ function buildTreeIndex<TNode extends object>(
       ) {
         appendIndexEntry(
           htmlElementsByLocalName,
-          lowerAscii(data.localName),
+          lowerAscii(data.localName, guard),
           frame.node
         );
       } else {
@@ -429,34 +489,38 @@ function buildTreeIndex<TNode extends object>(
       const caseSensitiveExactAttributeNames = new Set<string>();
       const caseSensitiveQualifiedAttributeNames = new Set<string>();
       for (const attribute of data.attributes) {
-        guard.step();
+        guard.step(1 + attribute.localName.length);
         exactAttributeNames.add(attribute.localName);
         qualifiedAttributeNames.add(
-          qualifiedNameKey(attribute.namespace, attribute.localName)
+          qualifiedNameKey(attribute.namespace, attribute.localName, guard)
         );
         if (
           environment.documentMode.syntax === "html" &&
           data.namespace === "http://www.w3.org/1999/xhtml" &&
           attribute.namespace === null
         ) {
-          htmlAttributeNames.add(lowerAscii(attribute.localName));
+          htmlAttributeNames.add(lowerAscii(attribute.localName, guard));
         } else {
           caseSensitiveExactAttributeNames.add(attribute.localName);
           caseSensitiveQualifiedAttributeNames.add(
-            qualifiedNameKey(attribute.namespace, attribute.localName)
+            qualifiedNameKey(attribute.namespace, attribute.localName, guard)
           );
         }
       }
       for (const name of exactAttributeNames) {
+        guard.step(1 + name.length);
         appendIndexEntry(elementsByExactAttributeName, name, frame.node);
       }
       for (const name of qualifiedAttributeNames) {
+        guard.step(1 + name.length);
         appendIndexEntry(elementsByQualifiedAttributeName, name, frame.node);
       }
       for (const name of htmlAttributeNames) {
+        guard.step(1 + name.length);
         appendIndexEntry(htmlElementsByAttributeName, name, frame.node);
       }
       for (const name of caseSensitiveExactAttributeNames) {
+        guard.step(1 + name.length);
         appendIndexEntry(
           caseSensitiveElementsByExactAttributeName,
           name,
@@ -464,41 +528,50 @@ function buildTreeIndex<TNode extends object>(
         );
       }
       for (const name of caseSensitiveQualifiedAttributeNames) {
+        guard.step(1 + name.length);
         appendIndexEntry(
           caseSensitiveElementsByQualifiedAttributeName,
           name,
           frame.node
         );
       }
-      for (const value of environment.idValues(frame.node, data)) {
-        guard.step();
+      guard.step();
+      const ids = environment.idValues(frame.node, data);
+      guard.assertActive();
+      for (const value of ids) {
+        guard.step(1 + value.length);
         appendIndexEntry(
           elementsById,
           environment.documentMode.syntax === "html" &&
               environment.documentMode.quirks === "quirks"
-            ? lowerAscii(value)
+            ? lowerAscii(value, guard)
             : value,
           frame.node
         );
       }
-      for (const value of environment.classNames(frame.node, data)) {
-        guard.step();
+      guard.step();
+      const classes = environment.classNames(frame.node, data);
+      guard.assertActive();
+      for (const value of classes) {
+        guard.step(1 + value.length);
         appendIndexEntry(
           elementsByClass,
           environment.documentMode.syntax === "html" &&
               environment.documentMode.quirks === "quirks"
-            ? lowerAscii(value)
+            ? lowerAscii(value, guard)
             : value,
           frame.node
         );
       }
     }
-    const nodeChildren = Object.freeze([
-      ...environment.tree.children(frame.node)
-    ]);
+    guard.step();
+    const suppliedChildren = environment.tree.children(frame.node);
+    guard.assertActive();
+    const nodeChildren = Object.freeze(copyValues(suppliedChildren, guard));
     children.set(frame.node, nodeChildren);
     stack.push({ ...frame, leaving: true });
     for (let index = nodeChildren.length - 1; index >= 0; index -= 1) {
+      guard.step();
       const child = nodeChildren[index];
       if (child !== undefined) {
         stack.push({
@@ -510,38 +583,68 @@ function buildTreeIndex<TNode extends object>(
       }
     }
   }
+  const siblingRanks = new Map<TNode, SiblingRank>();
+  for (const siblings of children.values()) {
+    guard.step();
+    let count = 0;
+    const counts = new Map<string, number>();
+    for (const sibling of siblings) {
+      guard.step();
+      const data = elementData.get(sibling);
+      if (data === undefined) continue;
+      count += 1;
+      const key = elementTypeKey(data, environment.documentMode.syntax === "html", guard);
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+    let index = 0;
+    const positions = new Map<string, number>();
+    for (const sibling of siblings) {
+      guard.step();
+      const data = elementData.get(sibling);
+      if (data === undefined) continue;
+      index += 1;
+      const key = elementTypeKey(data, environment.documentMode.syntax === "html", guard);
+      const typeIndex = (positions.get(key) ?? 0) + 1;
+      positions.set(key, typeIndex);
+      siblingRanks.set(sibling, Object.freeze({ index, count, typeIndex, typeCount: counts.get(key) ?? 0 }));
+    }
+  }
+  guard.step(1 + elements.length + documentElements.length);
   return Object.freeze({
     root,
     parent,
     children,
     elements: Object.freeze(elements),
     elementData,
-    elementsById: freezeIndex(elementsById),
-    elementsByClass: freezeIndex(elementsByClass),
-    elementsByExactLocalName: freezeIndex(elementsByExactLocalName),
-    caseSensitiveElementsByExactLocalName: freezeIndex(
-      caseSensitiveElementsByExactLocalName
-    ),
-    elementsByQualifiedName: freezeIndex(elementsByQualifiedName),
-    htmlElementsByLocalName: freezeIndex(htmlElementsByLocalName),
-    elementsByExactAttributeName: freezeIndex(elementsByExactAttributeName),
-    elementsByQualifiedAttributeName: freezeIndex(
-      elementsByQualifiedAttributeName
-    ),
-    caseSensitiveElementsByExactAttributeName: freezeIndex(
-      caseSensitiveElementsByExactAttributeName
-    ),
-    caseSensitiveElementsByQualifiedAttributeName: freezeIndex(
-      caseSensitiveElementsByQualifiedAttributeName
-    ),
-    htmlElementsByAttributeName: freezeIndex(htmlElementsByAttributeName),
+    elementsById: freezeIndex(elementsById, guard),
+    elementsByClass: freezeIndex(elementsByClass, guard),
+    elementsByExactLocalName: freezeIndex(elementsByExactLocalName, guard),
+    caseSensitiveElementsByExactLocalName: freezeIndex(caseSensitiveElementsByExactLocalName, guard),
+    elementsByQualifiedName: freezeIndex(elementsByQualifiedName, guard),
+    htmlElementsByLocalName: freezeIndex(htmlElementsByLocalName, guard),
+    elementsByExactAttributeName: freezeIndex(elementsByExactAttributeName, guard),
+    elementsByQualifiedAttributeName: freezeIndex(elementsByQualifiedAttributeName, guard),
+    caseSensitiveElementsByExactAttributeName: freezeIndex(caseSensitiveElementsByExactAttributeName, guard),
+    caseSensitiveElementsByQualifiedAttributeName: freezeIndex(caseSensitiveElementsByQualifiedAttributeName, guard),
+    htmlElementsByAttributeName: freezeIndex(htmlElementsByAttributeName, guard),
     documentElements: Object.freeze(documentElements),
     elementOrder,
     elementSubtreeEnd,
     previousElementSibling,
-    nextElementSibling
+    nextElementSibling,
+    siblingRanks
   });
 }
+
+const NTH_MODES: Readonly<Record<string, {
+  readonly fromEnd: boolean;
+  readonly sameType: boolean;
+}>> = {
+  "nth-child": { fromEnd: false, sameType: false },
+  "nth-last-child": { fromEnd: true, sameType: false },
+  "nth-of-type": { fromEnd: false, sameType: true },
+  "nth-last-of-type": { fromEnd: true, sameType: true }
+};
 
 class SelectorMatcher<TNode extends object> {
   #guard: ResourceGuard;
@@ -558,30 +661,36 @@ class SelectorMatcher<TNode extends object> {
   ) {
     this.#guard = new ResourceGuard(options.limits, options.signal);
     this.#index = buildTreeIndex(root, environment, this.#guard);
-    this.#scopes = options.scopes === undefined
-      ? new Set([root])
-      : new Set(
-          [...options.scopes].filter((node) => this.#index.parent.has(node))
-        );
+    const scopes = new Set<TNode>();
+    for (const node of options.scopes ?? [root]) {
+      this.#guard.step();
+      if (this.#index.parent.has(node)) scopes.add(node);
+    }
+    this.#scopes = scopes;
   }
 
   beginEvaluation(options: SelectorEvaluationOptions): void {
     // Construct first so invalid limits or an already aborted signal do not
     // replace the currently active evaluation.
     this.#guard = new ResourceGuard(options.limits, options.signal);
-    this.beginOperation();
+    this.finishOperation();
   }
 
   beginOperation(): void {
     this.#guard.assertActive();
+    this.#guard.step();
+    this.finishOperation();
+  }
+
+  finishOperation(): void {
     // Namespace resolution and pseudo-class state may change between calls.
     this.#candidates.clear();
     this.#matches.clear();
     this.#ancestors.clear();
   }
 
-  finishOperation(): void {
-    this.beginOperation();
+  materialize(count: number): void {
+    this.#guard.step(1 + count);
   }
 
   usage(): ResourceUsage {
@@ -602,10 +711,12 @@ class SelectorMatcher<TNode extends object> {
   }
 
   matches(list: SelectorList, node: TNode): DecisionResult {
+    this.#guard.step();
     if (!this.#index.parent.has(node)) return known("no-match");
     return orMapped(
       list.selectors,
-      (selector) => this.#complex(selector, node)
+      (selector) => this.#complex(selector, node),
+      this.#guard
     );
   }
 
@@ -615,7 +726,9 @@ class SelectorMatcher<TNode extends object> {
     let candidates: readonly TNode[] | null = null;
     const candidatesByCompound: (readonly TNode[] | null)[] = [];
     for (const [index, compound] of selector.compounds.entries()) {
+      this.#guard.step();
       const indexed = this.#compoundCandidates(compound);
+      if (indexed?.length === 0) return indexed;
       candidatesByCompound.push(indexed);
       if (
         indexed !== null &&
@@ -628,6 +741,7 @@ class SelectorMatcher<TNode extends object> {
     if (candidates === null) return this.#index.elements;
     if (candidates.length === 0) return candidates;
     for (let index = seedIndex + 1; index < selector.compounds.length; index += 1) {
+      this.#guard.step();
       const compound = selector.compounds[index];
       if (compound === undefined) return candidates;
       const indexed = candidatesByCompound[index] ?? null;
@@ -650,19 +764,24 @@ class SelectorMatcher<TNode extends object> {
   }
 
   #selectCompoundCandidates(compound: CompoundSelector): readonly TNode[] | null {
+    this.#guard.step();
     let retained: readonly TNode[] | null = this.#typeCandidates(compound.type);
+    if (retained?.length === 0) return retained;
     for (const simple of compound.simples) {
+      this.#guard.step();
       let indexed: readonly TNode[] | null = null;
       if (simple.kind === "id") {
+        this.#guard.step(1 + simple.value.length);
         const key = this.environment.documentMode.syntax === "html" &&
             this.environment.documentMode.quirks === "quirks"
-          ? lowerAscii(simple.value)
+          ? lowerAscii(simple.value, this.#guard)
           : simple.value;
         indexed = this.#index.elementsById.get(key) ?? Object.freeze([]);
       } else if (simple.kind === "class") {
+        this.#guard.step(1 + simple.value.length);
         const key = this.environment.documentMode.syntax === "html" &&
             this.environment.documentMode.quirks === "quirks"
-          ? lowerAscii(simple.value)
+          ? lowerAscii(simple.value, this.#guard)
           : simple.value;
         indexed = this.#index.elementsByClass.get(key) ?? Object.freeze([]);
       } else if (simple.kind === "attribute") {
@@ -702,16 +821,19 @@ class SelectorMatcher<TNode extends object> {
     ) {
       const branches: (readonly TNode[])[] = [];
       for (const selector of pseudo.argument.selectors) {
+        this.#guard.step();
         const candidates = this.#complexCandidates(selector);
         if (candidates === this.#index.elements) return null;
         branches.push(candidates);
       }
       return this.#orderedUnionMany(branches);
     }
+    this.#guard.step();
     const candidates = this.environment.pseudoClassCandidates?.(
       pseudo,
       this.#pseudoContext()
     );
+    this.#guard.assertActive();
     if (candidates === undefined || candidates === null) return null;
     return this.#orderedExternalCandidates(candidates);
   }
@@ -764,7 +886,11 @@ class SelectorMatcher<TNode extends object> {
   #orderedUnionMany(
     lists: readonly (readonly TNode[])[]
   ): readonly TNode[] {
-    const nonempty = lists.filter((list) => list.length > 0);
+    const nonempty: (readonly TNode[])[] = [];
+    for (const list of lists) {
+      this.#guard.step();
+      if (list.length > 0) nonempty.push(list);
+    }
     if (nonempty.length === 0) return Object.freeze([]);
     if (nonempty.length === 1) return nonempty[0] ?? Object.freeze([]);
     interface Cursor {
@@ -815,6 +941,7 @@ class SelectorMatcher<TNode extends object> {
       return first;
     };
     for (const list of nonempty) {
+      this.#guard.step();
       const node = list[0];
       if (node !== undefined) {
         push({ list, index: 0, node, order: this.#candidateOrder(node) });
@@ -851,6 +978,7 @@ class SelectorMatcher<TNode extends object> {
     if (smaller.length * 8 < larger.length) {
       const retained: TNode[] = [];
       for (const candidate of smaller) {
+        this.#guard.step();
         const order = this.#candidateOrder(candidate);
         let low = 0;
         let high = larger.length - 1;
@@ -897,12 +1025,15 @@ class SelectorMatcher<TNode extends object> {
       const order = this.#index.elementOrder.get(candidate);
       if (order !== undefined) byOrder.set(order, candidate);
     }
-    const entries = [...byOrder.entries()];
+    const entries = copyValues(byOrder.entries(), this.#guard);
     entries.sort((left, right) => {
       this.#guard.step();
       return left[0] - right[0];
     });
-    return Object.freeze(entries.map((entry) => entry[1]));
+    return Object.freeze(entries.map((entry) => {
+      this.#guard.step();
+      return entry[1];
+    }));
   }
 
   #rightCandidates(
@@ -916,6 +1047,7 @@ class SelectorMatcher<TNode extends object> {
     const retained = new Set<TNode>();
     if (combinator === ">") {
       for (const node of nodes) {
+        this.#guard.step();
         for (const child of this.#index.children.get(node) ?? []) {
           this.#guard.step();
           if (this.#index.elementData.has(child)) retained.add(child);
@@ -923,6 +1055,7 @@ class SelectorMatcher<TNode extends object> {
       }
     } else if (combinator === "+" || combinator === "~") {
       for (const node of nodes) {
+        this.#guard.step();
         let sibling = this.#index.nextElementSibling.get(node);
         while (sibling !== undefined) {
           this.#guard.step();
@@ -934,7 +1067,7 @@ class SelectorMatcher<TNode extends object> {
     } else {
       return this.#indexedRightCandidates(nodes, combinator, this.#index.elements);
     }
-    return this.#orderedExternalCandidates([...retained]);
+    return this.#orderedExternalCandidates(copyValues(retained, this.#guard));
   }
 
   #indexedRightCandidates(
@@ -944,7 +1077,13 @@ class SelectorMatcher<TNode extends object> {
   ): readonly TNode[] {
     if (nodes.length === 0 || indexed.length === 0) return Object.freeze([]);
     const retained: TNode[] = [];
-    const left = new Set(nodes);
+    const left = new Set<TNode>();
+    if (combinator === ">" || combinator === "+") {
+      for (const node of nodes) {
+        this.#guard.step();
+        left.add(node);
+      }
+    }
     if (combinator === ">") {
       for (const candidate of indexed) {
         this.#guard.step();
@@ -993,21 +1132,23 @@ class SelectorMatcher<TNode extends object> {
       } else intervals.push(Object.freeze({ start, end }));
     }
     const coveredElements = intervals.reduce(
-      (total, interval) => total + interval.end - interval.start + 1,
+      (total, interval) => {
+        this.#guard.step();
+        return total + interval.end - interval.start + 1;
+      },
       0
     );
     if (coveredElements < indexed.length) {
-      const allowed = new Set(indexed);
       for (const interval of intervals) {
+        this.#guard.step();
         for (let order = interval.start; order <= interval.end; order += 1) {
           this.#guard.step();
           const candidate = this.#index.elements[order];
-          if (candidate !== undefined && allowed.has(candidate)) {
-            retained.push(candidate);
-          }
+          if (candidate !== undefined) retained.push(candidate);
         }
       }
-      return Object.freeze(retained);
+      return indexed === this.#index.elements
+        ? Object.freeze(retained) : this.#intersection(retained, indexed);
     }
     let intervalIndex = 0;
     for (const candidate of indexed) {
@@ -1016,6 +1157,7 @@ class SelectorMatcher<TNode extends object> {
       if (order === undefined) continue;
       let interval = intervals[intervalIndex];
       while (interval !== undefined && interval.end < order) {
+        this.#guard.step();
         intervalIndex += 1;
         interval = intervals[intervalIndex];
       }
@@ -1033,13 +1175,14 @@ class SelectorMatcher<TNode extends object> {
   #attributeCandidates(
     selector: SelectorAttribute
   ): readonly TNode[] | null {
+    this.#guard.step(1 + selector.name.length);
     const resolution = this.#attributeNamespace(selector);
     if (resolution.status === "unknown") return null;
     const namespace = resolution.namespace;
     const htmlCandidates = this.environment.documentMode.syntax === "html" &&
         (namespace === "*" || namespace === null)
       ? this.#index.htmlElementsByAttributeName.get(
-          lowerAscii(selector.name)
+          lowerAscii(selector.name, this.#guard)
         ) ?? []
       : [];
     const exactCandidates = namespace === "*"
@@ -1050,10 +1193,10 @@ class SelectorMatcher<TNode extends object> {
         : this.#index.elementsByExactAttributeName.get(selector.name) ?? []
       : this.environment.documentMode.syntax === "html" && namespace === null
         ? this.#index.caseSensitiveElementsByQualifiedAttributeName.get(
-            qualifiedNameKey(namespace, selector.name)
+            qualifiedNameKey(namespace, selector.name, this.#guard)
           ) ?? []
         : this.#index.elementsByQualifiedAttributeName.get(
-            qualifiedNameKey(namespace, selector.name)
+            qualifiedNameKey(namespace, selector.name, this.#guard)
           ) ?? [];
     if (htmlCandidates.length === 0) return exactCandidates;
     if (exactCandidates.length === 0) return htmlCandidates;
@@ -1062,6 +1205,7 @@ class SelectorMatcher<TNode extends object> {
 
   #typeCandidates(type: SelectorType | null): readonly TNode[] | null {
     if (type === null || type.name === "*") return null;
+    this.#guard.step(1 + type.name.length);
     let namespace: string | null;
     if (type.namespace === "*") {
       namespace = "*";
@@ -1074,13 +1218,15 @@ class SelectorMatcher<TNode extends object> {
         namespace = this.environment.defaultNamespace.namespace;
       }
     } else {
+      this.#guard.step(1 + type.namespace.length);
       const resolution = this.environment.resolveNamespacePrefix(type.namespace);
+      this.#guard.assertActive();
       if (resolution.status === "unknown") return null;
       namespace = resolution.namespace;
     }
     const htmlCandidates = this.environment.documentMode.syntax === "html" &&
         (namespace === "*" || namespace === "http://www.w3.org/1999/xhtml")
-      ? this.#index.htmlElementsByLocalName.get(lowerAscii(type.name)) ?? []
+      ? this.#index.htmlElementsByLocalName.get(lowerAscii(type.name, this.#guard)) ?? []
       : [];
     const exactCandidates = namespace === "*"
       ? this.environment.documentMode.syntax === "html"
@@ -1090,7 +1236,7 @@ class SelectorMatcher<TNode extends object> {
           this.environment.documentMode.syntax === "html"
         ? []
         : this.#index.elementsByQualifiedName.get(
-            qualifiedNameKey(namespace, type.name)
+            qualifiedNameKey(namespace, type.name, this.#guard)
           ) ?? [];
     if (htmlCandidates.length === 0) return exactCandidates;
     if (exactCandidates.length === 0) return htmlCandidates;
@@ -1134,7 +1280,7 @@ class SelectorMatcher<TNode extends object> {
     const own = this.#compound(compound, node);
     let result = own;
     if (own.decision !== "no-match" && index === 0 && anchor !== null) {
-      result = and(own, this.#anchorRelation(selector.leadingCombinator ?? " ", anchor, node));
+      result = and(own, this.#anchorRelation(selector.leadingCombinator ?? " ", anchor, node), this.#guard);
     }
     if (own.decision !== "no-match" && index > 0) {
       const combinator = selector.combinators[index - 1];
@@ -1142,9 +1288,10 @@ class SelectorMatcher<TNode extends object> {
         ? this.#ancestorMatch(selector, index - 1, node)
         : orMapped(
             this.#leftCandidates(node, combinator),
-            (candidate) => this.#complexAt(selector, index - 1, candidate, anchor)
+            (candidate) => this.#complexAt(selector, index - 1, candidate, anchor),
+            this.#guard
           );
-      result = and(own, related);
+      result = and(own, related, this.#guard);
     }
     decisions?.set(node, result);
     return result;
@@ -1176,9 +1323,10 @@ class SelectorMatcher<TNode extends object> {
     // Cache inclusive ancestry from the farthest visited ancestor back toward
     // the subject. Iteration also handles trees deeper than the JS call stack.
     for (let position = visited.length - 1; position >= 0; position -= 1) {
+      this.#guard.step();
       const entry = visited[position];
       if (entry === undefined) continue;
-      result = orMapped([entry.own, result], (value) => value);
+      result = orMapped([entry.own, result], (value) => value, this.#guard);
       decisions.set(entry.node, result);
     }
     return result;
@@ -1187,31 +1335,36 @@ class SelectorMatcher<TNode extends object> {
   #relative(selector: ComplexSelector, anchor: TNode): DecisionResult {
     const first = selector.compounds[0];
     if (first === undefined) return known("no-match");
+    const firstCandidates = this.#compoundCandidates(first);
+    if (firstCandidates?.length === 0) return known("no-match");
     let candidates: Iterable<TNode> = this.#relativeCandidates(
       anchor,
       selector.leadingCombinator ?? " ",
-      this.#compoundCandidates(first)
+      firstCandidates
     );
     // Candidate propagation only narrows structural possibilities. The normal
     // matcher still decides every compound and combines unknown reasons in the
     // same right-to-left order as non-relative selectors.
     for (let index = 1; index < selector.compounds.length; index += 1) {
+      this.#guard.step();
       const compound = selector.compounds[index];
       if (compound === undefined) return known("no-match");
       const indexed = this.#compoundCandidates(compound);
+      if (indexed?.length === 0) return known("no-match");
       const related: (readonly TNode[])[] = [];
       for (const candidate of candidates) {
-        related.push([...this.#relativeCandidates(
+        this.#guard.step();
+        related.push(copyValues(this.#relativeCandidates(
           candidate,
           selector.combinators[index - 1] ?? " ",
           indexed
-        )]);
+        ), this.#guard));
       }
       candidates = this.#orderedUnionMany(related);
     }
     return orMapped(candidates, (candidate) => this.#complexAt(
       selector, selector.compounds.length - 1, candidate, anchor
-    ));
+    ), this.#guard);
   }
 
   *#relativeCandidates(
@@ -1219,6 +1372,7 @@ class SelectorMatcher<TNode extends object> {
     combinator: SelectorCombinator,
     indexed: readonly TNode[] | null
   ): Iterable<TNode> {
+    if (indexed?.length === 0) return;
     if (combinator === "+" || combinator === "~") {
       let sibling = this.#index.nextElementSibling.get(anchor);
       while (sibling !== undefined) {
@@ -1280,7 +1434,8 @@ class SelectorMatcher<TNode extends object> {
       ? known("match")
       : this.#type(compound.type, data);
     for (const simple of compound.simples) {
-      result = and(result, this.#simple(simple, node, data));
+      this.#guard.step();
+      result = and(result, this.#simple(simple, node, data), this.#guard);
       if (result.decision === "no-match") return result;
     }
     return result;
@@ -1299,9 +1454,10 @@ class SelectorMatcher<TNode extends object> {
     );
     if (namespace.decision !== "match") return namespace;
     if (selector.name === "*") return known("match");
+    this.#guard.step(1 + element.localName.length + selector.name.length);
     const equal = this.environment.documentMode.syntax === "html" &&
       element.namespace === "http://www.w3.org/1999/xhtml"
-      ? equalAsciiInsensitive(element.localName, selector.name)
+      ? equalAsciiInsensitive(element.localName, selector.name, this.#guard)
       : element.localName === selector.name;
     return known(equal ? "match" : "no-match");
   }
@@ -1314,21 +1470,15 @@ class SelectorMatcher<TNode extends object> {
     this.#guard.step();
     switch (simple.kind) {
       case "id":
-        return known(
-          this.environment.idValues(node, element).some((value) =>
-            this.#identityEqual(value, simple.value)
-          )
-            ? "match"
-            : "no-match"
-        );
       case "class": {
-        return known(
-          this.environment.classNames(node, element).some((value) =>
-            this.#identityEqual(value, simple.value)
-          )
-            ? "match"
-            : "no-match"
-        );
+        const values = simple.kind === "id"
+          ? this.environment.idValues(node, element)
+          : this.environment.classNames(node, element);
+        this.#guard.assertActive();
+        for (const value of values) {
+          if (this.#identityEqual(value, simple.value)) return known("match");
+        }
+        return known("no-match");
       }
       case "attribute":
         return this.#attributeSelector(simple, element);
@@ -1344,9 +1494,10 @@ class SelectorMatcher<TNode extends object> {
   }
 
   #identityEqual(left: string, right: string): boolean {
+    this.#guard.step(1 + left.length + right.length);
     return this.environment.documentMode.syntax === "html" &&
         this.environment.documentMode.quirks === "quirks"
-      ? equalAsciiInsensitive(left, right)
+      ? equalAsciiInsensitive(left, right, this.#guard)
       : left === right;
   }
 
@@ -1371,16 +1522,19 @@ class SelectorMatcher<TNode extends object> {
     if (selector.matcher === null) return known("match");
     const expected = selector.value;
     if (expected === null) return known("no-match");
+    this.#guard.step();
     const sensitivity = selector.modifier === "i"
       ? "ascii-insensitive"
       : selector.modifier === "s"
         ? "sensitive"
         : this.environment.attributeValueCaseSensitivity(element, attribute);
+    this.#guard.assertActive();
+    this.#guard.step(1 + attribute.value.length + expected.length);
     const left = sensitivity === "ascii-insensitive"
-      ? lowerAscii(attribute.value)
+      ? lowerAscii(attribute.value, this.#guard)
       : attribute.value;
     const right = sensitivity === "ascii-insensitive"
-      ? lowerAscii(expected)
+      ? lowerAscii(expected, this.#guard)
       : expected;
     if (
       right.length === 0 &&
@@ -1395,7 +1549,7 @@ class SelectorMatcher<TNode extends object> {
         return known(left === right ? "match" : "no-match");
       case "~=":
         return known(
-          whitespaceTokens(left).includes(right) ? "match" : "no-match"
+          whitespaceTokens(left, this.#guard).includes(right) ? "match" : "no-match"
         );
       case "|=":
         return known(
@@ -1424,7 +1578,8 @@ class SelectorMatcher<TNode extends object> {
     ) {
       return orMapped(
         pseudo.argument.selectors,
-        (selector) => this.#complex(selector, node)
+        (selector) => this.#complex(selector, node),
+        this.#guard
       );
     }
     if (
@@ -1433,7 +1588,8 @@ class SelectorMatcher<TNode extends object> {
     ) {
       return invert(orMapped(
         pseudo.argument.selectors,
-        (selector) => this.#complex(selector, node)
+        (selector) => this.#complex(selector, node),
+        this.#guard
       ));
     }
     if (
@@ -1442,7 +1598,8 @@ class SelectorMatcher<TNode extends object> {
     ) {
       return orMapped(
         pseudo.argument.selectors,
-        (selector) => this.#relative(selector, node)
+        (selector) => this.#relative(selector, node),
+        this.#guard
       );
     }
 
@@ -1455,7 +1612,7 @@ class SelectorMatcher<TNode extends object> {
       const parent = this.#index.parent.get(node) ?? null;
       return known(
         parent === null ||
-        this.environment.tree.data(parent).kind !== "element"
+        !this.#index.elementData.has(parent)
           ? "match"
           : "no-match"
       );
@@ -1467,11 +1624,13 @@ class SelectorMatcher<TNode extends object> {
     }
     const indexed = this.#indexedPseudo(name, pseudo, node, element);
     if (indexed !== null) return indexed;
+    this.#guard.step();
     const decision = this.environment.matchPseudoClass(
       node,
       pseudo,
       this.#pseudoContext()
     );
+    this.#guard.assertActive();
     return decision === "unknown"
       ? unknown({
           code: "pseudo-class",
@@ -1490,7 +1649,9 @@ class SelectorMatcher<TNode extends object> {
 
   #empty(node: TNode): DecisionResult {
     for (const child of this.#index.children.get(node) ?? []) {
+      this.#guard.step();
       const data = this.environment.tree.data(child);
+      this.#guard.assertActive();
       if (data.kind === "element") return known("no-match");
       if (data.kind === "text" && data.value.length > 0) {
         return known("no-match");
@@ -1505,66 +1666,22 @@ class SelectorMatcher<TNode extends object> {
     node: TNode,
     element: SelectorElementData
   ): DecisionResult | null {
-    const aliases: Readonly<Record<string, {
-      readonly a: number;
-      readonly b: number;
-      readonly fromEnd: boolean;
-      readonly sameType: boolean;
-    }>> = {
-      "first-child": { a: 0, b: 1, fromEnd: false, sameType: false },
-      "last-child": { a: 0, b: 1, fromEnd: true, sameType: false },
-      "only-child": { a: 0, b: 1, fromEnd: false, sameType: false },
-      "first-of-type": { a: 0, b: 1, fromEnd: false, sameType: true },
-      "last-of-type": { a: 0, b: 1, fromEnd: true, sameType: true },
-      "only-of-type": { a: 0, b: 1, fromEnd: false, sameType: true }
-    };
-    const alias = aliases[name];
-    if (alias !== undefined) {
+    if (name === "first-child" || name === "last-child" || name === "only-child") {
+      if (pseudo.argument.kind !== "none" || (this.#index.parent.get(node) ?? null) === null) return known("no-match");
+      const first = !this.#index.previousElementSibling.has(node);
+      const last = !this.#index.nextElementSibling.has(node);
+      return known((name === "first-child" ? first : name === "last-child" ? last : first && last) ? "match" : "no-match");
+    }
+    if (name === "first-of-type" || name === "last-of-type" || name === "only-of-type") {
       if (pseudo.argument.kind !== "none") return known("no-match");
-      const first = this.#indexPosition(
-        node,
-        element,
-        alias.sameType,
-        alias.fromEnd,
-        Object.freeze([])
-      );
-      if (
-        name === "only-child" ||
-        name === "only-of-type"
-      ) {
-        const last = this.#indexPosition(
-          node,
-          element,
-          alias.sameType,
-          true,
-          Object.freeze([])
-        );
-        const combined = and(first.result, last.result);
-        return combined.decision === "match" &&
-          first.index === 1 &&
-          last.index === 1
-          ? known("match")
-          : combined.decision === "unknown"
-            ? combined
-            : known("no-match");
-      }
-      return first.result.decision === "match" && first.index === 1
-        ? known("match")
-        : first.result.decision === "unknown"
-          ? first.result
-          : known("no-match");
+      const rank = this.#index.siblingRanks.get(node);
+      if (rank === undefined) return known("no-match");
+      const first = rank.typeIndex === 1;
+      const last = rank.typeIndex === rank.typeCount;
+      return known((name === "first-of-type" ? first : name === "last-of-type" ? last : first && last) ? "match" : "no-match");
     }
     if (pseudo.argument.kind !== "nth") return null;
-    const modes: Readonly<Record<string, {
-      readonly fromEnd: boolean;
-      readonly sameType: boolean;
-    }>> = {
-      "nth-child": { fromEnd: false, sameType: false },
-      "nth-last-child": { fromEnd: true, sameType: false },
-      "nth-of-type": { fromEnd: false, sameType: true },
-      "nth-last-of-type": { fromEnd: true, sameType: true }
-    };
-    const mode = modes[name];
+    const mode = NTH_MODES[name];
     if (mode === undefined) return null;
     const position = this.#indexPosition(
       node,
@@ -1593,29 +1710,36 @@ class SelectorMatcher<TNode extends object> {
   } {
     const parent = this.#index.parent.get(node) ?? null;
     if (parent === null) return { index: 0, result: known("no-match") };
-    const siblings = (this.#index.children.get(parent) ?? []).filter(
-      (sibling) => {
-        const data = this.environment.tree.data(sibling);
-        return data.kind === "element" &&
-          (!sameType ||
-            (data.namespace === element.namespace &&
-              this.#sameElementType(data, element)));
-      }
-    );
-    const ordered = fromEnd ? [...siblings].reverse() : siblings;
+    this.#guard.step();
+    if (filter.length === 0) {
+      const rank = this.#index.siblingRanks.get(node);
+      if (rank === undefined) return { index: 0, result: known("no-match") };
+      const position = sameType ? rank.typeIndex : rank.index;
+      const count = sameType ? rank.typeCount : rank.count;
+      return { index: fromEnd ? count - position + 1 : position, result: known("match") };
+    }
+    const siblings = this.#index.children.get(parent) ?? [];
+    const typeKey = sameType
+      ? elementTypeKey(element, this.environment.documentMode.syntax === "html", this.#guard)
+      : null;
     let index = 0;
     const reasons: SelectorUnknownReason[] = [];
-    for (const sibling of ordered) {
-      let included: DecisionResult;
-      if (filter.length === 0) {
-        included = known("match");
-      } else {
-        included = orMapped(
-          filter,
-          (selector) => this.#complex(selector, sibling)
-        );
+    for (let offset = 0; offset < siblings.length; offset += 1) {
+      this.#guard.step();
+      const sibling = siblings[fromEnd ? siblings.length - 1 - offset : offset];
+      if (sibling === undefined) continue;
+      const data = this.#index.elementData.get(sibling);
+      if (data === undefined) continue;
+      if (typeKey !== null && elementTypeKey(
+        data, this.environment.documentMode.syntax === "html", this.#guard
+      ) !== typeKey) continue;
+      const included = orMapped(filter, (selector) => this.#complex(selector, sibling), this.#guard);
+      if (included.decision === "unknown") {
+        for (const reason of included.reasons) {
+          this.#guard.step();
+          reasons.push(reason);
+        }
       }
-      if (included.decision === "unknown") reasons.push(...included.reasons);
       if (included.decision === "match") index += 1;
       if (sibling === node) {
         if (included.decision === "no-match") {
@@ -1626,7 +1750,7 @@ class SelectorMatcher<TNode extends object> {
               index,
               result: Object.freeze({
                 decision: "unknown",
-                reasons: uniqueReasons(reasons)
+                reasons: uniqueReasons(reasons, this.#guard)
               })
             }
           : { index, result: known("match") };
@@ -1641,10 +1765,11 @@ class SelectorMatcher<TNode extends object> {
     name: string
   ): SelectorAttributeData | null {
     for (const attribute of element.attributes) {
+      this.#guard.step(1 + attribute.localName.length + name.length + (namespace?.length ?? 0) + (attribute.namespace?.length ?? 0));
       const nameEqual = this.environment.documentMode.syntax === "html" &&
         element.namespace === "http://www.w3.org/1999/xhtml" &&
         attribute.namespace === null
-        ? equalAsciiInsensitive(attribute.localName, name)
+        ? equalAsciiInsensitive(attribute.localName, name, this.#guard)
         : attribute.localName === name;
       if (
         (namespace === "*" || attribute.namespace === namespace) &&
@@ -1656,16 +1781,6 @@ class SelectorMatcher<TNode extends object> {
     return null;
   }
 
-  #sameElementType(
-    left: SelectorElementData,
-    right: SelectorElementData
-  ): boolean {
-    return this.environment.documentMode.syntax === "html" &&
-        left.namespace === "http://www.w3.org/1999/xhtml"
-      ? equalAsciiInsensitive(left.localName, right.localName)
-      : left.localName === right.localName;
-  }
-
   #attributeNamespace(
     selector: SelectorAttribute
   ): SelectorNamespaceResolution {
@@ -1675,7 +1790,10 @@ class SelectorMatcher<TNode extends object> {
     if (selector.namespace === "*") {
       return Object.freeze({ status: "resolved", namespace: "*" });
     }
-    return this.environment.resolveNamespacePrefix(selector.namespace);
+    this.#guard.step(1 + selector.namespace.length);
+    const resolution = this.environment.resolveNamespacePrefix(selector.namespace);
+    this.#guard.assertActive();
+    return resolution;
   }
 
   #namespace(
@@ -1701,7 +1819,9 @@ class SelectorMatcher<TNode extends object> {
     } else if (selectorNamespace === "") {
       resolution = Object.freeze({ status: "resolved", namespace: null });
     } else {
+      this.#guard.step(1 + selectorNamespace.length);
       resolution = this.environment.resolveNamespacePrefix(selectorNamespace);
+      this.#guard.assertActive();
     }
     if (resolution.status === "unknown") {
       return unknown({
@@ -1710,6 +1830,7 @@ class SelectorMatcher<TNode extends object> {
         span
       });
     }
+    this.#guard.step(1 + (resolution.namespace?.length ?? 0) + (element.namespace?.length ?? 0));
     return known(
       resolution.namespace === element.namespace ? "match" : "no-match"
     );
@@ -1786,32 +1907,37 @@ implements SelectorMatchSession<TNode> {
   }
 
   match(selector: SelectorList, node: TNode): SelectorMatchResult {
-    this.#matcher.beginOperation();
-    const result = this.#matcher.matches(selector, node);
-    this.#matcher.finishOperation();
-    return publicResult(result, this.#matcher.usage());
+    try {
+      this.#matcher.beginOperation();
+      const result = this.#matcher.matches(selector, node);
+      this.#matcher.materialize(0);
+      return publicResult(result, this.#matcher.usage());
+    } finally {
+      this.#matcher.finishOperation();
+    }
   }
 
   query(selector: SelectorList): SelectorQueryResult<TNode> {
-    this.#matcher.beginOperation();
-    const matches: TNode[] = [];
-    const unknownResults: SelectorQueryUnknown<TNode>[] = [];
-    for (const node of this.#matcher.queryCandidates(selector)) {
-      const result = this.#matcher.matches(selector, node);
-      if (result.decision === "match") matches.push(node);
-      else if (result.decision === "unknown") {
-        unknownResults.push(Object.freeze({
-          node,
-          reasons: result.reasons
-        }));
+    try {
+      this.#matcher.beginOperation();
+      const matches: TNode[] = [];
+      const unknownResults: SelectorQueryUnknown<TNode>[] = [];
+      for (const node of this.#matcher.queryCandidates(selector)) {
+        const result = this.#matcher.matches(selector, node);
+        if (result.decision === "match") matches.push(node);
+        else if (result.decision === "unknown") {
+          unknownResults.push(Object.freeze({ node, reasons: result.reasons }));
+        }
       }
+      this.#matcher.materialize(matches.length + unknownResults.length);
+      return Object.freeze({
+        matches: Object.freeze(matches),
+        unknown: Object.freeze(unknownResults),
+        usage: this.#matcher.usage()
+      });
+    } finally {
+      this.#matcher.finishOperation();
     }
-    this.#matcher.finishOperation();
-    return Object.freeze({
-      matches: Object.freeze(matches),
-      unknown: Object.freeze(unknownResults),
-      usage: this.#matcher.usage()
-    });
   }
 
   usage(): ResourceUsage {

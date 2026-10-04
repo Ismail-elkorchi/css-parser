@@ -102,3 +102,12 @@ entries remain in tree order.
 
 Selector traversal rejects cyclic and shared-node graphs with
 `SelectorTreeError`.
+
+Matching work includes candidate planning, collection traversal and materialization,
+and dependency-owned string scans. Exact step totals are implementation details.
+An empty exhaustive candidate seed short-circuits planning; unfiltered sibling
+positions reuse ranks built under the construction budget. Filtered `nth-child`
+queries are charged scans and are not cached across operations. Cancellation is
+checked around host callbacks, but cannot interrupt a synchronous callback body.
+Failed or canceled operations release operation scratch without resetting usage;
+call `beginEvaluation` to install a fresh budget and cancellation lifetime.
