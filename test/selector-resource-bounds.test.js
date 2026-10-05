@@ -239,3 +239,215 @@ test("cancellation at string callback boundaries is not masked by later work lim
   assert.throws(() => session.match(parse('[a="x"]'), node), (error) => error instanceof SyntaxAbortError && error.reason === "case-stop");
   assert.throws(() => session.query(parse(".absent")), SyntaxAbortError);
 });
+
+test("failed compound types skip simple callbacks while unknown types keep three-valued decisions", () => {
+  const node = element("one", "p");
+  let calls = 0;
+  let decision = "match";
+  const session = createSelectorMatchSession(other([node]), environment({
+    resolveNamespacePrefix: (prefix) => prefix === "svg"
+      ? { status: "resolved", namespace: SVG } : { status: "unknown" },
+    matchPseudoClass() { calls += 1; return decision; }
+  }));
+  for (const selector of ["div:hover", "svg|p:hover", "|p:hover"]) {
+    session.beginEvaluation();
+    assert.equal(session.match(parse(selector), node).status, "no-match", selector);
+    assert.equal(calls, 0, selector);
+  }
+  for (const value of ["match", "unknown", "no-match"]) {
+    decision = value;
+    session.beginEvaluation();
+    const result = session.match(parse("missing|p:hover"), node);
+    assert.equal(result.status, value === "no-match" ? "no-match" : "unknown");
+    if (result.status === "unknown") {
+      assert.deepEqual(result.reasons.map((reason) => reason.name),
+        value === "unknown" ? ["missing", "hover"] : ["missing"]);
+      assert.equal(result.reasons[0].span.start.offset, 0);
+    }
+  }
+  assert.equal(calls, 3);
+  const xml = createSelectorMatchSession(other([node]), environment({
+    documentMode: { syntax: "xml" },
+    matchPseudoClass() { throw new Error("a failed XML type must stop first"); }
+  }));
+  assert.equal(xml.match(parse("P:hover"), node).status, "no-match");
+});
+
+test("compound refinement has no posting-size cliff at 256 or 257", () => {
+  const steps = [];
+  for (const size of [256, 257, 1000]) {
+    const target = element("target", "span", HTML, [], [{ namespace: null, localName: "rel", value: "target" }]);
+    const nodes = [
+      ...Array.from({ length: size - 1 }, (_, index) => element(`span-${String(index)}`, "span")),
+      ...Array.from({ length: size + 100 }, (_, index) => element(`link-${String(index)}`, "a", HTML, [], [
+        { namespace: null, localName: "rel", value: "target" }
+      ])),
+      target
+    ];
+    const session = createSelectorMatchSession(other(nodes), environment());
+    session.beginEvaluation({ limits: { maxSteps: size * 3 + 300 } });
+    const result = session.query(parse('span[rel="target"]'));
+    assert.deepEqual(ids(result), ["target"]);
+    assert.deepEqual(result.unknown, []);
+    steps.push(result.usage.steps);
+    session.beginEvaluation({ limits: { maxSteps: 50 } });
+    resourceFailure(() => session.query(parse('span[rel="target"]')));
+  }
+  assert.ok(steps[1] - steps[0] < 10, String(steps));
+});
+
+test("empty compound intersections avoid later candidate callbacks", () => {
+  let calls = 0;
+  const left = Array.from({ length: 200 }, (_, index) => element(`left-${String(index)}`));
+  const right = Array.from({ length: 200 }, (_, index) => element(`right-${String(index)}`));
+  const root = other([...left, ...right]);
+  const session = createSelectorMatchSession(root, environment({
+    classNames: (node) => node.id?.startsWith("left-") ? ["left"] : ["right"],
+    pseudoClassCandidates() { calls += 1; throw new Error("unreachable callback"); },
+    resolveNamespacePrefix() { calls += 1; throw new Error("unreachable namespace callback"); }
+  }));
+  for (const selector of [".left.right:hover", ".left.right:hover :focus", ".left.right :focus", ".left.right missing|p"]) {
+    session.beginEvaluation();
+    const result = session.query(parse(selector));
+    assert.deepEqual(ids(result), [], selector);
+    assert.deepEqual(result.unknown, [], selector);
+    assert.equal(calls, 0, selector);
+  }
+});
+
+test("reachable refinement bounds dense and high-fan-in postings without retaining results", () => {
+  const size = 1000;
+  const count = 100;
+  const attributes = Array.from({ length: count }, (_, index) => ({ namespace: null, localName: `a${String(index)}`, value: "yes" }));
+  const nodes = Array.from({ length: size }, (_, index) => element(String(index), "span", HTML, [], attributes));
+  const session = createSelectorMatchSession(element("root", "main", HTML, nodes), environment({
+    classNames: (node) => node === nodes.at(-1) ? ["needle"] : []
+  }));
+  const distinct = attributes.map((attribute) => `[${attribute.localName}]`).join("");
+  for (const source of [distinct, "[a0]".repeat(count)]) {
+    session.beginEvaluation({ limits: { maxSteps: 6000 } });
+    assert.deepEqual(ids(session.query(parse('[a0="absent"]' + source + ".needle"))), []);
+  }
+  session.beginEvaluation({ limits: { maxSteps: 35_000 } });
+  assert.deepEqual(ids(session.query(parse('[a0="absent"]' + "[a0]".repeat(count)))), []);
+  session.beginEvaluation({ limits: { maxSteps: 35_000 } });
+  assert.deepEqual(ids(session.query(parse('[a0="absent"]' + distinct))), []);
+  session.beginEvaluation();
+  assert.deepEqual(ids(session.query(parse("span[a0]"))), nodes.map((node) => node.id));
+});
+
+test("selective right seeds avoid refining unrelated left compound postings", () => {
+  const target = element("target", "a");
+  const rare = element("rare", "section", HTML, [target]);
+  const outside = Array.from({ length: 5000 }, (_, index) => element(`outside-${String(index)}`, "section"));
+  const session = createSelectorMatchSession(other([rare, ...outside]), environment({
+    classNames: (node) => node.localName === "section" ? ["common"] : ["target"]
+  }));
+  session.beginEvaluation({ limits: { maxSteps: 250 } });
+  assert.deepEqual(ids(session.query(parse("section.common > a.target"))), ["target"]);
+});
+
+test("dynamic left seeds remain selective and are resolved once per operation", () => {
+  const target = element("target", "a");
+  const focused = element("focused", "section", HTML, [target]);
+  const outside = Array.from({ length: 5000 }, (_, index) => element(`outside-${String(index)}`, "a"));
+  let calls = 0;
+  const session = createSelectorMatchSession(other([focused, ...outside]), environment({
+    pseudoClassCandidates(pseudo) { calls += 1; return pseudo.name === "focus" ? [focused] : null; },
+    matchPseudoClass: (node) => node === focused ? "match" : "no-match"
+  }));
+  for (const selector of [":focus a", ":is(:focus) a"]) {
+    calls = 0;
+    session.beginEvaluation({ limits: { maxSteps: 250 } });
+    assert.deepEqual(ids(session.query(parse(selector))), ["target"]);
+    assert.equal(calls, 1);
+  }
+});
+
+test("an empty preceding compound does not cache an unrelated compound as empty", () => {
+  const left = element("left");
+  const right = element("right");
+  let calls = 0;
+  const session = createSelectorMatchSession(other([left, right]), environment({
+    classNames: (node) => [node.id],
+    pseudoClassCandidates() { calls += 1; return [left]; },
+    matchPseudoClass: () => "match"
+  }));
+  const parsed = parse(".left.right :focus, :focus");
+  const selector = { ...parsed, selectors: [
+    parsed.selectors[0],
+    { ...parsed.selectors[1], compounds: [parsed.selectors[0].compounds[1]] }
+  ] };
+  session.beginEvaluation();
+  assert.deepEqual(ids(session.query(selector)), ["left"]);
+  assert.equal(calls, 1);
+});
+
+test("relative and logical seed discovery stay local with interleaved global postings", () => {
+  const target = element("target", "a");
+  const relativeTarget = element("relative-target", "p");
+  const rare = element("rare", "p", HTML, [target, relativeTarget]);
+  const outside = Array.from({ length: 5000 }, (_, index) => [
+    element(`p${String(index)}`, "p"), element(`a${String(index)}`, "a")
+  ]).flat();
+  const session = createSelectorMatchSession(element("root", "main", HTML, [rare, ...outside]), environment({
+    classNames: (node) => node.localName === "p" ? ["common"] : []
+  }));
+  for (const [source, expected] of [
+    ["#rare:has(p.common)", ["rare"]],
+    [":is(p.common) > #target", ["target"]],
+    [":where(p.common) > #target", ["target"]],
+    [":is(p.common, #missing) > #target", ["target"]],
+    ["p.common missing|* #target", []]
+  ]) {
+    session.beginEvaluation({ limits: { maxSteps: 250 } });
+    assert.deepEqual(ids(session.query(parse(source))), expected, source);
+  }
+});
+
+test("dense and near-dense noncontiguous postings bound speculative joins by useful work", () => {
+  const attributes = Array.from({ length: 100 }, (_, index) => ({ namespace: null, localName: `a${String(index)}`, value: "yes" }));
+  for (const nearDense of [false, true]) {
+    const nodes = Array.from({ length: 1000 }, (_, index) => [
+      element(`p${String(index)}`, "p", HTML, [], nearDense ? attributes.filter((_, position) => position !== index) : attributes),
+      element(`a${String(index)}`, "a")
+    ]).flat();
+    const session = createSelectorMatchSession(element("root", "main", HTML, nodes), environment());
+    session.beginEvaluation({ limits: { maxSteps: 35_000 } });
+    assert.deepEqual(ids(session.query(parse('[a0="absent"]' + attributes.map((entry) => `[${entry.localName}]`).join("")))), []);
+  }
+});
+
+test("logical seed hints are fully checked before later host callbacks", () => {
+  let calls = 0;
+  const nodes = Array.from({ length: 200 }, (_, index) => [element(`left${String(index)}`), element(`right${String(index)}`)]).flat();
+  const session = createSelectorMatchSession(other(nodes), environment({
+    classNames: (node) => node.id.startsWith("left") ? ["left"] : ["right"],
+    pseudoClassCandidates() { calls += 1; throw new Error("unreachable logical callback"); }
+  }));
+  for (const source of [
+    ":is(.left.right):hover", ".left:is(.right):hover", ":where(.left.right) :hover",
+    ".left.right:is(:hover)", ".left.right :is(:hover)", ":is(.left.right :hover)"
+  ]) {
+    session.beginEvaluation();
+    assert.deepEqual(ids(session.query(parse(source))), [], source);
+    assert.equal(calls, 0, source);
+  }
+});
+
+
+test("relative sparse refinement preserves lazy bounded work on both sides of 256", () => {
+  for (const size of [100, 256, 257]) {
+    const rel = [{ namespace: null, localName: "rel", value: "target" }];
+    const target = element("target", "span", HTML, [], rel);
+    const nodes = [
+      ...Array.from({ length: size - 1 }, (_, index) => element(`span${String(index)}`, "span")),
+      ...Array.from({ length: size + 100 }, (_, index) => element(`link${String(index)}`, "a", HTML, [], rel)),
+      target
+    ];
+    const root = element("root", "main", HTML, nodes);
+    const session = createSelectorMatchSession(root, environment());
+    session.beginEvaluation({ limits: { maxSteps: size * 3 + 300 } });
+    assert.deepEqual(ids(session.query(parse('#root:has(span[rel="target"])'))), ["root"]);
+  }
+});

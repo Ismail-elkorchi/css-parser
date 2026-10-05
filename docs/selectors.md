@@ -103,6 +103,16 @@ entries remain in tree order.
 Selector traversal rejects cyclic and shared-node graphs with
 `SelectorTreeError`.
 
+Complex selectors choose a seed from existing ordered postings before refining
+reachable compound candidates, including native logical and anchored relative
+selectors. Static seed discovery does not intersect unrelated global postings.
+Refinement has no posting-size cutoff; speculative joins must repay their charged
+work in eliminated candidates to continue, otherwise normal verification handles
+remaining predicates. Dynamic candidate hints remain
+available, but preceding constraints are exhaustively checked before a callback
+can run. Definite type mismatches stop compound verification immediately;
+unresolved namespaces still participate in three-valued matching.
+
 Matching work includes candidate planning, collection traversal and materialization,
 and dependency-owned string scans. Exact step totals are implementation details.
 An empty exhaustive candidate seed short-circuits planning; unfiltered sibling
