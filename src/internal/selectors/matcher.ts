@@ -212,6 +212,13 @@ interface TreeIndex<TNode extends object> {
   readonly siblingRanks: ReadonlyMap<TNode, SiblingRank>;
 }
 
+type CandidatePhase = "seed" | "refine" | "exhaustive";
+
+interface CandidatePosting<TNode extends object> {
+  readonly nodes: readonly TNode[];
+  readonly refine?: () => readonly TNode[] | null;
+}
+
 interface DecisionResult {
   readonly decision: SelectorDecision;
   readonly reasons: readonly SelectorUnknownReason[];
@@ -650,7 +657,11 @@ class SelectorMatcher<TNode extends object> {
   #guard: ResourceGuard;
   readonly #index: TreeIndex<TNode>;
   readonly #scopes: ReadonlySet<TNode>;
-  readonly #candidates = new Map<CompoundSelector, readonly TNode[] | null>();
+  readonly #candidates = new Map<CompoundSelector, {
+    readonly seed: readonly TNode[] | null;
+    readonly exhaustive?: readonly TNode[] | null;
+    readonly postings?: readonly (readonly TNode[])[];
+  }>();
   readonly #matches = new Map<ComplexSelector, Map<number, Map<TNode, DecisionResult>>>();
   readonly #ancestors = new Map<ComplexSelector, Map<number, Map<TNode, DecisionResult>>>();
 
@@ -720,14 +731,41 @@ class SelectorMatcher<TNode extends object> {
     );
   }
 
-  #complexCandidates(selector: ComplexSelector): readonly TNode[] {
+  #complexCandidates(
+    selector: ComplexSelector,
+    phase: CandidatePhase = "refine",
+    beforeDeferred?: () => boolean
+  ): readonly TNode[] {
     if (selector.compounds.length === 0) return Object.freeze([]);
     let seedIndex = -1;
     let candidates: readonly TNode[] | null = null;
     const candidatesByCompound: (readonly TNode[] | null)[] = [];
+    let refinedPrefix = 0;
+    const refinePreceding = (): boolean => {
+      if (beforeDeferred?.() === false) return false;
+      while (refinedPrefix < candidatesByCompound.length) {
+        this.#guard.step();
+        const index = refinedPrefix++;
+        const compound = selector.compounds[index];
+        if (compound === undefined) continue;
+        const refined = this.#selectCompoundCandidates(compound, candidatesByCompound[index] ?? null, "exhaustive");
+        // No structural restriction has been applied yet, so this is a complete
+        // compound refinement that can reuse the existing operation cache.
+        this.#candidates.set(compound, { seed: refined, exhaustive: refined });
+        candidatesByCompound[index] = refined;
+        if (refined?.length === 0) return false;
+        if (refined !== null && (candidates === null || refined.length <= candidates.length)) {
+          seedIndex = index;
+          candidates = refined;
+        }
+      }
+      return true;
+    };
     for (const [index, compound] of selector.compounds.entries()) {
       this.#guard.step();
-      const indexed = this.#compoundCandidates(compound);
+      // Static seed discovery must not join unrelated global postings. Dynamic
+      // hints still narrow seeds, after their preceding constraints are refined.
+      const indexed = this.#selectCompoundCandidates(compound, null, phase === "exhaustive" ? "exhaustive" : "seed", null, refinePreceding);
       if (indexed?.length === 0) return indexed;
       candidatesByCompound.push(indexed);
       if (
@@ -737,6 +775,13 @@ class SelectorMatcher<TNode extends object> {
         seedIndex = index;
         candidates = indexed;
       }
+    }
+    if (candidates === null) {
+      seedIndex = selector.compounds.length - 1;
+    }
+    const seed = selector.compounds[seedIndex];
+    if (seed !== undefined && phase !== "seed") {
+      candidates = this.#selectCompoundCandidates(seed, candidates, phase);
     }
     if (candidates === null) return this.#index.elements;
     if (candidates.length === 0) return candidates;
@@ -751,39 +796,112 @@ class SelectorMatcher<TNode extends object> {
         indexed
       );
       if (candidates.length === 0) return candidates;
+      if (phase !== "seed") candidates = this.#selectCompoundCandidates(compound, candidates, phase, indexed) ?? candidates;
+      if (candidates.length === 0) return candidates;
     }
     return candidates;
   }
 
-  #compoundCandidates(compound: CompoundSelector): readonly TNode[] | null {
-    const cached = this.#candidates.get(compound);
-    if (cached !== undefined) return cached;
-    const candidates = this.#selectCompoundCandidates(compound);
-    this.#candidates.set(compound, candidates);
-    return candidates;
-  }
-
-  #selectCompoundCandidates(compound: CompoundSelector): readonly TNode[] | null {
+  #selectCompoundCandidates(
+    compound: CompoundSelector,
+    retained: readonly TNode[] | null = null,
+    phase: CandidatePhase = "refine",
+    seed: readonly TNode[] | null = retained,
+    beforeDeferred?: () => boolean
+  ): readonly TNode[] | null {
     this.#guard.step();
-    let retained: readonly TNode[] | null = this.#typeCandidates(compound.type);
-    if (retained?.length === 0) return retained;
+    const entry = this.#candidates.get(compound);
+    const cached = phase === "seed" ? entry?.seed : entry?.exhaustive;
+    if (cached !== undefined) {
+      return retained === null ? cached
+        : cached === null ? retained : this.#intersection(retained, cached);
+    }
+    // The frontier is already constrained by seed. Only unrestricted results
+    // belong in the existing operation-local cache, tagged with their phase.
+    let cacheable = retained === null;
+    let prepared = false;
+    const pending: CandidatePosting<TNode>[] = [];
+    const finish = (): readonly TNode[] | null => {
+      if (cacheable && phase !== "refine") {
+        if (phase === "seed") {
+          const postings = pending.map((posting) => {
+            this.#guard.step();
+            return posting.nodes;
+          });
+          this.#candidates.set(compound, { seed: retained, postings });
+        } else this.#candidates.set(compound, { seed: retained, exhaustive: retained });
+      }
+      return retained;
+    };
+    const narrow = (indexed: readonly TNode[] | null, resolve?: () => readonly TNode[] | null): boolean => {
+      if (indexed === null || indexed === seed) return false;
+      if (phase === "seed") {
+        pending.push(resolve === undefined ? { nodes: indexed } : { nodes: indexed, refine: resolve });
+        if (retained === null || indexed.length < retained.length) retained = indexed;
+      } else if (retained === null) retained = indexed;
+      else {
+        const before = this.#guard.snapshot().steps;
+        const refined = this.#intersection(retained, indexed);
+        const work = this.#guard.snapshot().steps - before;
+        this.#guard.step(2);
+        // Fund another speculative join only when eliminated candidates repay
+        // this join's charged work. Successful joins amortize over a shrinking
+        // frontier; even a near-dense compound incurs at most one unpaid join.
+        // Callback preconditions remain exhaustive and never take this exit.
+        const unproductive = phase === "refine" && work >= retained.length - refined.length;
+        retained = refined;
+        return unproductive;
+      }
+      return false;
+    };
+    const refine = (): void => {
+      if (prepared) return;
+      prepared = true;
+      phase = "exhaustive";
+      if (beforeDeferred?.() === false) {
+        cacheable = false;
+        retained = Object.freeze([]);
+        return;
+      }
+      for (const posting of pending) {
+        this.#guard.step();
+        narrow(posting.refine === undefined ? posting.nodes : posting.refine());
+        if (retained?.length === 0) return;
+      }
+    };
+    const beforeLogicalCallback = (): boolean => {
+      refine();
+      return retained?.length !== 0;
+    };
+    const type = compound.type;
+    if (type !== null && type.name !== "*" && type.namespace !== null && type.namespace !== "" && type.namespace !== "*") {
+      refine();
+      if (retained?.length === 0) return finish();
+    }
+    if (narrow(this.#typeCandidates(type)) || retained?.length === 0) return finish();
     for (const simple of compound.simples) {
       this.#guard.step();
+      const logical = simple.kind === "pseudo-class" &&
+        (simple.name === "is" || simple.name === "where") && simple.argument.kind === "selector-list";
+      // Resolve native logical seeds recursively without joining their global
+      // postings. Real host callbacks first prove preceding constraints viable.
+      if (
+        (simple.kind === "pseudo-class" && !logical && !(simple.name === "root" && simple.argument.kind === "none")) ||
+        (simple.kind === "attribute" && simple.namespace !== null && simple.namespace !== "" && simple.namespace !== "*")
+      ) {
+        refine();
+        if (retained?.length === 0) return finish();
+      }
       let indexed: readonly TNode[] | null = null;
-      if (simple.kind === "id") {
+      let resolve: (() => readonly TNode[] | null) | undefined;
+      if (simple.kind === "id" || simple.kind === "class") {
         this.#guard.step(1 + simple.value.length);
         const key = this.environment.documentMode.syntax === "html" &&
             this.environment.documentMode.quirks === "quirks"
           ? lowerAscii(simple.value, this.#guard)
           : simple.value;
-        indexed = this.#index.elementsById.get(key) ?? Object.freeze([]);
-      } else if (simple.kind === "class") {
-        this.#guard.step(1 + simple.value.length);
-        const key = this.environment.documentMode.syntax === "html" &&
-            this.environment.documentMode.quirks === "quirks"
-          ? lowerAscii(simple.value, this.#guard)
-          : simple.value;
-        indexed = this.#index.elementsByClass.get(key) ?? Object.freeze([]);
+        const index = simple.kind === "id" ? this.#index.elementsById : this.#index.elementsByClass;
+        indexed = index.get(key) ?? Object.freeze([]);
       } else if (simple.kind === "attribute") {
         indexed = this.#attributeCandidates(simple);
       } else if (
@@ -793,27 +911,22 @@ class SelectorMatcher<TNode extends object> {
       ) {
         indexed = this.#index.documentElements;
       } else if (simple.kind === "pseudo-class") {
-        indexed = this.#pseudoCandidates(simple);
+        if (logical) {
+          resolve = () => this.#pseudoCandidates(simple, "exhaustive", beforeLogicalCallback);
+          const discover = phase !== "exhaustive";
+          indexed = this.#pseudoCandidates(simple, discover ? "seed" : "exhaustive", beforeLogicalCallback);
+          if (discover && phase === "exhaustive") indexed = resolve();
+        } else indexed = this.#pseudoCandidates(simple);
       }
-      if (indexed !== null) {
-        if (retained === null) {
-          retained = indexed;
-        } else if (Math.min(retained.length, indexed.length) <= 256) {
-          retained = this.#intersection(retained, indexed);
-        } else if (indexed.length < retained.length) {
-          // Candidate sets are only a narrowing hint; the complete compound is
-          // verified later. Retaining the smaller ordered seed avoids spending
-          // more work joining common indexes than final verification requires.
-          retained = indexed;
-        }
-        if (retained.length === 0) return retained;
-      }
+      if (narrow(indexed, resolve) || retained?.length === 0) return finish();
     }
-    return retained;
+    return finish();
   }
 
   #pseudoCandidates(
-    pseudo: SelectorPseudoClass
+    pseudo: SelectorPseudoClass,
+    phase: CandidatePhase = "refine",
+    beforeDeferred?: () => boolean
   ): readonly TNode[] | null {
     if (
       (pseudo.name === "is" || pseudo.name === "where") &&
@@ -822,7 +935,7 @@ class SelectorMatcher<TNode extends object> {
       const branches: (readonly TNode[])[] = [];
       for (const selector of pseudo.argument.selectors) {
         this.#guard.step();
-        const candidates = this.#complexCandidates(selector);
+        const candidates = this.#complexCandidates(selector, phase, beforeDeferred);
         if (candidates === this.#index.elements) return null;
         branches.push(candidates);
       }
@@ -972,6 +1085,7 @@ class SelectorMatcher<TNode extends object> {
     left: readonly TNode[],
     right: readonly TNode[]
   ): readonly TNode[] {
+    if (left === right) return left;
     if (left.length === 0 || right.length === 0) return Object.freeze([]);
     const smaller = left.length <= right.length ? left : right;
     const larger = left.length <= right.length ? right : left;
@@ -1335,9 +1449,10 @@ class SelectorMatcher<TNode extends object> {
   #relative(selector: ComplexSelector, anchor: TNode): DecisionResult {
     const first = selector.compounds[0];
     if (first === undefined) return known("no-match");
-    const firstCandidates = this.#compoundCandidates(first);
+    const firstCandidates = this.#selectCompoundCandidates(first, null, "seed");
     if (firstCandidates?.length === 0) return known("no-match");
-    let candidates: Iterable<TNode> = this.#relativeCandidates(
+    let candidates: Iterable<TNode> = this.#refinedRelativeCandidates(
+      first,
       anchor,
       selector.leadingCombinator ?? " ",
       firstCandidates
@@ -1349,12 +1464,13 @@ class SelectorMatcher<TNode extends object> {
       this.#guard.step();
       const compound = selector.compounds[index];
       if (compound === undefined) return known("no-match");
-      const indexed = this.#compoundCandidates(compound);
+      const indexed = this.#selectCompoundCandidates(compound, null, "seed");
       if (indexed?.length === 0) return known("no-match");
       const related: (readonly TNode[])[] = [];
       for (const candidate of candidates) {
         this.#guard.step();
-        related.push(copyValues(this.#relativeCandidates(
+        related.push(copyValues(this.#refinedRelativeCandidates(
+          compound,
           candidate,
           selector.combinators[index - 1] ?? " ",
           indexed
@@ -1365,6 +1481,63 @@ class SelectorMatcher<TNode extends object> {
     return orMapped(candidates, (candidate) => this.#complexAt(
       selector, selector.compounds.length - 1, candidate, anchor
     ), this.#guard);
+  }
+
+  *#refinedRelativeCandidates(
+    compound: CompoundSelector,
+    anchor: TNode,
+    combinator: SelectorCombinator,
+    indexed: readonly TNode[] | null
+  ): Iterable<TNode> {
+    const postings = this.#candidates.get(compound)?.postings ??
+      (indexed === null ? [] : [indexed]);
+    const constrained = combinator === " " || (combinator === ">" && indexed !== null &&
+      indexed.length < (this.#index.children.get(anchor)?.length ?? 0));
+    const cursors: { readonly nodes: readonly TNode[]; position: number }[] = [];
+    for (const posting of postings) {
+      this.#guard.step();
+      if (constrained && posting === indexed) continue;
+      cursors.push({ nodes: posting, position: 0 });
+    }
+    let work = 0;
+    let eliminated = 0;
+    let refining = true;
+    for (const candidate of this.#relativeCandidates(anchor, combinator, indexed)) {
+      this.#guard.step();
+      let retained = true;
+      if (refining) {
+        const order = this.#candidateOrder(candidate);
+        for (const cursor of cursors) {
+          const before = this.#guard.snapshot().steps;
+          this.#guard.step();
+          let node = cursor.nodes[cursor.position];
+          if (node !== undefined && this.#candidateOrder(node) < order) {
+            let low = cursor.position + 1;
+            let high = cursor.nodes.length;
+            while (low < high) {
+              this.#guard.step();
+              const middle = Math.floor((low + high) / 2);
+              const middleNode = cursor.nodes[middle];
+              if (middleNode !== undefined && this.#candidateOrder(middleNode) < order) low = middle + 1;
+              else high = middle;
+            }
+            cursor.position = low;
+            node = cursor.nodes[low];
+          }
+          work += this.#guard.snapshot().steps - before;
+          if (node === undefined) return;
+          if (node !== candidate) {
+            eliminated += 1;
+            retained = false;
+          }
+          // This is the streaming form of the speculative-work bound: keep
+          // sparse filtering lazy, and never scan an anchor just to plan it.
+          if (work > eliminated) refining = false;
+          if (!retained || !refining) break;
+        }
+      }
+      if (retained) yield candidate;
+    }
   }
 
   *#relativeCandidates(
@@ -1433,6 +1606,7 @@ class SelectorMatcher<TNode extends object> {
     let result = compound.type === null
       ? known("match")
       : this.#type(compound.type, data);
+    if (result.decision === "no-match") return result;
     for (const simple of compound.simples) {
       this.#guard.step();
       result = and(result, this.#simple(simple, node, data), this.#guard);
