@@ -89,6 +89,7 @@ export type {
 
 export type {
   ComplexSelector,
+  ComplexSelectorSource,
   CompoundSelector,
   SelectorAttribute,
   SelectorAttributeMatcher,
@@ -98,6 +99,7 @@ export type {
   SelectorDiagnosticCode,
   SelectorId,
   SelectorList,
+  SelectorListSource,
   SelectorNesting,
   SelectorParseFailure,
   SelectorParserOptions,

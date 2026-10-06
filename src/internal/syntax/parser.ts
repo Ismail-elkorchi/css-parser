@@ -589,7 +589,6 @@ export class CssSyntaxParser {
   }
 
   #consumeFunction(stream: TokenStream, depth: number): CssFunction {
-    const start = stream.index;
     const opening = stream.consume();
     if (opening.kind !== "function") {
       throw new Error("function consumption requires a function token");
@@ -598,14 +597,16 @@ export class CssSyntaxParser {
     while (!stream.empty && stream.next.kind !== "close-paren") {
       values.push(this.#consumeComponentValue(stream, depth + 1));
     }
-    if (stream.next.kind === "close-paren") stream.discard();
+    const valueSpan = Object.freeze({ start: opening.span.end, end: stream.next.span.start });
+    const end = stream.next.kind === "close-paren" ? stream.consume().span.end : valueSpan.end;
     this.#guard.createNode(depth);
     return Object.freeze({
       id: this.#takeNodeId(),
       kind: "function-block",
       name: opening.value,
       value: freezeArray(values),
-      span: stream.spanFrom(start)
+      valueSpan,
+      span: Object.freeze({ start: opening.span.start, end })
     });
   }
 

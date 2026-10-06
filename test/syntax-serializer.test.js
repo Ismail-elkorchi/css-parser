@@ -15,7 +15,7 @@ function semantic(value) {
   if (value === null || typeof value !== "object") return value;
   return Object.fromEntries(
     Object.entries(value)
-      .filter(([key]) => !["id", "span", "originalText"].includes(key))
+      .filter(([key]) => !["id", "span", "valueSpan", "originalText"].includes(key))
       .map(([key, child]) => [key, semantic(child)])
   );
 }

@@ -121,3 +121,41 @@ queries are charged scans and are not cached across operations. Cancellation is
 checked around host callbacks, but cannot interrupt a synchronous callback body.
 Failed or canceled operations release operation scratch without resetting usage;
 call `beginEvaluation` to install a fresh budget and cancellation lifetime.
+
+## Validity, recovery, and source provenance
+
+A fatal simple-selector, attribute, or functional-argument error invalidates its
+entire complex selector. Ordinary comma-separated lists and the arguments of
+`:not()`, `:has()`, and `:nth-child(... of ...)` are strict: one invalid branch
+fails the list. Only forgiving `:is()` and `:where()` lists discard invalid
+branches. Their empty result is valid and matches nothing. Successful forgiving
+recovery does not turn discarded-branch diagnostics into fatal parse errors.
+
+`SelectorList.source.discardedInvalidBranches` retains immutable source spans
+for every branch discarded by forgiving recovery, once per parsed list.
+`ComplexSelector.source.containsNesting` records whether the original branch
+contained a nesting-selector token, even inside a function later discarded.
+These facts survive AST transformations without retaining a second syntax tree,
+serializing, or reparsing. Contextual processors can use them to implement
+strict `@supports selector()` checks and nesting's pre-recovery `&` semantics.
+The provenance scan and recovery records share the parser's work, node, depth,
+and cancellation bounds. Component-value parsing preserves original offsets.
+`CssFunction.valueSpan` preserves the argument boundaries from the opening token
+through the closing parenthesis or EOF, including escaped function names and
+comments. Empty recovered branches use precise zero-width argument boundaries;
+whitespace-only branches retain their actual whitespace-token range.
+
+Selectors 4's normative WebKit compatibility exception is supported:
+non-functional `::-webkit-*` names are valid, ASCII-lowercased pseudo-element
+nodes and match nothing unless a consuming processor supports them. Unknown
+ordinary pseudo names and unknown functional `::-webkit-*()` forms remain
+invalid. `:-webkit-autofill` is the standard `:autofill` legacy alias. Name
+compatibility does not permit combinators after unknown WebKit pseudo-elements,
+undefined WebKit sub-pseudos, or invalid states. User-action states and logical combinations
+retain their normal syntax, including position restrictions within arguments.
+
+Syntax validity does not imply that a consuming application supports every
+known pseudo-class or can resolve every namespace. Applications should make
+that contextual admission decision before matching, pruning only forgiving
+branches. The matcher still preserves `unknown` for unavailable host state and
+namespace bindings; recovery is not a reason to weaken that contract.

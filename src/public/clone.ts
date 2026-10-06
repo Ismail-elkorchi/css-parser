@@ -87,6 +87,7 @@ function cloneValue(
         kind: value.kind,
         id: takeNodeId(state),
         span: cloneSpan(value.span),
+        valueSpan: cloneSpan(value.valueSpan),
         name: value.name,
         value: cloneValues(value.value, depth + 1, state)
       });
