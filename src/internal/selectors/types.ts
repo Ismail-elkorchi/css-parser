@@ -99,7 +99,18 @@ export interface CompoundSelector {
   readonly span: SourceSpan;
 }
 
+/** Original branch facts survive forgiving recovery and later AST transformations. */
+export interface ComplexSelectorSource {
+  readonly containsNesting: boolean;
+}
+
+/** Recovery is owned once by the parsed list, not copied into every nested selector. */
+export interface SelectorListSource {
+  readonly discardedInvalidBranches: readonly SourceSpan[];
+}
+
 export interface ComplexSelector {
+  readonly source: ComplexSelectorSource;
   readonly leadingCombinator: SelectorCombinator | null;
   readonly compounds: readonly CompoundSelector[];
   readonly combinators: readonly SelectorCombinator[];
@@ -107,6 +118,7 @@ export interface ComplexSelector {
 }
 
 export interface SelectorList {
+  readonly source: SelectorListSource;
   readonly selectors: readonly ComplexSelector[];
   readonly span: SourceSpan;
 }

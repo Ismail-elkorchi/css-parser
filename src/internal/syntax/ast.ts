@@ -54,6 +54,8 @@ export type PreservedToken =
 
 export interface CssFunction extends SyntaxNodeBase {
   readonly kind: "function-block";
+  /** Source range between the opening parenthesis and closing parenthesis or EOF. */
+  readonly valueSpan: SourceSpan;
   readonly name: string;
   readonly value: readonly ComponentValue[];
 }

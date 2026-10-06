@@ -11,6 +11,8 @@ export function runSelectorQuery() {
   const selector = parseSelectorList("#content .card");
   assert(selector.ok, "selector should parse");
   if (!selector.ok) return 0;
+  assert(selector.value.source.discardedInvalidBranches.length === 0, "selector has no recovered branches");
+  assert(!selector.value.selectors[0].source.containsNesting, "selector has no original nesting token");
   const root = {
     kind: "other",
     children: [

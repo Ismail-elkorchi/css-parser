@@ -34,6 +34,10 @@ test("component-value cloning unfolds shared functions into one syntax tree", ()
   assert.notEqual(cloned[0], cloned[1]);
   assert.notEqual(cloned[0].id, cloned[1].id);
   assert.notEqual(cloned[0].value, cloned[1].value);
+  assert.deepEqual(cloned[0].valueSpan, calculation.valueSpan);
+  assert.notEqual(cloned[0].valueSpan, calculation.valueSpan);
+  assert.notEqual(cloned[0].valueSpan.start, calculation.valueSpan.start);
+  assert.ok(Object.isFrozen(cloned[0].valueSpan));
   assert.notEqual(cloned[0].value.at(-1), cloned[1].value.at(-1));
   assert.deepEqual([cloned[0].id, cloned[0].value.at(-1).id, cloned[1].id], [1, 2, 3]);
 });
@@ -58,6 +62,10 @@ test("component-value cloning rejects cycles while permitting shared acyclic inp
       end: { offset: 3, line: 1, column: 4 }
     },
     name: "x",
+    valueSpan: {
+      start: { offset: 2, line: 1, column: 3 },
+      end: { offset: 2, line: 1, column: 3 }
+    },
     value: []
   };
   value.value.push(value);

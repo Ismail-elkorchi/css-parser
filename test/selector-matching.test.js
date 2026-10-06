@@ -844,3 +844,11 @@ test("cancellation is checked even when the final pseudo callback returns a matc
     error instanceof SyntaxAbortError && error.reason === "last callback"
   );
 });
+
+test("valid unknown WebKit pseudo-elements match nothing without poisoning siblings", () => {
+  const parsed = parseSelectorList("p::-WebKit-future, #content");
+  assert.equal(parsed.ok, true);
+  const result = querySelectorList(parsed.value, document, environment);
+  assert.deepEqual(result.matches.map((node) => node.id), ["section"]);
+  assert.deepEqual(result.unknown, []);
+});

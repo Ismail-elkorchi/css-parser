@@ -38,6 +38,12 @@ const LEGACY_PSEUDO_ELEMENTS = new Set([
   "first-line"
 ]);
 const FORGIVING_SELECTOR_LIST_PSEUDOS = new Set(["is", "where"]);
+const PSEUDO_ELEMENT_STATE_CLASSES = new Set([
+  "hover", "active", "focus", "focus-visible", "focus-within", "is", "where", "not"
+]);
+// These element-backed categories explicitly allow subsequent pseudo-elements.
+// https://drafts.csswg.org/css-pseudo-4/#element-like
+const ELEMENT_BACKED_PSEUDO_ELEMENTS = new Set(["part", "file-selector-button", "details-content"]);
 const NTH_PSEUDOS = new Set([
   "nth-child",
   "nth-last-child",
@@ -148,6 +154,8 @@ function trimWhitespace(values: readonly ComponentValue[]): readonly ComponentVa
 class SelectorParser {
   readonly #guard: ResourceGuard;
   readonly #diagnostics: SelectorDiagnostic[] = [];
+  readonly #discardedInvalidBranches: SourceSpan[] = [];
+  readonly #containsNesting = new WeakSet<ComponentValue>();
   #depth = 0;
   #hasDepth = 0;
 
@@ -161,6 +169,35 @@ class SelectorParser {
       options.signal,
       priorUsage
     );
+    this.#indexSourceNesting();
+  }
+
+  /** One bounded post-order walk also visits functions that selector recovery discards. */
+  #indexSourceNesting(): void {
+    const stack: { values: readonly ComponentValue[]; index: number;
+      owner: ComponentValue | null; containsNesting: boolean }[] = [
+      { values: this.values, index: 0, owner: null, containsNesting: false }
+    ];
+    while (stack.length > 0) {
+      this.#guard.step();
+      const frame = stack.at(-1);
+      if (frame === undefined) break;
+      const value = frame.values[frame.index++];
+      if (value === undefined) {
+        stack.pop();
+        if (frame.containsNesting && frame.owner !== null) {
+          this.#containsNesting.add(frame.owner);
+          const parent = stack.at(-1);
+          if (parent !== undefined) parent.containsNesting = true;
+        }
+      } else if (isDelim(value, 0x26)) {
+        this.#containsNesting.add(value);
+        frame.containsNesting = true;
+      } else if (value.kind === "function-block" || value.kind === "simple-block") {
+        this.#guard.createNode(stack.length);
+        stack.push({ values: value.value, index: 0, owner: value, containsNesting: false });
+      }
+    }
   }
 
   parse(
@@ -180,6 +217,7 @@ class SelectorParser {
       });
     }
     const value: SelectorList = Object.freeze({
+      source: Object.freeze({ discardedInvalidBranches: frozen(this.#discardedInvalidBranches) }),
       selectors: parsed.selectors,
       span: coveringSpan(this.values)
     });
@@ -196,20 +234,31 @@ class SelectorParser {
     values: readonly ComponentValue[],
     forgiving: boolean,
     relative: boolean,
-    allowPseudoElements: boolean
+    allowPseudoElements: boolean,
+    fallbackSpan: SourceSpan = coveringSpan(values),
+    pseudoElementState = false
   ): ParsedList {
     return this.#nested(() => {
       const selectors: ComplexSelector[] = [];
       let valid = true;
+      let offset = 0;
       for (const untrimmedGroup of splitAtCommas(values)) {
         this.#guard.step();
         const group = trimWhitespace(untrimmedGroup);
+        const comma = values[offset + untrimmedGroup.length];
+        const emptyPosition = comma?.span.start ?? fallbackSpan.end;
+        const branchSpan = group.length > 0 ? coveringSpan(group)
+          : untrimmedGroup.length > 0 ? coveringSpan(untrimmedGroup)
+          : Object.freeze({ start: emptyPosition, end: emptyPosition });
+        offset += untrimmedGroup.length + 1;
         const diagnosticStart = this.#diagnostics.length;
         const localDiagnostics: SelectorDiagnostic[] = [];
         const parser = new ComplexSelectorParser(
           group,
+          Object.freeze({ containsNesting: group.some((value) => this.#containsNesting.has(value)) }),
           relative,
           allowPseudoElements,
+          pseudoElementState,
           this.#guard,
           (code, message, span) => {
             localDiagnostics.push(Object.freeze({
@@ -220,12 +269,14 @@ class SelectorParser {
               specRef: `${SELECTORS}#grammar`
             }));
           },
-          (functionBlock, kind) => this.#pseudoArgument(functionBlock, kind)
+          (functionBlock, kind, state) => this.#pseudoArgument(functionBlock, kind, state)
         );
         const selector = parser.parse();
         if (selector === null) {
           valid = false;
           if (forgiving) {
+            this.#guard.createNode(this.#depth);
+            this.#discardedInvalidBranches.push(branchSpan);
             this.#diagnostics.splice(diagnosticStart);
           } else {
             this.#diagnostics.push(...localDiagnostics);
@@ -244,7 +295,8 @@ class SelectorParser {
 
   #pseudoArgument(
     value: CssFunction,
-    kind: "class" | "element"
+    kind: "class" | "element",
+    pseudoElementState: boolean
   ): SelectorPseudoArgument | null {
     const name = lowerAscii(value.name);
     if (
@@ -262,7 +314,7 @@ class SelectorParser {
       kind === "class" &&
       FORGIVING_SELECTOR_LIST_PSEUDOS.has(name)
     ) {
-      const parsed = this.#parseList(value.value, true, false, false);
+      const parsed = this.#parseList(value.value, true, false, false, value.valueSpan, pseudoElementState);
       return Object.freeze({
         kind: "selector-list",
         selectors: parsed.selectors,
@@ -271,7 +323,7 @@ class SelectorParser {
       });
     }
     if (kind === "class" && name === "not") {
-      const parsed = this.#parseList(value.value, false, false, false);
+      const parsed = this.#parseList(value.value, false, false, false, value.valueSpan, pseudoElementState);
       if (!parsed.valid || parsed.selectors.length === 0) {
         this.#diagnostic(
           "invalid-pseudo",
@@ -299,7 +351,7 @@ class SelectorParser {
       this.#hasDepth += 1;
       let parsed: ParsedList;
       try {
-        parsed = this.#parseList(value.value, false, true, false);
+        parsed = this.#parseList(value.value, false, true, false, value.valueSpan);
       } finally {
         this.#hasDepth -= 1;
       }
@@ -351,8 +403,8 @@ class SelectorParser {
       }
     }
     if (kind === "element" && name === "slotted") {
-      const parsed = this.#parseList(value.value, false, false, false);
-      if (!parsed.valid || parsed.selectors.length !== 1) {
+      const parsed = this.#parseList(value.value, false, false, false, value.valueSpan, pseudoElementState);
+      if (!parsed.valid || parsed.selectors.length !== 1 || parsed.selectors[0]?.compounds.length !== 1) {
         this.#diagnostic(
           "invalid-pseudo",
           "::slotted() requires one compound selector.",
@@ -383,20 +435,7 @@ class SelectorParser {
         break;
       }
     }
-    const formulaValues = significant(
-      ofIndex < 0 ? parts : parts.slice(0, ofIndex)
-    );
-    const formula = formulaValues.map((part) => {
-      if (part.kind === "ident") return part.value;
-      if (part.kind === "number") return part.representation;
-      if (part.kind === "dimension") {
-        return `${part.representation}${part.unit}`;
-      }
-      return part.kind === "delim"
-        ? String.fromCodePoint(part.value)
-        : "";
-    }).join("");
-    const coefficients = parseAnPlusB(formula);
+    const coefficients = parseAnPlusB(ofIndex < 0 ? parts : parts.slice(0, ofIndex));
     if (coefficients === null) {
       this.#diagnostic(
         "invalid-nth",
@@ -480,7 +519,8 @@ type DiagnosticSink = (
 
 type PseudoArgumentParser = (
   value: CssFunction,
-  kind: "class" | "element"
+  kind: "class" | "element",
+  pseudoElementState: boolean
 ) => SelectorPseudoArgument | null;
 
 class ComplexSelectorParser {
@@ -490,8 +530,10 @@ class ComplexSelectorParser {
 
   constructor(
     values: readonly ComponentValue[],
+    readonly source: ComplexSelector["source"],
     readonly relative: boolean,
     readonly allowPseudoElements: boolean,
+    readonly pseudoElementState: boolean,
     readonly guard: ResourceGuard,
     readonly diagnostic: DiagnosticSink,
     readonly pseudoArgument: PseudoArgumentParser
@@ -520,6 +562,11 @@ class ComplexSelectorParser {
     compounds.push(first);
 
     while (this.#index < this.#values.length) {
+      if (this.pseudoElementState || compounds.at(-1)?.simples.some((simple) =>
+        simple.kind === "pseudo-element" && simple.name.startsWith("-webkit-"))) {
+        this.#fail("invalid-selector", "Combinators are not allowed after this pseudo-element.", this.#currentSpan());
+        return null;
+      }
       const hadWhitespace = this.#skipWhitespace();
       let combinator = this.#explicitCombinator();
       if (combinator === null && hadWhitespace) combinator = " ";
@@ -545,12 +592,14 @@ class ComplexSelectorParser {
       compounds.push(compound);
     }
 
+    if (this.#failed) return null;
     const span = joinedSpan(
       compounds[0]?.span ?? coveringSpan(this.#values),
       compounds.at(-1)?.span ?? coveringSpan(this.#values)
     );
     this.guard.createNode(1);
     return Object.freeze({
+      source: this.source,
       leadingCombinator,
       compounds: frozen(compounds),
       combinators: frozen(combinators),
@@ -561,14 +610,28 @@ class ComplexSelectorParser {
   #compound(): CompoundSelector | null {
     const start = this.#index;
     const type = this.#typeSelector();
+    if (this.pseudoElementState && type !== null) {
+      this.#fail("invalid-selector", "Type selectors cannot select a pseudo-element state.", type.span);
+      return null;
+    }
     const simples: SimpleSelector[] = [];
-    let pseudoElementSeen = false;
+    let pseudoElement: SelectorPseudoElement | null = null;
     for (;;) {
       this.guard.step();
-      const simple = this.#simpleSelector();
+      const simple = this.#simpleSelector(this.pseudoElementState || pseudoElement?.name.startsWith("-webkit-") === true);
       if (simple === null) break;
+      if (this.pseudoElementState && simple.kind !== "pseudo-class") {
+        this.#fail("invalid-selector", "Only pseudo-classes may select a pseudo-element state.", simple.span);
+        return null;
+      }
+      if (pseudoElement !== null && simple.kind === "pseudo-element" &&
+        (pseudoElement.name.startsWith("-webkit-") ||
+          (!ELEMENT_BACKED_PSEUDO_ELEMENTS.has(pseudoElement.name) && simple.name.startsWith("-webkit-")))) {
+        this.#fail("invalid-selector", "Unknown WebKit pseudo-elements have no defined sub-pseudo-elements.", simple.span);
+        return null;
+      }
       if (
-        pseudoElementSeen &&
+        pseudoElement !== null &&
         simple.kind !== "pseudo-class" &&
         simple.kind !== "pseudo-element"
       ) {
@@ -590,10 +653,11 @@ class ComplexSelectorParser {
         );
         return null;
       }
-      if (simple.kind === "pseudo-element") pseudoElementSeen = true;
+      if (simple.kind === "pseudo-element") pseudoElement = simple;
       simples.push(simple);
     }
-    if (type === null && simples.length === 0) return null;
+    // A consumed invalid component invalidates the whole compound, never just its suffix.
+    if (this.#failed || (type === null && simples.length === 0)) return null;
     const consumed = this.#values.slice(start, this.#index);
     this.guard.createNode(2);
     return Object.freeze({
@@ -651,7 +715,7 @@ class ComplexSelectorParser {
     });
   }
 
-  #simpleSelector(): SimpleSelector | null {
+  #simpleSelector(pseudoElementState: boolean): SimpleSelector | null {
     const value = this.#values[this.#index];
     if (value?.kind === "hash" && value.hashType === "id") {
       this.#index += 1;
@@ -676,7 +740,7 @@ class ComplexSelectorParser {
       this.#index += 1;
       return this.#attribute(value);
     }
-    if (value?.kind === "colon") return this.#pseudo();
+    if (value?.kind === "colon") return this.#pseudo(pseudoElementState);
     if (isDelim(value, 0x26)) {
       this.#index += 1;
       this.guard.createNode(3);
@@ -686,8 +750,12 @@ class ComplexSelectorParser {
   }
 
   #attribute(block: CssSimpleBlock): SelectorAttribute | null {
-    const parts = significant(block.value);
+    const parts = trimWhitespace(block.value);
+    this.guard.step(Math.max(1, parts.length));
     let index = 0;
+    const skipWhitespace = (): void => {
+      while (parts[index]?.kind === "whitespace") index += 1;
+    };
     const firstName = this.#nameOrStar(parts[index]);
     const emptyNamespace = isDelim(parts[index], 0x7c);
     let namespace: string | null = null;
@@ -698,6 +766,7 @@ class ComplexSelectorParser {
       name = this.#nameOrStar(parts[index]);
       index += 1;
     } else if (
+      firstName !== null &&
       isDelim(parts[index + 1], 0x7c) &&
       !isDelim(parts[index + 2], 0x3d)
     ) {
@@ -717,6 +786,7 @@ class ComplexSelectorParser {
       return null;
     }
 
+    skipWhitespace();
     let matcher: SelectorAttributeMatcher | null = null;
     let expected: string | null = null;
     let modifier: "i" | "s" | null = null;
@@ -742,6 +812,7 @@ class ComplexSelectorParser {
         );
         return null;
       }
+      skipWhitespace();
       const expectedToken = parts[index];
       if (
         expectedToken?.kind !== "ident" &&
@@ -756,6 +827,7 @@ class ComplexSelectorParser {
       }
       expected = expectedToken.value;
       index += 1;
+      skipWhitespace();
       const modifierToken = parts[index];
       if (modifierToken?.kind === "ident") {
         const candidate = lowerAscii(modifierToken.value);
@@ -765,6 +837,7 @@ class ComplexSelectorParser {
         }
       }
     }
+    skipWhitespace();
     if (index !== parts.length) {
       this.#fail(
         "invalid-attribute",
@@ -785,7 +858,7 @@ class ComplexSelectorParser {
     });
   }
 
-  #pseudo(): SelectorPseudoClass | SelectorPseudoElement | null {
+  #pseudo(pseudoElementState: boolean): SelectorPseudoClass | SelectorPseudoElement | null {
     const firstColon = this.#values[this.#index];
     let kind: "class" | "element" = "class";
     this.#index += 1;
@@ -803,9 +876,11 @@ class ComplexSelectorParser {
       return null;
     }
     this.#index += 1;
-    const name = lowerAscii(
+    const originalName = lowerAscii(
       nameValue.kind === "ident" ? nameValue.value : nameValue.name
     );
+    const name = kind === "class" && originalName === "-webkit-autofill"
+      ? "autofill" : originalName;
     if (kind === "class" && LEGACY_PSEUDO_ELEMENTS.has(name)) kind = "element";
     const knownFunctional = kind === "class"
       ? FUNCTIONAL_PSEUDO_CLASSES
@@ -813,8 +888,12 @@ class ComplexSelectorParser {
     const knownNonFunctional = kind === "class"
       ? NON_FUNCTIONAL_PSEUDO_CLASSES
       : NON_FUNCTIONAL_PSEUDO_ELEMENTS;
+    // Selectors 4 Appendix B requires these unknown non-functional elements
+    // to remain valid, lowercased AST nodes that match nothing.
+    const webkitCompatibilityElement = kind === "element" &&
+      nameValue.kind === "ident" && name.startsWith("-webkit-");
     if (
-      (nameValue.kind === "ident" && !knownNonFunctional.has(name)) ||
+      (nameValue.kind === "ident" && !knownNonFunctional.has(name) && !webkitCompatibilityElement) ||
       (nameValue.kind === "function-block" && !knownFunctional.has(name))
     ) {
       this.#fail(
@@ -835,8 +914,12 @@ class ComplexSelectorParser {
       );
       return null;
     }
+    if (pseudoElementState && kind === "class" && !PSEUDO_ELEMENT_STATE_CLASSES.has(name)) {
+      this.#fail("invalid-pseudo", `:${name} is not allowed after this pseudo-element.`, nameValue.span);
+      return null;
+    }
     const argument = nameValue.kind === "function-block"
-      ? this.pseudoArgument(nameValue, kind)
+      ? this.pseudoArgument(nameValue, kind, pseudoElementState)
       : Object.freeze({ kind: "none" } as const);
     if (argument === null) {
       this.#failed = true;
@@ -907,25 +990,54 @@ class ComplexSelectorParser {
   }
 }
 
-function parseAnPlusB(source: string): {
+/** CSS Syntax's token grammar; never join tokens into a different formula. */
+function parseAnPlusB(values: readonly ComponentValue[]): {
   readonly a: number;
   readonly b: number;
 } | null {
-  const normalized = lowerAscii(source);
-  if (normalized === "odd") return Object.freeze({ a: 2, b: 1 });
-  if (normalized === "even") return Object.freeze({ a: 2, b: 0 });
-  if (/^[+-]?\d+$/u.test(normalized)) {
-    return Object.freeze({ a: 0, b: Number(normalized) });
+  const parts = trimWhitespace(values);
+  let index = 0;
+  let first = parts[index++];
+  let explicitPlus = false;
+  if (isDelim(first, 0x2b)) {
+    explicitPlus = true;
+    first = parts[index++];
+    // A leading '+' may precede an n-ident, but whitespace is forbidden here.
+    if (first?.kind !== "ident" || !lowerAscii(first.value).startsWith("n")) return null;
   }
-  const match = /^([+-]?\d*)n(?:([+-]\d+))?$/u.exec(normalized);
-  if (match === null) return null;
-  const coefficient = match[1];
-  const a = coefficient === "" || coefficient === "+"
-    ? 1
-    : coefficient === "-"
-      ? -1
-      : Number(coefficient);
-  return Object.freeze({ a, b: Number(match[2] ?? 0) });
+  const rest = significant(parts.slice(index));
+  const result = (a: number, b: number): { readonly a: number; readonly b: number } | null =>
+    Number.isFinite(a) && Number.isFinite(b) ? Object.freeze({ a, b }) : null;
+  if (first?.kind === "number" && first.numberType === "integer" && rest.length === 0) {
+    return result(0, first.value);
+  }
+  const ident = first?.kind === "ident" ? lowerAscii(first.value) : null;
+  if (!explicitPlus && (ident === "odd" || ident === "even") && rest.length === 0) {
+    return result(2, ident === "odd" ? 1 : 0);
+  }
+  let a: number;
+  let suffix: string;
+  if (first?.kind === "dimension" && first.numberType === "integer") {
+    a = first.value;
+    suffix = lowerAscii(first.unit);
+  } else if (ident !== null) {
+    a = ident.startsWith("-") ? -1 : 1;
+    suffix = a === -1 ? ident.slice(1) : ident;
+  } else return null;
+  if (/^n-\d+$/u.test(suffix) && rest.length === 0) return result(a, Number(suffix.slice(1)));
+  const second = rest[0];
+  if (suffix === "n-" && rest.length === 1 && second?.kind === "number" &&
+      second.numberType === "integer" && second.sign === null) return result(a, -second.value);
+  if (suffix !== "n") return null;
+  if (rest.length === 0) return result(a, 0);
+  if (rest.length === 1 && second?.kind === "number" &&
+      second.numberType === "integer" && second.sign !== null) return result(a, second.value);
+  const third = rest[1];
+  if (rest.length === 2 && (isDelim(second, 0x2b) || isDelim(second, 0x2d)) &&
+      third?.kind === "number" && third.numberType === "integer" && third.sign === null) {
+    return result(a, isDelim(second, 0x2d) ? -third.value : third.value);
+  }
+  return null;
 }
 
 export function parseSelectorList(
